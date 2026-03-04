@@ -23,13 +23,13 @@
   animation: toast-slide-in 0.25s ease-out;
 
   &--success {
-    background: #dcfce7;
-    color: #166534;
+    background: rgba($success, 0.1);
+    color: $success-dark;
   }
 
   &--error {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba($danger, 0.08);
+    color: $danger;
   }
 
   &__message {

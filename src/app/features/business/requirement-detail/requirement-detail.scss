@@ -8,8 +8,8 @@
   }
 
   &__error {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba($danger, 0.08);
+    color: $danger;
     padding: 0.75rem 1rem;
     border-radius: $radius-sm;
     margin-bottom: 1rem;
@@ -24,7 +24,7 @@
     margin-bottom: 1rem;
 
     &:hover:not(:disabled) {
-      color: $gray-700;
+      color: $primary;
     }
   }
 
@@ -59,24 +59,24 @@
       color: $gray-600;
     }
     &--pending_approval {
-      background: #fef3c7;
-      color: #92400e;
+      background: rgba($accent, 0.12);
+      color: $accent-dark;
     }
     &--open {
-      background: #dcfce7;
-      color: #166534;
+      background: rgba($secondary, 0.15);
+      color: $secondary-dark;
     }
     &--partially_filled {
-      background: #dbeafe;
-      color: #1e40af;
+      background: rgba($secondary, 0.15);
+      color: $secondary-dark;
     }
     &--closed {
       background: $gray-200;
       color: $gray-700;
     }
     &--cancelled {
-      background: #fee2e2;
-      color: #991b1b;
+      background: rgba($danger, 0.1);
+      color: $danger;
     }
   }
 
@@ -130,14 +130,7 @@
   }
 
   &__cancel-btn {
-    @include btn-base;
-    background: none;
-    color: $danger;
-    border: 1px solid $danger;
-
-    &:hover:not(:disabled) {
-      background: #fef2f2;
-    }
+    @include btn-outline-danger;
   }
 
   // Applications section
@@ -193,12 +186,12 @@
   &__avg-rating {
     font-size: 0.75rem;
     font-weight: 500;
-    color: #f59e0b;
+    color: $warning;
   }
 
   &__handle {
     font-size: 0.8125rem;
-    color: $primary;
+    color: $secondary-dark;
     margin-top: 0.125rem;
   }
 
@@ -210,16 +203,16 @@
     white-space: nowrap;
 
     &--applied {
-      background: #dbeafe;
-      color: #1e40af;
+      background: rgba($secondary, 0.15);
+      color: $secondary-dark;
     }
     &--accepted {
-      background: #dcfce7;
-      color: #166534;
+      background: rgba($success, 0.12);
+      color: $success-dark;
     }
     &--rejected {
-      background: #fee2e2;
-      color: #991b1b;
+      background: rgba($danger, 0.1);
+      color: $danger;
     }
     &--withdrawn {
       background: $gray-100;
@@ -255,6 +248,7 @@
       text-decoration: none;
 
       &:hover {
+        color: $accent;
         text-decoration: underline;
       }
     }
@@ -275,27 +269,14 @@
   }
 
   &__accept-btn {
-    @include btn-base;
-    background: $success;
-    color: $white;
+    @include btn-accent;
     padding: 0.375rem 0.875rem;
     font-size: 0.8125rem;
-
-    &:hover:not(:disabled) {
-      background: #1eab54;
-    }
   }
 
   &__reject-btn {
-    @include btn-base;
-    background: none;
-    color: $danger;
-    border: 1px solid $danger;
+    @include btn-outline-danger;
     padding: 0.375rem 0.875rem;
     font-size: 0.8125rem;
-
-    &:hover:not(:disabled) {
-      background: #fef2f2;
-    }
   }
 }

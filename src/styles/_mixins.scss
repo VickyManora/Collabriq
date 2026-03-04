@@ -11,6 +11,7 @@
   border-radius: $radius;
   border: 1px solid $gray-200;
   padding: 1.5rem;
+  box-shadow: $shadow-sm;
 }
 
 @mixin btn-base {
@@ -19,17 +20,22 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  border-radius: $radius-sm;
+  border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
   font-family: $font-family;
   cursor: pointer;
   border: none;
-  transition: background-color 0.15s, box-shadow 0.15s;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $secondary;
+    outline-offset: 2px;
   }
 }
 
@@ -43,14 +49,45 @@
   }
 }
 
+@mixin btn-secondary {
+  @include btn-base;
+  background: $secondary;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: $secondary-dark;
+  }
+}
+
+@mixin btn-accent {
+  @include btn-base;
+  background: $accent;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: $accent-dark;
+  }
+}
+
 @mixin btn-outline {
   @include btn-base;
   background: $white;
-  color: $gray-700;
-  border: 1px solid $gray-300;
+  color: $primary;
+  border: 1px solid $primary;
 
   &:hover:not(:disabled) {
-    background: $gray-50;
+    background: rgba($primary, 0.04);
+  }
+}
+
+@mixin btn-outline-danger {
+  @include btn-base;
+  background: $white;
+  color: $danger;
+  border: 1px solid $danger;
+
+  &:hover:not(:disabled) {
+    background: rgba($danger, 0.04);
   }
 }
 
@@ -71,7 +108,7 @@
 
   &:focus {
     outline: none;
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    border-color: $secondary;
+    box-shadow: 0 0 0 3px rgba($secondary, 0.15);
   }
 }

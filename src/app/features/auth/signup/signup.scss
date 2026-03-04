@@ -16,6 +16,13 @@
   max-width: 400px;
   padding: 2rem;
 
+  &__logo {
+    display: block;
+    height: 64px;
+    width: auto;
+    margin: 0 auto 1.5rem;
+  }
+
   h1 {
     margin-bottom: 0.25rem;
   }
@@ -46,6 +53,7 @@
       font-weight: 500;
 
       &:hover {
+        color: $accent;
         text-decoration: underline;
       }
     }
@@ -91,7 +99,7 @@
 
     &--active {
       background: $white;
-      color: $gray-900;
+      color: $primary;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     }
   }

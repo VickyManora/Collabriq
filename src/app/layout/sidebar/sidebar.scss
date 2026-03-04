@@ -40,11 +40,11 @@
 
     &:hover {
       background: $gray-50;
-      color: $gray-900;
+      color: $accent;
     }
 
     &--active {
-      background: rgba($primary, 0.08);
+      background: rgba($primary, 0.06);
       color: $primary;
     }
   }

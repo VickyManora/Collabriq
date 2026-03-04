@@ -1,2 +1,11 @@
 @use 'styles/reset';
 @use 'styles/typography';
+
+:root {
+  --color-primary: #2B0D2F;
+  --color-secondary: #7FB1B6;
+  --color-accent: #FF6A3D;
+  --color-background: #ffffff;
+  --color-text: #1f1f1f;
+  --color-border: #e5e5e5;
+}

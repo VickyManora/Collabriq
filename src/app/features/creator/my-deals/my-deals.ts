@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DealStatus } from '../../../core/models/deal.model';
@@ -66,9 +67,14 @@ export class MyDeals implements OnInit {
   constructor(
     private creatorService: CreatorService,
     private toast: ToastService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
+    const tab = this.route.snapshot.queryParamMap.get('tab') as FilterTab | null;
+    if (tab && this.tabs.some((t) => t.value === tab)) {
+      this.activeFilter.set(tab);
+    }
     this.loadDeals();
   }
 

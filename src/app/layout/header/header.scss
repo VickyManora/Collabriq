@@ -26,7 +26,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
-    color: $gray-700;
+    color: $primary;
     border-radius: $radius-sm;
 
     &:hover {
@@ -39,9 +39,17 @@
   }
 
   &__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
     color: $primary;
+  }
+
+  &__logo-icon {
+    height: 32px;
+    width: auto;
   }
 
   &__right {
@@ -65,14 +73,14 @@
     align-items: center;
     justify-content: center;
     padding: 0.375rem;
-    color: $gray-600;
+    color: $primary;
     border-radius: $radius-sm;
     cursor: pointer;
     text-decoration: none;
 
     &:hover {
       background: $gray-100;
-      color: $gray-800;
+      color: $accent;
     }
   }
 
@@ -86,7 +94,7 @@
     justify-content: center;
     position: relative;
     padding: 0.375rem;
-    color: $gray-600;
+    color: $primary;
     border-radius: $radius-sm;
     cursor: pointer;
     background: none;
@@ -94,7 +102,7 @@
 
     &:hover {
       background: $gray-100;
-      color: $gray-800;
+      color: $accent;
     }
   }
 
@@ -106,7 +114,7 @@
     height: 18px;
     padding: 0 4px;
     border-radius: 9px;
-    background: $danger;
+    background: $accent;
     color: $white;
     font-size: 0.6875rem;
     font-weight: 600;
@@ -155,12 +163,12 @@
     background: none;
     border: none;
     font-size: 0.75rem;
-    color: $primary;
+    color: $secondary;
     cursor: pointer;
     font-weight: 500;
 
     &:hover {
-      color: $primary-dark;
+      color: $secondary-dark;
     }
   }
 
@@ -186,11 +194,11 @@
     }
 
     &--unread {
-      background: rgba($primary, 0.04);
-      border-left: 3px solid $primary;
+      background: rgba($secondary, 0.06);
+      border-left: 3px solid $secondary;
 
       &:hover {
-        background: rgba($primary, 0.08);
+        background: rgba($secondary, 0.1);
       }
     }
   }

@@ -16,7 +16,7 @@
   padding: 2.5rem 2rem;
 
   &__icon {
-    color: $warning;
+    color: $accent;
     margin-bottom: 1rem;
 
     svg {
@@ -49,7 +49,7 @@
 
   &__role {
     text-transform: capitalize;
-    background: rgba($primary, 0.1);
+    background: rgba($secondary, 0.15);
     color: $primary;
     padding: 0.125rem 0.5rem;
     border-radius: 999px;

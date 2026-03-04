@@ -30,7 +30,7 @@
     white-space: nowrap;
 
     &:hover:not(:disabled) {
-      color: $gray-700;
+      color: $accent;
     }
 
     &--active {
@@ -101,8 +101,8 @@
     border-radius: 999px;
     white-space: nowrap;
     flex-shrink: 0;
-    background: #dbeafe;
-    color: #1e40af;
+    background: rgba($secondary, 0.15);
+    color: $secondary-dark;
   }
 
   &__business {
