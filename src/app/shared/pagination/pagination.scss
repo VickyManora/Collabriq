@@ -1,0 +1,22 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1.25rem;
+
+  &__btn {
+    @include btn-outline;
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+  }
+
+  &__info {
+    font-size: 0.8125rem;
+    color: $gray-500;
+    white-space: nowrap;
+  }
+}

@@ -6,6 +6,11 @@
     margin-bottom: 1.5rem;
   }
 
+  &__search {
+    @include input-base;
+    margin-bottom: 1rem;
+  }
+
   &__tabs {
     display: flex;
     gap: 0.25rem;

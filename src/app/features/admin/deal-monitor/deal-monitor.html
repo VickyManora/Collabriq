@@ -1,6 +1,14 @@
 <div class="deal-monitor">
   <h1>Deal Monitor</h1>
 
+  <input
+    class="deal-monitor__search"
+    type="text"
+    placeholder="Search by creator or business name..."
+    [ngModel]="searchQuery()"
+    (ngModelChange)="onSearch($event)"
+  />
+
   <div class="deal-monitor__tabs">
     @for (tab of tabs; track tab.value) {
       <button
@@ -18,13 +26,13 @@
   } @else if (filtered().length === 0) {
     <div class="deal-monitor__empty">
       <p>No deals found.</p>
-      @if (activeFilter() !== 'all') {
+      @if (activeFilter() !== 'all' || searchQuery()) {
         <p>No deals match the current filter.</p>
       }
     </div>
   } @else {
     <div class="deal-monitor__grid">
-      @for (deal of filtered(); track deal.id) {
+      @for (deal of paged(); track deal.id) {
         <div class="monitor-card">
           <div class="monitor-card__top">
             <h3 class="monitor-card__title">{{ deal.requirement.title }}</h3>
@@ -58,7 +66,7 @@
           @if (canCancel(deal)) {
             <button
               class="monitor-card__cancel-btn"
-              (click)="cancelDeal(deal.id)"
+              (click)="promptCancelDeal(deal.id)"
               [disabled]="actionLoading() === deal.id"
             >
               Cancel Deal
@@ -67,5 +75,19 @@
         </div>
       }
     </div>
+
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalItems]="filtered().length"
+      [pageSize]="pageSize"
+      (pageChange)="currentPage.set($event)"
+    />
   }
 </div>
+
+<app-confirm-dialog
+  message="Are you sure you want to cancel this deal?"
+  [visible]="confirmAction() !== null"
+  (confirmed)="onConfirmCancel()"
+  (cancelled)="onCancelConfirm()"
+/>

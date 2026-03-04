@@ -148,6 +148,11 @@
     }
   }
 
+  &__apps-search {
+    @include input-base;
+    margin-bottom: 1rem;
+  }
+
   &__apps-empty {
     @include card;
     color: $gray-500;

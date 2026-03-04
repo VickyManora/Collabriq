@@ -64,7 +64,7 @@
           </button>
         }
         @if (canCancel) {
-          <button class="req-detail__cancel-btn" (click)="cancelRequirement()" [disabled]="actionLoading()">
+          <button class="req-detail__cancel-btn" (click)="promptCancel()" [disabled]="actionLoading()">
             Cancel Requirement
           </button>
         }
@@ -79,8 +79,20 @@
         @if (applications().length === 0) {
           <p class="req-detail__apps-empty">No applications yet.</p>
         } @else {
+          <input
+            class="req-detail__apps-search"
+            type="text"
+            placeholder="Search by name or email..."
+            [ngModel]="appSearchQuery()"
+            (ngModelChange)="onAppSearch($event)"
+          />
+
+          @if (filteredApps().length === 0) {
+            <p class="req-detail__apps-empty">No applicants match your search.</p>
+          }
+
           <div class="req-detail__apps-list">
-            @for (app of applications(); track app.id) {
+            @for (app of pagedApps(); track app.id) {
               <div class="app-card">
                 <div class="app-card__header">
                   <div>
@@ -131,8 +143,22 @@
               </div>
             }
           </div>
+
+          <app-pagination
+            [currentPage]="appCurrentPage()"
+            [totalItems]="filteredApps().length"
+            [pageSize]="appPageSize"
+            (pageChange)="appCurrentPage.set($event)"
+          />
         }
       </div>
     }
   }
 </div>
+
+<app-confirm-dialog
+  message="Are you sure you want to cancel this requirement?"
+  [visible]="confirmAction() !== null"
+  (confirmed)="onConfirmCancel()"
+  (cancelled)="onCancelConfirm()"
+/>

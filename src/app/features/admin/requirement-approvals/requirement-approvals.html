@@ -1,6 +1,14 @@
 <div class="req-approvals">
   <h1>Requirement Approvals</h1>
 
+  <input
+    class="req-approvals__search"
+    type="text"
+    placeholder="Search by title or category..."
+    [ngModel]="searchQuery()"
+    (ngModelChange)="onSearch($event)"
+  />
+
   <div class="req-approvals__tabs">
     @for (tab of tabs; track tab.value) {
       <button
@@ -18,13 +26,13 @@
   } @else if (filtered().length === 0) {
     <div class="req-approvals__empty">
       <p>No requirements found.</p>
-      @if (activeFilter() === 'pending') {
+      @if (activeFilter() === 'pending' && !searchQuery()) {
         <p>There are no requirements awaiting approval right now.</p>
       }
     </div>
   } @else {
     <div class="req-approvals__grid">
-      @for (req of filtered(); track req.id) {
+      @for (req of paged(); track req.id) {
         <div class="req-card">
           <div class="req-card__top">
             <h3 class="req-card__title">{{ req.title }}</h3>
@@ -59,7 +67,7 @@
               </button>
               <button
                 class="req-card__reject-btn"
-                (click)="reject(req.id)"
+                (click)="promptReject(req.id)"
                 [disabled]="actionLoading() === req.id"
               >
                 Reject
@@ -69,5 +77,19 @@
         </div>
       }
     </div>
+
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalItems]="filtered().length"
+      [pageSize]="pageSize"
+      (pageChange)="currentPage.set($event)"
+    />
   }
 </div>
+
+<app-confirm-dialog
+  message="Are you sure you want to reject this requirement?"
+  [visible]="confirmAction() !== null"
+  (confirmed)="onConfirmReject()"
+  (cancelled)="onCancelReject()"
+/>

@@ -1,6 +1,14 @@
 <div class="my-apps">
   <h1>My Applications</h1>
 
+  <input
+    class="my-apps__search"
+    type="text"
+    placeholder="Search by title or category..."
+    [ngModel]="searchQuery()"
+    (ngModelChange)="onSearch($event)"
+  />
+
   <div class="my-apps__tabs">
     @for (tab of tabs; track tab.value) {
       <button
@@ -18,13 +26,13 @@
   } @else if (filtered().length === 0) {
     <div class="my-apps__empty">
       <p>No applications found.</p>
-      @if (activeFilter() === 'all') {
+      @if (activeFilter() === 'all' && !searchQuery()) {
         <p>Browse open requirements and apply to get started.</p>
       }
     </div>
   } @else {
     <div class="my-apps__grid">
-      @for (app of filtered(); track app.id) {
+      @for (app of paged(); track app.id) {
         <div class="app-card" (click)="viewRequirement(app.requirement_id)">
           <div class="app-card__top">
             <h3 class="app-card__title">{{ app.requirement.title }}</h3>
@@ -51,5 +59,12 @@
         </div>
       }
     </div>
+
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalItems]="filtered().length"
+      [pageSize]="pageSize"
+      (pageChange)="currentPage.set($event)"
+    />
   }
 </div>

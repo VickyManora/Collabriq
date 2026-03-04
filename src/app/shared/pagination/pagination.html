@@ -1,0 +1,7 @@
+@if (totalPages() > 1) {
+  <div class="pagination">
+    <button class="pagination__btn" [disabled]="!hasPrev()" (click)="prev()">&lsaquo; Prev</button>
+    <span class="pagination__info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+    <button class="pagination__btn" [disabled]="!hasNext()" (click)="next()">Next &rsaquo;</button>
+  </div>
+}
