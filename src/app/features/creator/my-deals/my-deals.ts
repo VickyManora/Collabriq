@@ -2,8 +2,10 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { DealStatus } from '../../../core/models/deal.model';
 import { Rating } from '../../../core/models/rating.model';
+import { Pagination } from '../../../shared/pagination/pagination';
 
 type FilterTab = 'all' | DealStatus;
 
@@ -11,16 +13,20 @@ type FilterTab = 'all' | DealStatus;
   selector: 'app-my-deals',
   templateUrl: './my-deals.html',
   styleUrl: './my-deals.scss',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, Pagination],
 })
 export class MyDeals implements OnInit {
   deals = signal<DealWithDetails[]>([]);
   ratings = signal<Map<string, Rating>>(new Map());
   activeFilter = signal<FilterTab>('all');
+  searchQuery = signal('');
+  currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal(false);
   ratingDealId = signal<string | null>(null);
   ratingStars = 0;
+
+  readonly pageSize = 10;
 
   readonly tabs: { label: string; value: FilterTab }[] = [
     { label: 'All', value: 'all' },
@@ -33,15 +39,34 @@ export class MyDeals implements OnInit {
 
   filtered = computed(() => {
     const filter = this.activeFilter();
-    const d = this.deals();
-    if (filter === 'all') return d;
-    if (filter === 'active') {
-      return d.filter((deal) => deal.status === 'active' || deal.status === 'creator_marked_done');
+    const query = this.searchQuery().toLowerCase().trim();
+    let d = this.deals();
+    if (filter !== 'all') {
+      if (filter === 'active') {
+        d = d.filter((deal) => deal.status === 'active' || deal.status === 'creator_marked_done');
+      } else {
+        d = d.filter((deal) => deal.status === filter);
+      }
     }
-    return d.filter((deal) => deal.status === filter);
+    if (query) {
+      d = d.filter(
+        (deal) =>
+          (deal.business?.business_name?.toLowerCase().includes(query) ?? false) ||
+          (deal.business?.full_name?.toLowerCase().includes(query) ?? false),
+      );
+    }
+    return d;
   });
 
-  constructor(private creatorService: CreatorService) {}
+  paged = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+
+  constructor(
+    private creatorService: CreatorService,
+    private toast: ToastService,
+  ) {}
 
   ngOnInit() {
     this.loadDeals();
@@ -53,6 +78,8 @@ export class MyDeals implements OnInit {
     if (data && !error) {
       this.deals.set(data);
       await this.loadRatings(data);
+    } else if (error) {
+      this.toast.error('Failed to load deals.');
     }
     this.loading.set(false);
   }
@@ -70,8 +97,14 @@ export class MyDeals implements OnInit {
     this.ratings.set(ratingsMap);
   }
 
+  onSearch(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(1);
+  }
+
   setFilter(tab: FilterTab) {
     this.activeFilter.set(tab);
+    this.currentPage.set(1);
   }
 
   businessDisplayName(deal: DealWithDetails): string {
@@ -97,7 +130,10 @@ export class MyDeals implements OnInit {
   async markDone(dealId: string) {
     this.actionLoading.set(true);
     const { error } = await this.creatorService.markDealDone(dealId);
-    if (!error) {
+    if (error) {
+      this.toast.error('Failed to mark deal as done.');
+    } else {
+      this.toast.success('Deal marked as done.');
       await this.loadDeals();
     }
     this.actionLoading.set(false);
@@ -121,7 +157,10 @@ export class MyDeals implements OnInit {
       deal.business_id,
       this.ratingStars,
     );
-    if (!error && data) {
+    if (error) {
+      this.toast.error('Failed to submit rating.');
+    } else if (data) {
+      this.toast.success('Rating submitted!');
       const updated = new Map(this.ratings());
       updated.set(deal.id, data);
       this.ratings.set(updated);

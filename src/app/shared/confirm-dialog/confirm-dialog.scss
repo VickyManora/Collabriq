@@ -1,0 +1,52 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.confirm-dialog {
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  &__card {
+    background: $white;
+    border-radius: $radius;
+    box-shadow: $shadow-md;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  &__message {
+    font-size: 1rem;
+    color: $gray-800;
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  &__cancel-btn {
+    @include btn-outline;
+  }
+
+  &__confirm-btn {
+    @include btn-base;
+    background: $danger;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($danger, $lightness: -8%);
+    }
+  }
+}

@@ -5,10 +5,6 @@
     <p class="profile-edit__error">{{ error() }}</p>
   }
 
-  @if (success()) {
-    <p class="profile-edit__success">{{ success() }}</p>
-  }
-
   <form (ngSubmit)="saveProfile()" class="profile-edit__body">
     <div class="profile-edit__readonly">
       <div class="profile-edit__info">

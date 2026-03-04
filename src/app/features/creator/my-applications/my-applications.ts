@@ -1,8 +1,11 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CreatorService, ApplicationWithRequirement } from '../../../core/services/creator.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { ApplicationStatus } from '../../../core/models/application.model';
+import { Pagination } from '../../../shared/pagination/pagination';
 
 type FilterTab = 'all' | ApplicationStatus;
 
@@ -10,13 +13,17 @@ type FilterTab = 'all' | ApplicationStatus;
   selector: 'app-my-applications',
   templateUrl: './my-applications.html',
   styleUrl: './my-applications.scss',
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule, Pagination],
 })
 export class MyApplications implements OnInit {
   applications = signal<ApplicationWithRequirement[]>([]);
   activeFilter = signal<FilterTab>('all');
+  searchQuery = signal('');
+  currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal(false);
+
+  readonly pageSize = 10;
 
   readonly tabs: { label: string; value: FilterTab }[] = [
     { label: 'All', value: 'all' },
@@ -28,14 +35,30 @@ export class MyApplications implements OnInit {
 
   filtered = computed(() => {
     const filter = this.activeFilter();
-    const apps = this.applications();
-    if (filter === 'all') return apps;
-    return apps.filter((a) => a.status === filter);
+    const query = this.searchQuery().toLowerCase().trim();
+    let apps = this.applications();
+    if (filter !== 'all') {
+      apps = apps.filter((a) => a.status === filter);
+    }
+    if (query) {
+      apps = apps.filter(
+        (a) =>
+          a.requirement.title.toLowerCase().includes(query) ||
+          (a.requirement.category?.toLowerCase().includes(query) ?? false),
+      );
+    }
+    return apps;
+  });
+
+  paged = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
   });
 
   constructor(
     private creatorService: CreatorService,
     private router: Router,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
@@ -47,12 +70,20 @@ export class MyApplications implements OnInit {
     const { data, error } = await this.creatorService.getMyApplications();
     if (data && !error) {
       this.applications.set(data);
+    } else if (error) {
+      this.toast.error('Failed to load applications.');
     }
     this.loading.set(false);
   }
 
+  onSearch(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(1);
+  }
+
   setFilter(tab: FilterTab) {
     this.activeFilter.set(tab);
+    this.currentPage.set(1);
   }
 
   viewRequirement(requirementId: string) {
@@ -62,7 +93,10 @@ export class MyApplications implements OnInit {
   async withdraw(appId: string) {
     this.actionLoading.set(true);
     const { error } = await this.creatorService.withdrawApplication(appId);
-    if (!error) {
+    if (error) {
+      this.toast.error('Failed to withdraw application.');
+    } else {
+      this.toast.success('Application withdrawn.');
       await this.loadApplications();
     }
     this.actionLoading.set(false);

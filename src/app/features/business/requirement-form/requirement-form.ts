@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RequirementService } from '../../../core/services/requirement.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Requirement } from '../../../core/models/requirement.model';
 
 @Component({
@@ -36,6 +37,7 @@ export class RequirementForm implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private reqService: RequirementService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
@@ -93,7 +95,9 @@ export class RequirementForm implements OnInit {
 
     if (result.error) {
       this.error.set(result.error.message);
+      this.toast.error('Failed to save draft.');
     } else {
+      this.toast.success('Draft saved.');
       this.router.navigate(['/business/requirements']);
     }
     this.saving.set(false);
@@ -140,7 +144,9 @@ export class RequirementForm implements OnInit {
     const { error } = await this.reqService.submitForApproval(id!);
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to submit.');
     } else {
+      this.toast.success('Submitted for approval.');
       this.router.navigate(['/business/requirements']);
     }
     this.saving.set(false);

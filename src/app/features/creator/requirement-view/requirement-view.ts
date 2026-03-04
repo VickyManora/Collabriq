@@ -3,14 +3,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { Application } from '../../../core/models/application.model';
 
 @Component({
   selector: 'app-requirement-view',
   templateUrl: './requirement-view.html',
   styleUrl: './requirement-view.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe],
+  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog],
 })
 export class RequirementView implements OnInit {
   requirement = signal<RequirementWithBusiness | null>(null);
@@ -19,7 +21,7 @@ export class RequirementView implements OnInit {
   applying = signal(false);
   withdrawing = signal(false);
   error = signal('');
-  success = signal('');
+  confirmAction = signal<string | null>(null);
 
   pitch = '';
 
@@ -27,6 +29,7 @@ export class RequirementView implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private creatorService: CreatorService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
@@ -73,7 +76,6 @@ export class RequirementView implements OnInit {
     if (!this.canApply) return;
     this.applying.set(true);
     this.error.set('');
-    this.success.set('');
 
     const { data, error } = await this.creatorService.applyToRequirement(
       this.requirement()!.id,
@@ -82,19 +84,24 @@ export class RequirementView implements OnInit {
 
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to submit application.');
     } else if (data) {
       this.existingApplication.set(data);
-      this.success.set('Application submitted successfully!');
+      this.toast.success('Application submitted!');
       this.pitch = '';
     }
     this.applying.set(false);
   }
 
-  async withdraw() {
+  promptWithdraw() {
+    this.confirmAction.set('withdraw');
+  }
+
+  async onConfirmWithdraw() {
+    this.confirmAction.set(null);
     if (!this.canWithdraw) return;
     this.withdrawing.set(true);
     this.error.set('');
-    this.success.set('');
 
     const { data, error } = await this.creatorService.withdrawApplication(
       this.existingApplication()!.id,
@@ -102,11 +109,16 @@ export class RequirementView implements OnInit {
 
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to withdraw application.');
     } else if (data) {
       this.existingApplication.set(data);
-      this.success.set('Application withdrawn.');
+      this.toast.success('Application withdrawn.');
     }
     this.withdrawing.set(false);
+  }
+
+  onCancelWithdraw() {
+    this.confirmAction.set(null);
   }
 
   goBack() {

@@ -18,15 +18,6 @@
     font-size: 0.875rem;
   }
 
-  &__success {
-    background: #dcfce7;
-    color: #166534;
-    padding: 0.75rem 1rem;
-    border-radius: $radius-sm;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-  }
-
   &__back-btn {
     @include btn-outline;
     margin-bottom: 1.5rem;

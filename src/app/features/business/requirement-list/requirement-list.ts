@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { RequirementService } from '../../../core/services/requirement.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { Requirement, RequirementStatus } from '../../../core/models/requirement.model';
 
@@ -36,6 +37,7 @@ export class RequirementList implements OnInit {
   constructor(
     private reqService: RequirementService,
     private router: Router,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
@@ -47,6 +49,8 @@ export class RequirementList implements OnInit {
     const { data, error } = await this.reqService.getMyRequirements();
     if (data && !error) {
       this.requirements.set(data);
+    } else if (error) {
+      this.toast.error('Failed to load requirements.');
     }
     this.loading.set(false);
   }

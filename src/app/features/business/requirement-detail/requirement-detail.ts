@@ -1,8 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RequirementService } from '../../../core/services/requirement.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { Pagination } from '../../../shared/pagination/pagination';
 import { Requirement, RequirementStatus } from '../../../core/models/requirement.model';
 import { Application } from '../../../core/models/application.model';
 
@@ -21,7 +25,7 @@ type ApplicationWithCreator = Application & {
   selector: 'app-requirement-detail',
   templateUrl: './requirement-detail.html',
   styleUrl: './requirement-detail.scss',
-  imports: [DatePipe, DecimalPipe, ClosesInPipe],
+  imports: [DatePipe, DecimalPipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination],
 })
 export class RequirementDetail implements OnInit {
   requirement = signal<Requirement | null>(null);
@@ -30,11 +34,33 @@ export class RequirementDetail implements OnInit {
   loading = signal(true);
   actionLoading = signal(false);
   error = signal('');
+  confirmAction = signal<string | null>(null);
+  appSearchQuery = signal('');
+  appCurrentPage = signal(1);
+
+  readonly appPageSize = 10;
+
+  filteredApps = computed(() => {
+    const query = this.appSearchQuery().toLowerCase().trim();
+    const apps = this.applications();
+    if (!query) return apps;
+    return apps.filter(
+      (a) =>
+        a.creator.full_name.toLowerCase().includes(query) ||
+        a.creator.email.toLowerCase().includes(query),
+    );
+  });
+
+  pagedApps = computed(() => {
+    const start = (this.appCurrentPage() - 1) * this.appPageSize;
+    return this.filteredApps().slice(start, start + this.appPageSize);
+  });
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private reqService: RequirementService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit() {
@@ -108,22 +134,35 @@ export class RequirementDetail implements OnInit {
     const { error } = await this.reqService.submitForApproval(this.requirement()!.id);
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to submit.');
     } else {
+      this.toast.success('Submitted for approval.');
       await this.loadData(this.requirement()!.id);
     }
     this.actionLoading.set(false);
   }
 
-  async cancelRequirement() {
+  promptCancel() {
+    this.confirmAction.set('cancel');
+  }
+
+  async onConfirmCancel() {
+    this.confirmAction.set(null);
     this.actionLoading.set(true);
     this.error.set('');
     const { error } = await this.reqService.cancelRequirement(this.requirement()!.id);
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to cancel requirement.');
     } else {
+      this.toast.success('Requirement cancelled.');
       await this.loadData(this.requirement()!.id);
     }
     this.actionLoading.set(false);
+  }
+
+  onCancelConfirm() {
+    this.confirmAction.set(null);
   }
 
   async acceptApplication(appId: string) {
@@ -132,7 +171,9 @@ export class RequirementDetail implements OnInit {
     const { error } = await this.reqService.acceptApplication(appId);
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to accept application.');
     } else {
+      this.toast.success('Application accepted.');
       await this.loadData(this.requirement()!.id);
     }
     this.actionLoading.set(false);
@@ -144,10 +185,17 @@ export class RequirementDetail implements OnInit {
     const { error } = await this.reqService.rejectApplication(appId);
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to reject application.');
     } else {
+      this.toast.success('Application rejected.');
       await this.loadData(this.requirement()!.id);
     }
     this.actionLoading.set(false);
+  }
+
+  onAppSearch(query: string) {
+    this.appSearchQuery.set(query);
+    this.appCurrentPage.set(1);
   }
 
   goBack() {

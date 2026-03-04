@@ -1,0 +1,66 @@
+@use '../../../styles/variables' as *;
+
+.toast-container {
+  position: fixed;
+  top: $header-height + 12px;
+  right: 1rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: calc(100% - 2rem);
+  max-width: 360px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  box-shadow: $shadow-md;
+  animation: toast-slide-in 0.25s ease-out;
+
+  &--success {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &--error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  &__message {
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  &__dismiss {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.125rem;
+    line-height: 1;
+    padding: 0;
+    color: inherit;
+    opacity: 0.6;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

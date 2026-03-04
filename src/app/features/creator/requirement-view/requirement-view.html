@@ -10,9 +10,6 @@
     @if (error()) {
       <p class="req-view__error">{{ error() }}</p>
     }
-    @if (success()) {
-      <p class="req-view__success">{{ success() }}</p>
-    }
 
     <div class="req-view__card">
       <div class="req-view__top">
@@ -93,7 +90,7 @@
           @if (canWithdraw) {
             <button
               class="req-view__withdraw-btn"
-              (click)="withdraw()"
+              (click)="promptWithdraw()"
               [disabled]="withdrawing()"
             >
               {{ withdrawing() ? 'Withdrawing...' : 'Withdraw Application' }}
@@ -104,3 +101,10 @@
     </div>
   }
 </div>
+
+<app-confirm-dialog
+  message="Are you sure you want to withdraw your application?"
+  [visible]="confirmAction() !== null"
+  (confirmed)="onConfirmWithdraw()"
+  (cancelled)="onCancelWithdraw()"
+/>

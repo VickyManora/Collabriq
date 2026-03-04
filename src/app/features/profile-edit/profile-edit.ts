@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -13,7 +14,6 @@ import { SupabaseService } from '../../core/services/supabase.service';
 export class ProfileEdit implements OnInit {
   saving = signal(false);
   error = signal('');
-  success = signal('');
 
   full_name = '';
   phone = '';
@@ -30,6 +30,7 @@ export class ProfileEdit implements OnInit {
     public auth: AuthService,
     private supabaseService: SupabaseService,
     private router: Router,
+    private toast: ToastService,
   ) {
     this.supabase = this.supabaseService.client;
   }
@@ -58,7 +59,6 @@ export class ProfileEdit implements OnInit {
     if (!this.isValid) return;
     this.saving.set(true);
     this.error.set('');
-    this.success.set('');
 
     const profile = this.auth.profile();
     if (!profile) return;
@@ -84,9 +84,10 @@ export class ProfileEdit implements OnInit {
 
     if (error) {
       this.error.set(error.message);
+      this.toast.error('Failed to update profile.');
     } else {
       await this.auth.refreshProfile();
-      this.success.set('Profile updated successfully.');
+      this.toast.success('Profile updated.');
     }
     this.saving.set(false);
   }
