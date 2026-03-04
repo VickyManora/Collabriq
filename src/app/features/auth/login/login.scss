@@ -42,6 +42,18 @@
     margin-bottom: 1rem;
   }
 
+  &__forgot {
+    display: block;
+    text-align: right;
+    font-size: 0.8125rem;
+    color: $gray-500;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+  }
+
   &__footer {
     text-align: center;
     font-size: 0.875rem;

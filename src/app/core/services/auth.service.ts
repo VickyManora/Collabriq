@@ -93,6 +93,16 @@ export class AuthService {
     return { error: null };
   }
 
+  async resetPasswordForEmail(email: string) {
+    return this.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+  }
+
+  async updatePassword(newPassword: string) {
+    return this.supabase.auth.updateUser({ password: newPassword });
+  }
+
   async refreshProfile() {
     const session = this.sessionSignal();
     if (session) {

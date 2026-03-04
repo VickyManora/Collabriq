@@ -1,0 +1,33 @@
+<svg width="320" height="90" viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Icon -->
+  <g transform="translate(10,10)">
+
+    <!-- C shape -->
+    <path d="M40 5
+             A35 35 0 1 0 40 75
+             L40 55
+             A15 15 0 1 1 40 25 Z"
+          fill="#2B0D2F"/>
+
+    <!-- Q shape -->
+    <circle cx="70" cy="40" r="25" fill="#7FB1B6"/>
+
+    <!-- Q tail -->
+    <rect x="80" y="55" width="12" height="6" rx="2" fill="#7FB1B6"/>
+
+    <!-- collaboration dot -->
+    <circle cx="95" cy="60" r="6" fill="#FF6A3D"/>
+
+  </g>
+
+  <!-- Text -->
+  <text x="130" y="80"
+        font-family="Inter, Poppins, Arial"
+        font-size="36"
+        fill="#2B0D2F"
+        font-weight="600">
+    Collabriq
+  </text>
+
+</svg>

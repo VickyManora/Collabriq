@@ -1,6 +1,6 @@
 <div class="auth-page">
   <div class="auth-card">
-    <img src="logo_with_name.png" alt="Collabriq" class="auth-card__logo" />
+    <img src="assets/logo/collabriq_logo.svg" alt="Collabriq" class="auth-card__logo" />
     <h1>Welcome back</h1>
     <p class="auth-card__subtitle">Sign in to Collabriq</p>
 
@@ -36,6 +36,8 @@
       <button type="submit" class="btn-primary" [disabled]="loading()">
         {{ loading() ? 'Signing in...' : 'Sign In' }}
       </button>
+
+      <a class="auth-card__forgot" routerLink="/auth/forgot-password">Forgot password?</a>
     </form>
 
     <p class="auth-card__footer">
