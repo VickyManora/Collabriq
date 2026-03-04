@@ -48,7 +48,6 @@ export class AdminService {
     return this.supabase
       .from('profiles')
       .select('*')
-      .eq('is_deleted', false)
       .order('created_at', { ascending: false })
       .returns<Profile[]>();
   }

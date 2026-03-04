@@ -130,4 +130,23 @@
       </button>
     </div>
   </form>
+
+  <div class="profile-edit__danger-zone">
+    <h2>Danger Zone</h2>
+    <p>Deactivating your account will hide your profile and log you out. This action can only be reversed by an admin.</p>
+    <button
+      class="profile-edit__deactivate-btn"
+      (click)="promptDeactivate()"
+      [disabled]="deactivating()"
+    >
+      {{ deactivating() ? 'Deactivating...' : 'Deactivate My Account' }}
+    </button>
+  </div>
 </div>
+
+<app-confirm-dialog
+  message="Are you sure you want to deactivate your account? Your profile will be hidden and you will be signed out. Only an admin can reactivate your account."
+  [visible]="showDeactivateConfirm()"
+  (confirmed)="onConfirmDeactivate()"
+  (cancelled)="onCancelDeactivate()"
+/>

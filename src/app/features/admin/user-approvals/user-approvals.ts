@@ -8,7 +8,7 @@ import { Profile, ApprovalStatus } from '../../../core/models/user.model';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { Pagination } from '../../../shared/pagination/pagination';
 
-type FilterTab = 'pending' | 'all';
+type FilterTab = 'pending' | 'all' | 'deactivated';
 
 @Component({
   selector: 'app-user-approvals',
@@ -30,6 +30,7 @@ export class UserApprovals implements OnInit {
   readonly tabs: { label: string; value: FilterTab }[] = [
     { label: 'Pending', value: 'pending' },
     { label: 'All Users', value: 'all' },
+    { label: 'Deactivated', value: 'deactivated' },
   ];
 
   filtered = computed(() => {
@@ -37,7 +38,11 @@ export class UserApprovals implements OnInit {
     const query = this.searchQuery().toLowerCase().trim();
     let u = this.users();
     if (filter === 'pending') {
-      u = u.filter((user) => user.approval_status === 'pending');
+      u = u.filter((user) => !user.is_deleted && user.approval_status === 'pending');
+    } else if (filter === 'deactivated') {
+      u = u.filter((user) => user.is_deleted);
+    } else {
+      u = u.filter((user) => !user.is_deleted);
     }
     if (query) {
       u = u.filter(

@@ -92,4 +92,34 @@
   &__save-btn {
     @include btn-primary;
   }
+
+  &__danger-zone {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid $gray-200;
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $danger;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.8125rem;
+      color: $gray-500;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+  }
+
+  &__deactivate-btn {
+    @include btn-base;
+    background: $gray-800;
+    color: $white;
+
+    &:hover:not(:disabled) {
+      background: $gray-900;
+    }
+  }
 }

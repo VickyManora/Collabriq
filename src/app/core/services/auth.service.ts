@@ -78,6 +78,21 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
+  async deactivateMyAccount(): Promise<{ error: Error | null }> {
+    const profile = this.profileSignal();
+    if (!profile) return { error: new Error('No profile loaded') };
+
+    const { error } = await this.supabase
+      .from('profiles')
+      .update({ is_deleted: true, deleted_at: new Date().toISOString() })
+      .eq('id', profile.id);
+
+    if (error) return { error };
+
+    await this.signOut();
+    return { error: null };
+  }
+
   async refreshProfile() {
     const session = this.sessionSignal();
     if (session) {

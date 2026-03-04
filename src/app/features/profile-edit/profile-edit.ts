@@ -4,16 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-profile-edit',
   templateUrl: './profile-edit.html',
   styleUrl: './profile-edit.scss',
-  imports: [FormsModule],
+  imports: [FormsModule, ConfirmDialog],
 })
 export class ProfileEdit implements OnInit {
   saving = signal(false);
   error = signal('');
+  showDeactivateConfirm = signal(false);
+  deactivating = signal(false);
 
   full_name = '';
   phone = '';
@@ -94,5 +97,24 @@ export class ProfileEdit implements OnInit {
 
   cancel() {
     this.router.navigate(['/dashboard']);
+  }
+
+  promptDeactivate() {
+    this.showDeactivateConfirm.set(true);
+  }
+
+  async onConfirmDeactivate() {
+    this.showDeactivateConfirm.set(false);
+    this.deactivating.set(true);
+    const { error } = await this.auth.deactivateMyAccount();
+    if (error) {
+      this.error.set(error.message);
+      this.toast.error('Failed to deactivate account.');
+    }
+    this.deactivating.set(false);
+  }
+
+  onCancelDeactivate() {
+    this.showDeactivateConfirm.set(false);
   }
 }

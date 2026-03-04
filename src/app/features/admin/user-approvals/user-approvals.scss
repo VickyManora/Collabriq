@@ -108,6 +108,10 @@
       background: #fee2e2;
       color: #991b1b;
     }
+    &--deactivated {
+      background: $gray-800;
+      color: $white;
+    }
   }
 
   &__email {

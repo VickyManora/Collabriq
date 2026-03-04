@@ -286,6 +286,10 @@ CREATE POLICY "Anyone can read non-deleted profiles"
   ON public.profiles FOR SELECT
   USING (is_deleted = FALSE);
 
+CREATE POLICY "Admins can read all profiles"
+  ON public.profiles FOR SELECT
+  USING (public.get_my_role() = 'admin');
+
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id)
