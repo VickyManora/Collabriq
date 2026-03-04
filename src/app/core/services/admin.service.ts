@@ -16,6 +16,16 @@ export type DealWithDetails = Deal & {
   creator: { full_name: string };
 };
 
+export type UserDeal = Deal & {
+  requirement: { title: string };
+  business: { business_name: string | null; full_name: string };
+  creator: { full_name: string };
+};
+
+export type UserRequirement = Requirement & {
+  business: { business_name: string | null; full_name: string };
+};
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private supabase;
@@ -111,6 +121,41 @@ export class AdminService {
       .eq('id', id)
       .select()
       .single<Deal>();
+  }
+
+  async getUserById(id: string) {
+    return this.supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', id)
+      .single<Profile>();
+  }
+
+  async getUserDeals(userId: string) {
+    return this.supabase
+      .from('deals')
+      .select('*, requirement:requirements!requirement_id(title), business:profiles!business_id(business_name, full_name), creator:profiles!creator_id(full_name)')
+      .or(`business_id.eq.${userId},creator_id.eq.${userId}`)
+      .order('created_at', { ascending: false })
+      .returns<UserDeal[]>();
+  }
+
+  async getUserRequirements(userId: string) {
+    return this.supabase
+      .from('requirements')
+      .select('*, business:profiles!business_id(business_name, full_name)')
+      .eq('business_id', userId)
+      .order('created_at', { ascending: false })
+      .returns<UserRequirement[]>();
+  }
+
+  async deactivateUser(id: string) {
+    return this.supabase
+      .from('profiles')
+      .update({ is_deleted: true, deleted_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single<Profile>();
   }
 
   async getDashboardCounts() {

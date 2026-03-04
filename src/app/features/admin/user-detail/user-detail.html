@@ -1,0 +1,175 @@
+<div class="user-detail">
+  @if (loading()) {
+    <p class="user-detail__loading">Loading...</p>
+  } @else if (error() && !user()) {
+    <p class="user-detail__error">{{ error() }}</p>
+    <button class="user-detail__back-btn" (click)="goBack()">Back to Users</button>
+  } @else if (user(); as u) {
+    <button class="user-detail__back-btn" (click)="goBack()">&larr; Back</button>
+
+    <!-- Profile Card -->
+    <div class="user-detail__card">
+      <div class="user-detail__top">
+        <h1>{{ u.full_name }}</h1>
+        <div class="user-detail__badges">
+          <span class="user-detail__role user-detail__role--{{ u.role }}">{{ u.role }}</span>
+          <span class="user-detail__status user-detail__status--{{ u.approval_status }}">
+            {{ statusLabel(u.approval_status) }}
+          </span>
+          @if (u.is_deleted) {
+            <span class="user-detail__status user-detail__status--deactivated">Deactivated</span>
+          }
+        </div>
+      </div>
+
+      <div class="user-detail__info">
+        <div class="user-detail__info-item">
+          <span class="user-detail__info-label">Email</span>
+          <span>{{ u.email }}</span>
+        </div>
+        <div class="user-detail__info-item">
+          <span class="user-detail__info-label">City</span>
+          <span>{{ u.city || '—' }}</span>
+        </div>
+        @if (u.phone) {
+          <div class="user-detail__info-item">
+            <span class="user-detail__info-label">Phone</span>
+            <span>{{ u.phone }}</span>
+          </div>
+        }
+        @if (u.instagram_handle) {
+          <div class="user-detail__info-item">
+            <span class="user-detail__info-label">Instagram</span>
+            <span>@{{ u.instagram_handle }}</span>
+          </div>
+        }
+        @if (u.business_name) {
+          <div class="user-detail__info-item">
+            <span class="user-detail__info-label">Business Name</span>
+            <span>{{ u.business_name }}</span>
+          </div>
+        }
+        @if (u.business_category) {
+          <div class="user-detail__info-item">
+            <span class="user-detail__info-label">Business Category</span>
+            <span>{{ u.business_category }}</span>
+          </div>
+        }
+        @if (u.portfolio_url) {
+          <div class="user-detail__info-item">
+            <span class="user-detail__info-label">Portfolio</span>
+            <a [href]="u.portfolio_url" target="_blank" rel="noopener">{{ u.portfolio_url }}</a>
+          </div>
+        }
+        @if (u.bio) {
+          <div class="user-detail__info-item user-detail__info-item--full">
+            <span class="user-detail__info-label">Bio</span>
+            <span>{{ u.bio }}</span>
+          </div>
+        }
+        <div class="user-detail__info-item">
+          <span class="user-detail__info-label">Registered</span>
+          <span>{{ u.created_at | date: 'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="user-detail__actions">
+        @if (canApprove) {
+          <button class="user-detail__approve-btn" (click)="approve()" [disabled]="actionLoading()">
+            Approve
+          </button>
+        }
+        @if (canReject) {
+          <button class="user-detail__reject-btn" (click)="promptReject()" [disabled]="actionLoading()">
+            Reject
+          </button>
+        }
+        @if (canDeactivate) {
+          <button class="user-detail__deactivate-btn" (click)="promptDeactivate()" [disabled]="actionLoading()">
+            Deactivate User
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Deals Section -->
+    <div class="user-detail__section">
+      <h2>Deals ({{ deals().length }})</h2>
+
+      @if (deals().length === 0) {
+        <p class="user-detail__section-empty">No deals found.</p>
+      } @else {
+        <div class="user-detail__list">
+          @for (deal of pagedDeals(); track deal.id) {
+            <div class="mini-card">
+              <div class="mini-card__top">
+                <span class="mini-card__title">{{ deal.requirement.title }}</span>
+                <span class="mini-card__badge mini-card__badge--{{ deal.status }}">
+                  {{ dealStatusLabel(deal.status) }}
+                </span>
+              </div>
+              <div class="mini-card__meta">
+                <span>{{ dealBusinessName(deal) }}</span>
+                <span>{{ deal.creator.full_name }}</span>
+                <span>{{ deal.created_at | date: 'mediumDate' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <app-pagination
+          [currentPage]="dealsPage()"
+          [totalItems]="deals().length"
+          [pageSize]="pageSize"
+          (pageChange)="dealsPage.set($event)"
+        />
+      }
+    </div>
+
+    <!-- Requirements Section (business only) -->
+    @if (u.role === 'business') {
+      <div class="user-detail__section">
+        <h2>Requirements Created ({{ requirements().length }})</h2>
+
+        @if (requirements().length === 0) {
+          <p class="user-detail__section-empty">No requirements created.</p>
+        } @else {
+          <div class="user-detail__list">
+            @for (req of pagedRequirements(); track req.id) {
+              <div class="mini-card">
+                <div class="mini-card__top">
+                  <span class="mini-card__title">{{ req.title }}</span>
+                  <span class="mini-card__badge mini-card__badge--{{ req.status }}">
+                    {{ reqStatusLabel(req.status) }}
+                  </span>
+                </div>
+                <div class="mini-card__meta">
+                  @if (req.category) {
+                    <span>{{ req.category }}</span>
+                  }
+                  <span>{{ req.filled_slots }} / {{ req.creator_slots }} slots</span>
+                  <span>{{ req.created_at | date: 'mediumDate' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <app-pagination
+            [currentPage]="reqsPage()"
+            [totalItems]="requirements().length"
+            [pageSize]="pageSize"
+            (pageChange)="reqsPage.set($event)"
+          />
+        }
+      </div>
+    }
+  }
+</div>
+
+<app-confirm-dialog
+  [message]="confirmMessage"
+  [visible]="confirmAction() !== null"
+  (confirmed)="onConfirm()"
+  (cancelled)="onCancelConfirm()"
+/>

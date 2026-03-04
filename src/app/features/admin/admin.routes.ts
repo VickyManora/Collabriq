@@ -7,6 +7,11 @@ export const ADMIN_ROUTES: Routes = [
       import('./user-approvals/user-approvals').then((m) => m.UserApprovals),
   },
   {
+    path: 'users/:id',
+    loadComponent: () =>
+      import('./user-detail/user-detail').then((m) => m.UserDetail),
+  },
+  {
     path: 'requirements',
     loadComponent: () =>
       import('./requirement-approvals/requirement-approvals').then((m) => m.RequirementApprovals),
