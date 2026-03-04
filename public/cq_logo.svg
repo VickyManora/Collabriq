@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+  <!-- C shape -->
+  <path d="M40 10
+           A35 35 0 1 0 40 90
+           L40 70
+           A15 15 0 1 1 40 30 Z"
+        fill="#2B0D2F"/>
+
+  <!-- Q circle -->
+  <circle cx="65" cy="50" r="22" fill="#7FB1B6"/>
+
+  <!-- Q tail -->
+  <rect x="72" y="65" width="10" height="6" rx="2" fill="#7FB1B6"/>
+
+  <!-- collaboration dot -->
+  <circle cx="85" cy="70" r="6" fill="#FF6A3D"/>
+
+</svg>
