@@ -1,0 +1,41 @@
+// Colors
+$primary: #6366f1;
+$primary-dark: #4f46e5;
+$primary-light: #a5b4fc;
+$success: #22c55e;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+$white: #ffffff;
+
+// Layout
+$sidebar-width: 260px;
+$header-height: 64px;
+
+// Breakpoints (mobile-first)
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+
+// Typography
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+// Shadows
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+// Border radius
+$radius-sm: 6px;
+$radius: 8px;
+$radius-lg: 12px;

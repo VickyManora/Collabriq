@@ -1,0 +1,101 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Create account</h1>
+    <p class="auth-card__subtitle">Join Collabriq as a creator or business</p>
+
+    @if (error()) {
+      <div class="auth-card__error">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="role-toggle">
+        <button
+          type="button"
+          class="role-toggle__btn"
+          [class.role-toggle__btn--active]="role === 'creator'"
+          (click)="role = 'creator'"
+        >
+          Creator
+        </button>
+        <button
+          type="button"
+          class="role-toggle__btn"
+          [class.role-toggle__btn--active]="role === 'business'"
+          (click)="role = 'business'"
+        >
+          Business
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input
+          id="fullName"
+          type="text"
+          [(ngModel)]="fullName"
+          name="fullName"
+          placeholder="Your full name"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Min 6 characters"
+          required
+          minlength="6"
+        />
+      </div>
+
+      @if (role === 'business') {
+        <div class="form-group">
+          <label for="businessName">Business Name</label>
+          <input
+            id="businessName"
+            type="text"
+            [(ngModel)]="businessName"
+            name="businessName"
+            placeholder="Your business name"
+            required
+          />
+        </div>
+      } @else {
+        <div class="form-group">
+          <label for="instagram">Instagram Handle</label>
+          <input
+            id="instagram"
+            type="text"
+            [(ngModel)]="instagramHandle"
+            name="instagram"
+            placeholder="@yourhandle"
+          />
+        </div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        {{ loading() ? 'Creating account...' : 'Sign Up' }}
+      </button>
+    </form>
+
+    <p class="auth-card__footer">
+      Already have an account? <a routerLink="/auth/login">Sign in</a>
+    </p>
+  </div>
+</div>

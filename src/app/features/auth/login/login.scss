@@ -1,0 +1,81 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: $gray-50;
+}
+
+.auth-card {
+  @include card;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  &__subtitle {
+    color: $gray-500;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__error {
+    background: rgba($danger, 0.08);
+    color: $danger;
+    padding: 0.75rem 1rem;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  &__footer {
+    text-align: center;
+    font-size: 0.875rem;
+    color: $gray-500;
+    margin-top: 1.5rem;
+
+    a {
+      color: $primary;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $gray-700;
+  }
+
+  input, select, textarea {
+    @include input-base;
+  }
+}
+
+.btn-primary {
+  @include btn-primary;
+  width: 100%;
+  margin-top: 0.5rem;
+}

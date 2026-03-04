@@ -1,0 +1,92 @@
+<div class="req-form">
+  <h1>{{ isEdit ? 'Edit Requirement' : 'New Requirement' }}</h1>
+
+  @if (loading()) {
+    <p class="req-form__loading">Loading...</p>
+  } @else {
+    @if (error()) {
+      <p class="req-form__error">{{ error() }}</p>
+    }
+
+    <form (ngSubmit)="saveDraft()" class="req-form__body">
+      <div class="req-form__field">
+        <label for="title">Title *</label>
+        <input
+          id="title"
+          type="text"
+          [(ngModel)]="title"
+          name="title"
+          placeholder="e.g. Looking for food bloggers in Pune"
+          required
+        />
+      </div>
+
+      <div class="req-form__field">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          [(ngModel)]="description"
+          name="description"
+          rows="4"
+          placeholder="Describe what you need from creators..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="req-form__row">
+        <div class="req-form__field">
+          <label for="category">Category</label>
+          <select id="category" [(ngModel)]="category" name="category">
+            <option [ngValue]="null">Select category</option>
+            @for (cat of categories; track cat) {
+              <option [ngValue]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="req-form__field">
+          <label for="slots">Creator Slots (1-10) *</label>
+          <input
+            id="slots"
+            type="number"
+            [(ngModel)]="creatorSlots"
+            name="creatorSlots"
+            min="1"
+            max="10"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="req-form__field">
+        <label for="compensation">Compensation Details</label>
+        <textarea
+          id="compensation"
+          [(ngModel)]="compensationDetails"
+          name="compensationDetails"
+          rows="2"
+          placeholder="e.g. Free meal + ₹2000 per reel"
+        ></textarea>
+      </div>
+
+      <div class="req-form__actions">
+        <button type="button" class="req-form__cancel-btn" (click)="cancel()">Cancel</button>
+        <button
+          type="submit"
+          class="req-form__draft-btn"
+          [disabled]="!isValid || saving()"
+        >
+          Save as Draft
+        </button>
+        <button
+          type="button"
+          class="req-form__submit-btn"
+          [disabled]="!isValid || saving()"
+          (click)="submitForApproval()"
+        >
+          Submit for Approval
+        </button>
+      </div>
+    </form>
+  }
+</div>

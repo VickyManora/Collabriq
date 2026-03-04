@@ -1,0 +1,138 @@
+<div class="req-detail">
+  @if (loading()) {
+    <p class="req-detail__loading">Loading...</p>
+  } @else if (error() && !requirement()) {
+    <p class="req-detail__error">{{ error() }}</p>
+    <button class="req-detail__back-btn" (click)="goBack()">Back to Requirements</button>
+  } @else if (requirement(); as req) {
+    <button class="req-detail__back-btn" (click)="goBack()">&larr; Back</button>
+
+    @if (error()) {
+      <p class="req-detail__error">{{ error() }}</p>
+    }
+
+    <div class="req-detail__card">
+      <div class="req-detail__top">
+        <h1>{{ req.title }}</h1>
+        <span class="req-detail__badge req-detail__badge--{{ req.status }}">
+          {{ statusLabel(req.status) }}
+        </span>
+      </div>
+
+      @if (req.category) {
+        <p class="req-detail__category">{{ req.category }}</p>
+      }
+
+      <p class="req-detail__desc">{{ req.description }}</p>
+
+      <div class="req-detail__info">
+        <div class="req-detail__info-item">
+          <span class="req-detail__info-label">Creator Slots</span>
+          <span>{{ req.filled_slots }} / {{ req.creator_slots }}</span>
+        </div>
+        @if (req.compensation_details) {
+          <div class="req-detail__info-item">
+            <span class="req-detail__info-label">Compensation</span>
+            <span>{{ req.compensation_details }}</span>
+          </div>
+        }
+        <div class="req-detail__info-item">
+          <span class="req-detail__info-label">Created</span>
+          <span>{{ req.created_at | date: 'mediumDate' }}</span>
+        </div>
+        @if (req.opened_at) {
+          <div class="req-detail__info-item">
+            <span class="req-detail__info-label">Opened</span>
+            <span>{{ req.opened_at | date: 'mediumDate' }}</span>
+          </div>
+        }
+        @if (req.closes_at) {
+          <div class="req-detail__info-item">
+            <span class="req-detail__info-label">Closes</span>
+            <span>{{ req.closes_at | closesIn }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="req-detail__actions">
+        @if (canEdit) {
+          <button class="req-detail__edit-btn" (click)="edit()" [disabled]="actionLoading()">Edit</button>
+        }
+        @if (canSubmit) {
+          <button class="req-detail__submit-btn" (click)="submitForApproval()" [disabled]="actionLoading()">
+            Submit for Approval
+          </button>
+        }
+        @if (canCancel) {
+          <button class="req-detail__cancel-btn" (click)="cancelRequirement()" [disabled]="actionLoading()">
+            Cancel Requirement
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Applications Section -->
+    @if (showApplications(req.status)) {
+      <div class="req-detail__apps">
+        <h2>Applications ({{ applications().length }})</h2>
+
+        @if (applications().length === 0) {
+          <p class="req-detail__apps-empty">No applications yet.</p>
+        } @else {
+          <div class="req-detail__apps-list">
+            @for (app of applications(); track app.id) {
+              <div class="app-card">
+                <div class="app-card__header">
+                  <div>
+                    <div class="app-card__name-row">
+                      <h3 class="app-card__name">{{ app.creator.full_name }}</h3>
+                      @if (getAvgRating(app.creator.id); as avg) {
+                        <span class="app-card__avg-rating">&#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})</span>
+                      }
+                    </div>
+                    @if (app.creator.instagram_handle) {
+                      <p class="app-card__handle">@{{ app.creator.instagram_handle }}</p>
+                    }
+                  </div>
+                  <span class="app-card__status app-card__status--{{ app.status }}">
+                    {{ appStatusLabel(app.status) }}
+                  </span>
+                </div>
+
+                @if (app.pitch) {
+                  <p class="app-card__pitch">{{ app.pitch }}</p>
+                }
+
+                <p class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
+
+                @if (app.status === 'accepted') {
+                  <div class="app-card__contact">
+                    <p class="app-card__contact-title">Contact Details</p>
+                    <p>{{ app.creator.email }}</p>
+                    @if (app.creator.phone) {
+                      <p>{{ app.creator.phone }}</p>
+                    }
+                    @if (app.creator.portfolio_url) {
+                      <p><a [href]="app.creator.portfolio_url" target="_blank" rel="noopener">Portfolio</a></p>
+                    }
+                  </div>
+                }
+
+                @if (app.status === 'applied') {
+                  <div class="app-card__actions">
+                    <button class="app-card__accept-btn" (click)="acceptApplication(app.id)" [disabled]="actionLoading()">
+                      Accept
+                    </button>
+                    <button class="app-card__reject-btn" (click)="rejectApplication(app.id)" [disabled]="actionLoading()">
+                      Reject
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

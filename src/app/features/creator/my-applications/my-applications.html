@@ -1,0 +1,55 @@
+<div class="my-apps">
+  <h1>My Applications</h1>
+
+  <div class="my-apps__tabs">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="my-apps__tab"
+        [class.my-apps__tab--active]="activeFilter() === tab.value"
+        (click)="setFilter(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="my-apps__loading">Loading applications...</p>
+  } @else if (filtered().length === 0) {
+    <div class="my-apps__empty">
+      <p>No applications found.</p>
+      @if (activeFilter() === 'all') {
+        <p>Browse open requirements and apply to get started.</p>
+      }
+    </div>
+  } @else {
+    <div class="my-apps__grid">
+      @for (app of filtered(); track app.id) {
+        <div class="app-card" (click)="viewRequirement(app.requirement_id)">
+          <div class="app-card__top">
+            <h3 class="app-card__title">{{ app.requirement.title }}</h3>
+            <span class="app-card__badge app-card__badge--{{ app.status }}">
+              {{ statusLabel(app.status) }}
+            </span>
+          </div>
+          @if (app.requirement.category) {
+            <p class="app-card__category">{{ app.requirement.category }}</p>
+          }
+          @if (app.pitch) {
+            <p class="app-card__pitch">{{ pitchPreview(app.pitch) }}</p>
+          }
+          <p class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
+          @if (app.status === 'applied') {
+            <button
+              class="app-card__withdraw-btn"
+              (click)="withdraw(app.id); $event.stopPropagation()"
+              [disabled]="actionLoading()"
+            >
+              Withdraw
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

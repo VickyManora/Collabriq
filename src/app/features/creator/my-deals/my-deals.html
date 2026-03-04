@@ -1,0 +1,107 @@
+<div class="my-deals">
+  <h1>My Deals</h1>
+
+  <div class="my-deals__tabs">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="my-deals__tab"
+        [class.my-deals__tab--active]="activeFilter() === tab.value"
+        (click)="setFilter(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="my-deals__loading">Loading deals...</p>
+  } @else if (filtered().length === 0) {
+    <div class="my-deals__empty">
+      <p>No deals found.</p>
+      @if (activeFilter() === 'all') {
+        <p>Deals appear here after a business accepts your application.</p>
+      }
+    </div>
+  } @else {
+    <div class="my-deals__grid">
+      @for (deal of filtered(); track deal.id) {
+        <div class="deal-card">
+          <div class="deal-card__top">
+            <h3 class="deal-card__title">{{ deal.requirement.title }}</h3>
+            <span class="deal-card__badge deal-card__badge--{{ deal.status }}">
+              {{ statusLabel(deal.status) }}
+            </span>
+          </div>
+
+          <div class="deal-card__business">
+            <p class="deal-card__business-name">{{ businessDisplayName(deal) }}</p>
+            <p class="deal-card__contact">{{ deal.business.email }}</p>
+            @if (deal.business.phone) {
+              <p class="deal-card__contact">{{ deal.business.phone }}</p>
+            }
+          </div>
+
+          <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
+
+          @if (canMarkDone(deal)) {
+            <button
+              class="deal-card__done-btn"
+              (click)="markDone(deal.id)"
+              [disabled]="actionLoading()"
+            >
+              Mark as Done
+            </button>
+          }
+
+          @if (deal.status === 'creator_marked_done') {
+            <p class="deal-card__waiting">Waiting for business to mark done...</p>
+          }
+
+          @if (canRate(deal)) {
+            @if (ratingDealId() === deal.id) {
+              <div class="deal-card__rating-form">
+                <p class="deal-card__rating-label">Rate this business:</p>
+                <div class="deal-card__stars">
+                  @for (star of starOptions; track star) {
+                    <button
+                      class="deal-card__star"
+                      [class.deal-card__star--active]="ratingStars >= star"
+                      (click)="ratingStars = star"
+                    >
+                      &#9733;
+                    </button>
+                  }
+                </div>
+                <div class="deal-card__rating-actions">
+                  <button
+                    class="deal-card__rate-submit"
+                    (click)="submitRating(deal)"
+                    [disabled]="ratingStars < 1 || actionLoading()"
+                  >
+                    Submit Rating
+                  </button>
+                  <button class="deal-card__rate-cancel" (click)="cancelRating()">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button class="deal-card__rate-btn" (click)="startRating(deal.id)">
+                Rate Business
+              </button>
+            }
+          }
+
+          @if (hasRated(deal.id)) {
+            <div class="deal-card__rated">
+              <span>Your rating: </span>
+              @for (star of starOptions; track star) {
+                <span class="deal-card__rated-star" [class.deal-card__rated-star--filled]="getRating(deal.id) >= star">&#9733;</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

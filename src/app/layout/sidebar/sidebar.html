@@ -1,0 +1,14 @@
+<aside class="sidebar" [class.sidebar--open]="isOpen()">
+  <nav class="sidebar__nav">
+    @for (item of navItems; track item.path) {
+      <a
+        class="sidebar__link"
+        [routerLink]="item.path"
+        routerLinkActive="sidebar__link--active"
+        [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+      >
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+</aside>

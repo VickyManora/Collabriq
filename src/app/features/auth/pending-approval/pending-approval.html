@@ -1,0 +1,30 @@
+<div class="pending-page">
+  <div class="pending-card">
+    <div class="pending-card__icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+
+    <h1>Pending Approval</h1>
+    <p class="pending-card__message">
+      Your account is awaiting admin approval. You'll be able to access the
+      platform once your account is verified.
+    </p>
+
+    @if (auth.profile(); as profile) {
+      <div class="pending-card__info">
+        <span>{{ profile.full_name }}</span>
+        <span class="pending-card__role">{{ profile.role }}</span>
+      </div>
+    }
+
+    <div class="pending-card__actions">
+      <button class="btn-primary" (click)="checkStatus()" [disabled]="checking()">
+        {{ checking() ? 'Checking...' : 'Check Status' }}
+      </button>
+      <button class="btn-outline" (click)="onLogout()">Logout</button>
+    </div>
+  </div>
+</div>

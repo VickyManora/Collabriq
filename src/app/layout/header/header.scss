@@ -1,0 +1,221 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $header-height;
+  padding: 0 1rem;
+  background: $white;
+  border-bottom: 1px solid $gray-200;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    color: $gray-700;
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: $gray-100;
+    }
+
+    @include respond-to($breakpoint-lg) {
+      display: none;
+    }
+  }
+
+  &__logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $primary;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__user {
+    font-size: 0.875rem;
+    color: $gray-600;
+    display: none;
+
+    @include respond-to($breakpoint-sm) {
+      display: inline;
+    }
+  }
+
+  &__profile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    color: $gray-600;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      background: $gray-100;
+      color: $gray-800;
+    }
+  }
+
+  &__notifications {
+    position: relative;
+  }
+
+  &__bell-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0.375rem;
+    color: $gray-600;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    background: none;
+    border: none;
+
+    &:hover {
+      background: $gray-100;
+      color: $gray-800;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: $danger;
+    color: $white;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 320px;
+    max-height: 400px;
+    background: $white;
+    border: 1px solid $gray-200;
+    border-radius: $radius;
+    box-shadow: $shadow-md;
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+
+    @media (max-width: $breakpoint-sm) {
+      position: fixed;
+      top: $header-height;
+      right: 0.5rem;
+      left: 0.5rem;
+      width: auto;
+    }
+  }
+
+  &__dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid $gray-200;
+  }
+
+  &__dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $gray-800;
+  }
+
+  &__dropdown-mark-all {
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    color: $primary;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  &__dropdown-list {
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  &__dropdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid $gray-100;
+    cursor: pointer;
+
+    &:hover {
+      background: $gray-50;
+    }
+
+    &--unread {
+      background: rgba($primary, 0.04);
+      border-left: 3px solid $primary;
+
+      &:hover {
+        background: rgba($primary, 0.08);
+      }
+    }
+  }
+
+  &__dropdown-item-msg {
+    font-size: 0.8125rem;
+    color: $gray-800;
+    line-height: 1.4;
+  }
+
+  &__dropdown-item-time {
+    font-size: 0.6875rem;
+    color: $gray-400;
+  }
+
+  &__dropdown-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: $gray-400;
+  }
+
+  &__logout {
+    @include btn-outline;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}

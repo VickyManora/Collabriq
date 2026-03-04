@@ -1,0 +1,137 @@
+<div class="profile-edit">
+  <h1>Edit Profile</h1>
+
+  @if (error()) {
+    <p class="profile-edit__error">{{ error() }}</p>
+  }
+
+  @if (success()) {
+    <p class="profile-edit__success">{{ success() }}</p>
+  }
+
+  <form (ngSubmit)="saveProfile()" class="profile-edit__body">
+    <div class="profile-edit__readonly">
+      <div class="profile-edit__info">
+        <span class="profile-edit__label">Email</span>
+        <span>{{ auth.profile()?.email }}</span>
+      </div>
+      <div class="profile-edit__info">
+        <span class="profile-edit__label">Role</span>
+        <span>{{ auth.profile()?.role }}</span>
+      </div>
+      <div class="profile-edit__info">
+        <span class="profile-edit__label">Status</span>
+        <span>{{ auth.profile()?.approval_status }}</span>
+      </div>
+    </div>
+
+    <div class="profile-edit__field">
+      <label for="full_name">Full Name *</label>
+      <input
+        id="full_name"
+        type="text"
+        [(ngModel)]="full_name"
+        name="full_name"
+        placeholder="Your full name"
+        required
+      />
+    </div>
+
+    <div class="profile-edit__row">
+      <div class="profile-edit__field">
+        <label for="phone">Phone</label>
+        <input
+          id="phone"
+          type="tel"
+          [(ngModel)]="phone"
+          name="phone"
+          placeholder="e.g. +91 98765 43210"
+        />
+      </div>
+
+      <div class="profile-edit__field">
+        <label for="city">City</label>
+        <input
+          id="city"
+          type="text"
+          [(ngModel)]="city"
+          name="city"
+          placeholder="e.g. Pune"
+        />
+      </div>
+    </div>
+
+    <div class="profile-edit__field">
+      <label for="bio">Bio</label>
+      <textarea
+        id="bio"
+        [(ngModel)]="bio"
+        name="bio"
+        rows="3"
+        placeholder="Tell us about yourself..."
+      ></textarea>
+    </div>
+
+    <div class="profile-edit__row">
+      <div class="profile-edit__field">
+        <label for="portfolio_url">Portfolio URL</label>
+        <input
+          id="portfolio_url"
+          type="url"
+          [(ngModel)]="portfolio_url"
+          name="portfolio_url"
+          placeholder="https://yoursite.com"
+        />
+      </div>
+
+      <div class="profile-edit__field">
+        <label for="instagram_handle">Instagram Handle</label>
+        <input
+          id="instagram_handle"
+          type="text"
+          [(ngModel)]="instagram_handle"
+          name="instagram_handle"
+          placeholder="@yourhandle"
+        />
+      </div>
+    </div>
+
+    @if (auth.userRole() === 'business') {
+      <div class="profile-edit__row">
+        <div class="profile-edit__field">
+          <label for="business_name">Business Name *</label>
+          <input
+            id="business_name"
+            type="text"
+            [(ngModel)]="business_name"
+            name="business_name"
+            placeholder="Your business name"
+            required
+          />
+        </div>
+
+        <div class="profile-edit__field">
+          <label for="business_category">Business Category</label>
+          <input
+            id="business_category"
+            type="text"
+            [(ngModel)]="business_category"
+            name="business_category"
+            placeholder="e.g. Restaurant, Cafe, Salon"
+          />
+        </div>
+      </div>
+    }
+
+    <div class="profile-edit__actions">
+      <button type="button" class="profile-edit__cancel-btn" (click)="cancel()">Cancel</button>
+      <button
+        type="submit"
+        class="profile-edit__save-btn"
+        [disabled]="!isValid || saving()"
+      >
+        {{ saving() ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
+  </form>
+</div>

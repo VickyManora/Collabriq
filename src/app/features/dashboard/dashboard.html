@@ -1,0 +1,57 @@
+<div class="dashboard">
+  <h1>Dashboard</h1>
+  <p class="dashboard__welcome">
+    Welcome back, {{ auth.profile()?.full_name }}
+  </p>
+
+  <div class="dashboard__grid">
+    @switch (auth.userRole()) {
+      @case ('business') {
+        <div class="stat-card">
+          <h3>Your Requirements</h3>
+          <p class="stat-card__value">{{ activeRequirements() }}</p>
+          <p class="stat-card__label">Active requirements</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Deals</h3>
+          <p class="stat-card__value">{{ activeDeals() }}</p>
+          <p class="stat-card__label">Ongoing collaborations</p>
+        </div>
+      }
+      @case ('creator') {
+        <div class="stat-card">
+          <h3>Available Requirements</h3>
+          <p class="stat-card__value">{{ openRequirements() }}</p>
+          <p class="stat-card__label">Open opportunities</p>
+        </div>
+        <div class="stat-card">
+          <h3>Your Applications</h3>
+          <p class="stat-card__value">{{ pendingApplications() }}</p>
+          <p class="stat-card__label">Pending applications</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Deals</h3>
+          <p class="stat-card__value">{{ creatorActiveDeals() }}</p>
+          <p class="stat-card__label">Ongoing collaborations</p>
+        </div>
+      }
+      @case ('admin') {
+        <div class="stat-card">
+          <h3>Pending Users</h3>
+          <p class="stat-card__value">{{ pendingUsers() }}</p>
+          <p class="stat-card__label">Awaiting approval</p>
+        </div>
+        <div class="stat-card">
+          <h3>Pending Requirements</h3>
+          <p class="stat-card__value">{{ pendingRequirements() }}</p>
+          <p class="stat-card__label">Awaiting approval</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Deals</h3>
+          <p class="stat-card__value">{{ adminActiveDeals() }}</p>
+          <p class="stat-card__label">Ongoing deals</p>
+        </div>
+      }
+    }
+  </div>
+</div>

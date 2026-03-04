@@ -1,0 +1,27 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.main-content {
+  margin-top: $header-height;
+  padding: 1.5rem 1rem;
+  min-height: calc(100vh - #{$header-height});
+
+  @include respond-to($breakpoint-lg) {
+    margin-left: $sidebar-width;
+    padding: 1.5rem 2rem;
+  }
+}
+
+.overlay {
+  position: fixed;
+  top: $header-height;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 80;
+
+  @include respond-to($breakpoint-lg) {
+    display: none;
+  }
+}

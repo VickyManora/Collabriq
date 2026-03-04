@@ -1,0 +1,51 @@
+<div class="browse">
+  <h1>Browse Requirements</h1>
+
+  <div class="browse__tabs">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="browse__tab"
+        [class.browse__tab--active]="activeFilter() === tab.value"
+        (click)="setFilter(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="browse__loading">Loading requirements...</p>
+  } @else if (filtered().length === 0) {
+    <div class="browse__empty">
+      <p>No open requirements found.</p>
+      @if (activeFilter() !== 'all') {
+        <p>Try a different category or check back later.</p>
+      } @else {
+        <p>Check back soon for new opportunities.</p>
+      }
+    </div>
+  } @else {
+    <div class="browse__grid">
+      @for (req of filtered(); track req.id) {
+        <div class="browse-card" (click)="viewRequirement(req.id)">
+          <div class="browse-card__top">
+            <h3 class="browse-card__title">{{ req.title }}</h3>
+            @if (req.category) {
+              <span class="browse-card__category">{{ req.category }}</span>
+            }
+          </div>
+          <p class="browse-card__business">{{ businessDisplayName(req) }}</p>
+          @if (req.compensation_details) {
+            <p class="browse-card__compensation">{{ req.compensation_details }}</p>
+          }
+          <div class="browse-card__meta">
+            <span>{{ slotsAvailable(req) }} slot{{ slotsAvailable(req) !== 1 ? 's' : '' }} available</span>
+            @if (req.closes_at) {
+              <span>{{ req.closes_at | closesIn }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

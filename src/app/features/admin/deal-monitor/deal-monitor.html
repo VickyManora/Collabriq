@@ -1,0 +1,71 @@
+<div class="deal-monitor">
+  <h1>Deal Monitor</h1>
+
+  <div class="deal-monitor__tabs">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="deal-monitor__tab"
+        [class.deal-monitor__tab--active]="activeFilter() === tab.value"
+        (click)="setFilter(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="deal-monitor__loading">Loading deals...</p>
+  } @else if (filtered().length === 0) {
+    <div class="deal-monitor__empty">
+      <p>No deals found.</p>
+      @if (activeFilter() !== 'all') {
+        <p>No deals match the current filter.</p>
+      }
+    </div>
+  } @else {
+    <div class="deal-monitor__grid">
+      @for (deal of filtered(); track deal.id) {
+        <div class="monitor-card">
+          <div class="monitor-card__top">
+            <h3 class="monitor-card__title">{{ deal.requirement.title }}</h3>
+            <span class="monitor-card__badge monitor-card__badge--{{ deal.status }}">
+              {{ statusLabel(deal.status) }}
+            </span>
+          </div>
+
+          <div class="monitor-card__parties">
+            <p class="monitor-card__business">{{ businessDisplayName(deal) }}</p>
+            <p class="monitor-card__creator">{{ deal.creator.full_name }}</p>
+          </div>
+
+          <div class="monitor-card__indicators">
+            <span
+              class="monitor-card__indicator"
+              [class.monitor-card__indicator--done]="deal.creator_marked_done"
+            >
+              Creator: {{ deal.creator_marked_done ? 'Done' : 'Pending' }}
+            </span>
+            <span
+              class="monitor-card__indicator"
+              [class.monitor-card__indicator--done]="deal.business_marked_done"
+            >
+              Business: {{ deal.business_marked_done ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+
+          <p class="monitor-card__date">Created {{ deal.created_at | date: 'mediumDate' }}</p>
+
+          @if (canCancel(deal)) {
+            <button
+              class="monitor-card__cancel-btn"
+              (click)="cancelDeal(deal.id)"
+              [disabled]="actionLoading() === deal.id"
+            >
+              Cancel Deal
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

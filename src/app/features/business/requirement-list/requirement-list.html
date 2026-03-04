@@ -1,0 +1,52 @@
+<div class="req-list">
+  <div class="req-list__header">
+    <h1>My Requirements</h1>
+    <button class="req-list__new-btn" (click)="createNew()">+ New Requirement</button>
+  </div>
+
+  <div class="req-list__tabs">
+    @for (tab of tabs; track tab.value) {
+      <button
+        class="req-list__tab"
+        [class.req-list__tab--active]="activeFilter() === tab.value"
+        (click)="setFilter(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="req-list__loading">Loading requirements...</p>
+  } @else if (filtered().length === 0) {
+    <div class="req-list__empty">
+      <p>No requirements found.</p>
+      @if (activeFilter() === 'all') {
+        <p>Create your first requirement to start finding creators.</p>
+      }
+    </div>
+  } @else {
+    <div class="req-list__grid">
+      @for (req of filtered(); track req.id) {
+        <div class="req-card" (click)="viewDetail(req.id)">
+          <div class="req-card__top">
+            <h3 class="req-card__title">{{ req.title }}</h3>
+            <span class="req-card__badge req-card__badge--{{ req.status }}">
+              {{ statusLabel(req.status) }}
+            </span>
+          </div>
+          @if (req.category) {
+            <p class="req-card__category">{{ req.category }}</p>
+          }
+          <div class="req-card__meta">
+            <span>Slots: {{ req.filled_slots }}/{{ req.creator_slots }}</span>
+            <span>{{ req.created_at | date: 'mediumDate' }}</span>
+            @if (req.closes_at && (req.status === 'open' || req.status === 'partially_filled')) {
+              <span>{{ req.closes_at | closesIn }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

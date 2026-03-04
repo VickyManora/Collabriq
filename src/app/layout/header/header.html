@@ -1,0 +1,65 @@
+<header class="header">
+  <div class="header__left">
+    <button class="header__menu-btn" (click)="onToggleMenu()" aria-label="Toggle menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <span class="header__logo">Collabriq</span>
+  </div>
+
+  <div class="header__right">
+    @if (auth.profile(); as profile) {
+      <span class="header__user">{{ profile.full_name }}</span>
+    }
+
+    <a class="header__profile-btn" routerLink="/profile" aria-label="Edit profile">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </a>
+
+    <div class="header__notifications">
+      <button class="header__bell-btn" (click)="toggleDropdown()" aria-label="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        @if (notificationSvc.unreadCount(); as count) {
+          <span class="header__badge">{{ count > 9 ? '9+' : count }}</span>
+        }
+      </button>
+
+      @if (dropdownOpen()) {
+        <div class="header__dropdown">
+          <div class="header__dropdown-header">
+            <span class="header__dropdown-title">Notifications</span>
+            @if (notificationSvc.unreadCount()) {
+              <button class="header__dropdown-mark-all" (click)="onMarkAllRead()">Mark all read</button>
+            }
+          </div>
+
+          <div class="header__dropdown-list">
+            @for (n of notificationSvc.notifications(); track n.id) {
+              <button
+                class="header__dropdown-item"
+                [class.header__dropdown-item--unread]="!n.is_read"
+                (click)="onNotificationClick(n.id)"
+              >
+                <span class="header__dropdown-item-msg">{{ n.message }}</span>
+                <span class="header__dropdown-item-time">{{ n.created_at | date:'MMM d, h:mm a' }}</span>
+              </button>
+            } @empty {
+              <div class="header__dropdown-empty">No notifications yet</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <button class="header__logout" (click)="onLogout()">Logout</button>
+  </div>
+</header>

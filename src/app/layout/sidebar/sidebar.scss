@@ -1,0 +1,51 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.sidebar {
+  position: fixed;
+  top: $header-height;
+  left: 0;
+  bottom: 0;
+  width: $sidebar-width;
+  background: $white;
+  border-right: 1px solid $gray-200;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  z-index: 90;
+  overflow-y: auto;
+
+  &--open {
+    transform: translateX(0);
+  }
+
+  @include respond-to($breakpoint-lg) {
+    transform: translateX(0);
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.75rem;
+    gap: 0.25rem;
+  }
+
+  &__link {
+    display: block;
+    padding: 0.625rem 1rem;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $gray-600;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: $gray-50;
+      color: $gray-900;
+    }
+
+    &--active {
+      background: rgba($primary, 0.08);
+      color: $primary;
+    }
+  }
+}

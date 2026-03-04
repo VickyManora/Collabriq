@@ -1,0 +1,106 @@
+<div class="req-view">
+  @if (loading()) {
+    <p class="req-view__loading">Loading...</p>
+  } @else if (error() && !requirement()) {
+    <p class="req-view__error">{{ error() }}</p>
+    <button class="req-view__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+  } @else if (requirement(); as req) {
+    <button class="req-view__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+
+    @if (error()) {
+      <p class="req-view__error">{{ error() }}</p>
+    }
+    @if (success()) {
+      <p class="req-view__success">{{ success() }}</p>
+    }
+
+    <div class="req-view__card">
+      <div class="req-view__top">
+        <h1>{{ req.title }}</h1>
+        @if (req.category) {
+          <span class="req-view__category">{{ req.category }}</span>
+        }
+      </div>
+
+      <p class="req-view__business">by {{ businessDisplayName() }}</p>
+
+      <p class="req-view__desc">{{ req.description }}</p>
+
+      <div class="req-view__info">
+        <div class="req-view__info-item">
+          <span class="req-view__info-label">Creator Slots</span>
+          <span>{{ req.filled_slots }} / {{ req.creator_slots }}</span>
+        </div>
+        @if (req.compensation_details) {
+          <div class="req-view__info-item">
+            <span class="req-view__info-label">Compensation</span>
+            <span>{{ req.compensation_details }}</span>
+          </div>
+        }
+        @if (req.opened_at) {
+          <div class="req-view__info-item">
+            <span class="req-view__info-label">Opened</span>
+            <span>{{ req.opened_at | date: 'mediumDate' }}</span>
+          </div>
+        }
+        @if (req.closes_at) {
+          <div class="req-view__info-item">
+            <span class="req-view__info-label">Closes</span>
+            <span>{{ req.closes_at | closesIn }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Application Section -->
+    <div class="req-view__apply">
+      @if (canApply) {
+        <h2>Apply to this Requirement</h2>
+        <div class="req-view__apply-form">
+          <div class="req-view__field">
+            <label for="pitch">Your Pitch</label>
+            <textarea
+              id="pitch"
+              [(ngModel)]="pitch"
+              name="pitch"
+              rows="4"
+              placeholder="Tell the business why you're a great fit..."
+            ></textarea>
+          </div>
+          <button
+            class="req-view__apply-btn"
+            (click)="apply()"
+            [disabled]="applying()"
+          >
+            {{ applying() ? 'Applying...' : 'Apply' }}
+          </button>
+        </div>
+      } @else if (existingApplication(); as app) {
+        <h2>Your Application</h2>
+        <div class="req-view__app-status">
+          <span class="req-view__app-badge req-view__app-badge--{{ app.status }}">
+            {{ appStatusLabel(app.status) }}
+          </span>
+          @if (app.pitch) {
+            <p class="req-view__app-pitch">{{ app.pitch }}</p>
+          }
+          <p class="req-view__app-date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
+
+          @if (app.status === 'accepted') {
+            <p class="req-view__app-accepted">Your application has been accepted! Check your deals for next steps.</p>
+          }
+
+          @if (canWithdraw) {
+            <button
+              class="req-view__withdraw-btn"
+              (click)="withdraw()"
+              [disabled]="withdrawing()"
+            >
+              {{ withdrawing() ? 'Withdrawing...' : 'Withdraw Application' }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
