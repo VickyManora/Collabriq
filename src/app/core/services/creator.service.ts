@@ -7,7 +7,7 @@ import { Deal } from '../models/deal.model';
 import { Rating } from '../models/rating.model';
 
 export type RequirementWithBusiness = Requirement & {
-  business: { business_name: string | null; full_name: string };
+  business: { business_name: string | null; full_name: string; instagram_handle: string | null };
 };
 
 export type ApplicationWithRequirement = Application & {
@@ -33,7 +33,7 @@ export class CreatorService {
   async getOpenRequirements() {
     return this.supabase
       .from('requirements')
-      .select('*, business:profiles!business_id(business_name, full_name)')
+      .select('*, business:profiles!business_id(business_name, full_name, instagram_handle)')
       .in('status', ['open', 'partially_filled'])
       .order('created_at', { ascending: false })
       .returns<RequirementWithBusiness[]>();
@@ -42,7 +42,7 @@ export class CreatorService {
   async getRequirement(id: string) {
     return this.supabase
       .from('requirements')
-      .select('*, business:profiles!business_id(business_name, full_name)')
+      .select('*, business:profiles!business_id(business_name, full_name, instagram_handle)')
       .eq('id', id)
       .in('status', ['open', 'partially_filled'])
       .single<RequirementWithBusiness>();
@@ -80,6 +80,15 @@ export class CreatorService {
       .eq('creator_id', userId!)
       .order('created_at', { ascending: false })
       .returns<ApplicationWithRequirement[]>();
+  }
+
+  async getMyApplicationsBrief() {
+    const userId = this.auth.profile()?.id;
+    return this.supabase
+      .from('applications')
+      .select('requirement_id, status, created_at')
+      .eq('creator_id', userId!)
+      .returns<{ requirement_id: string; status: string; created_at: string }[]>();
   }
 
   async withdrawApplication(id: string) {
@@ -132,6 +141,16 @@ export class CreatorService {
       .eq('deal_id', dealId)
       .eq('rater_id', userId!)
       .maybeSingle<Rating>();
+  }
+
+  async getRecentRequirements(limit: number) {
+    return this.supabase
+      .from('requirements')
+      .select('*, business:profiles!business_id(business_name, full_name, instagram_handle)')
+      .in('status', ['open', 'partially_filled'])
+      .order('created_at', { ascending: false })
+      .limit(limit)
+      .returns<RequirementWithBusiness[]>();
   }
 
   async getCreatorDashboardCounts() {

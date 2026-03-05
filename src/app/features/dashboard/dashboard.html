@@ -4,54 +4,124 @@
     Welcome back, {{ auth.profile()?.full_name | titlecase }}
   </p>
 
-  <div class="dashboard__grid">
-    @switch (auth.userRole()) {
-      @case ('business') {
-        <a class="stat-card" routerLink="/business/requirements">
-          <h3>Your Requirements</h3>
-          <p class="stat-card__value">{{ activeRequirements() }}</p>
-          <p class="stat-card__label">Active requirements</p>
-        </a>
-        <a class="stat-card" routerLink="/business/deals" [queryParams]="{ tab: 'active' }">
-          <h3>Active Deals</h3>
-          <p class="stat-card__value">{{ activeDeals() }}</p>
-          <p class="stat-card__label">Ongoing collaborations</p>
-        </a>
+  @if (auth.userRole() === 'creator') {
+    <a class="dashboard__action-btn" routerLink="/creator/browse">Browse Opportunities</a>
+  }
+
+  @if (loading()) {
+    <div class="dashboard__grid">
+      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
+    </div>
+  } @else {
+    <div class="dashboard__grid">
+      @switch (auth.userRole()) {
+        @case ('business') {
+          <a class="stat-card" routerLink="/business/requirements">
+            <div class="stat-card__header"><span class="stat-card__icon">&#128203;</span><h3>Your Requirements</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ activeRequirements() }}</span><span class="stat-card__label">Active requirements</span></div>
+          </a>
+          <a class="stat-card" routerLink="/business/deals" [queryParams]="{ tab: 'active' }">
+            <div class="stat-card__header"><span class="stat-card__icon">&#129309;</span><h3>Active Deals</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ activeDeals() }}</span><span class="stat-card__label">Ongoing collaborations</span></div>
+          </a>
+        }
+        @case ('creator') {
+          <a class="stat-card" routerLink="/creator/browse">
+            <div class="stat-card__header"><span class="stat-card__icon">&#128269;</span><h3>Available Opportunities</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ openRequirements() }}</span><span class="stat-card__label">Open opportunities</span></div>
+          </a>
+          <a class="stat-card" routerLink="/creator/applications">
+            <div class="stat-card__header"><span class="stat-card__icon">&#128228;</span><h3>Your Applications</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ pendingApplications() }}</span><span class="stat-card__label">Pending applications</span></div>
+          </a>
+          <a class="stat-card" routerLink="/creator/deals" [queryParams]="{ tab: 'active' }">
+            <div class="stat-card__header"><span class="stat-card__icon">&#127775;</span><h3>Active Collaborations</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ creatorActiveDeals() }}</span><span class="stat-card__label">Ongoing collaborations</span></div>
+          </a>
+        }
+        @case ('admin') {
+          <a class="stat-card" routerLink="/admin/users">
+            <div class="stat-card__header"><span class="stat-card__icon">&#128101;</span><h3>Pending Users</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ pendingUsers() }}</span><span class="stat-card__label">Awaiting approval</span></div>
+          </a>
+          <a class="stat-card" routerLink="/admin/requirements">
+            <div class="stat-card__header"><span class="stat-card__icon">&#128203;</span><h3>Pending Requirements</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ pendingRequirements() }}</span><span class="stat-card__label">Awaiting approval</span></div>
+          </a>
+          <a class="stat-card" routerLink="/admin/deals" [queryParams]="{ tab: 'active' }">
+            <div class="stat-card__header"><span class="stat-card__icon">&#129309;</span><h3>Active Deals</h3></div>
+            <div class="stat-card__body"><span class="stat-card__value">{{ adminActiveDeals() }}</span><span class="stat-card__label">Ongoing deals</span></div>
+          </a>
+        }
       }
-      @case ('creator') {
-        <a class="stat-card" routerLink="/creator/browse">
-          <h3>Available Requirements</h3>
-          <p class="stat-card__value">{{ openRequirements() }}</p>
-          <p class="stat-card__label">Open opportunities</p>
-        </a>
-        <a class="stat-card" routerLink="/creator/applications">
-          <h3>Your Applications</h3>
-          <p class="stat-card__value">{{ pendingApplications() }}</p>
-          <p class="stat-card__label">Pending applications</p>
-        </a>
-        <a class="stat-card" routerLink="/creator/deals" [queryParams]="{ tab: 'active' }">
-          <h3>Active Deals</h3>
-          <p class="stat-card__value">{{ creatorActiveDeals() }}</p>
-          <p class="stat-card__label">Ongoing collaborations</p>
-        </a>
+    </div>
+  }
+
+  @if (auth.userRole() === 'creator') {
+    <section class="dashboard__latest">
+      <div class="dashboard__latest-header">
+        <h2>Latest Opportunities</h2>
+        <a routerLink="/creator/browse">View all &rarr;</a>
+      </div>
+
+      @if (loading()) {
+        <div class="dashboard__latest-list">
+          <div class="skeleton-card skeleton-card--opp"><div class="skeleton skeleton--avatar"></div><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--line-sm"></div></div>
+          <div class="skeleton-card skeleton-card--opp"><div class="skeleton skeleton--avatar"></div><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--line-sm"></div></div>
+          <div class="skeleton-card skeleton-card--opp"><div class="skeleton skeleton--avatar"></div><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--line-sm"></div></div>
+        </div>
+      } @else if (latestOpportunities().length > 0) {
+        <div class="dashboard__latest-list">
+          @for (req of latestOpportunities(); track req.id) {
+            <div class="opp-card" (click)="viewRequirement(req.id)">
+              @if (isNew(req)) {
+                <span class="opp-card__new-badge">NEW</span>
+              }
+
+              <div class="opp-card__top">
+                <span class="opp-card__avatar">{{ businessInitial(req) }}</span>
+                <div class="opp-card__top-info">
+                  <p class="opp-card__business">{{ businessName(req) }}</p>
+                  @if (businessHandle(req)) {
+                    <p class="opp-card__handle">@{{ businessHandle(req) }}</p>
+                  }
+                </div>
+                @if (req.category) {
+                  <span class="opp-card__category">{{ req.category }}</span>
+                }
+              </div>
+
+              <h3 class="opp-card__title">{{ req.title }}</h3>
+
+              <div class="opp-card__footer">
+                <div class="opp-card__meta">
+                  <span class="opp-card__spots">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
+                    {{ spotsLeft(req) }}
+                  </span>
+                  @if (req.closes_at) {
+                    <span class="opp-card__time" [class.opp-card__time--urgent]="isClosingSoon(req)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      @if (isClosingSoon(req)) {
+                        <span>Closing Soon</span>
+                      } @else {
+                        <span>{{ req.closes_at | closesIn }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+                @if (hasApplied(req.id)) {
+                  <span class="opp-card__applied">Applied &#10003;</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="dashboard__latest-empty">No open opportunities right now. Check back soon!</p>
       }
-      @case ('admin') {
-        <a class="stat-card" routerLink="/admin/users">
-          <h3>Pending Users</h3>
-          <p class="stat-card__value">{{ pendingUsers() }}</p>
-          <p class="stat-card__label">Awaiting approval</p>
-        </a>
-        <a class="stat-card" routerLink="/admin/requirements">
-          <h3>Pending Requirements</h3>
-          <p class="stat-card__value">{{ pendingRequirements() }}</p>
-          <p class="stat-card__label">Awaiting approval</p>
-        </a>
-        <a class="stat-card" routerLink="/admin/deals" [queryParams]="{ tab: 'active' }">
-          <h3>Active Deals</h3>
-          <p class="stat-card__value">{{ adminActiveDeals() }}</p>
-          <p class="stat-card__label">Ongoing deals</p>
-        </a>
-      }
-    }
-  </div>
+    </section>
+  }
 </div>

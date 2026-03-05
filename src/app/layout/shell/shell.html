@@ -1,5 +1,5 @@
 <app-header (menuToggle)="onMenuToggle()" />
-<app-sidebar [isOpen]="sidebarOpen()" />
+<app-sidebar [isOpen]="sidebarOpen()" (linkClicked)="sidebarOpen.set(false)" />
 
 @if (sidebarOpen()) {
   <div class="overlay" (click)="onMenuToggle()"></div>

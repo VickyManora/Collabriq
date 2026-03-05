@@ -30,7 +30,9 @@
   }
 
   &__link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     padding: 0.625rem 1rem;
     border-radius: $radius-sm;
     font-size: 0.875rem;
@@ -47,5 +49,9 @@
       background: var(--color-secondary-alpha-faint);
       color: var(--color-primary);
     }
+  }
+
+  &__icon {
+    flex-shrink: 0;
   }
 }
