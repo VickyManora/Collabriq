@@ -145,3 +145,52 @@
     padding: 0.375rem 0.875rem;
   }
 }
+
+// ─── Skeleton loading ───
+
+.skeleton-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.skeleton {
+  background: var(--color-border);
+  border-radius: 4px;
+  animation: shimmer 1.2s ease-in-out infinite alternate;
+
+  &--line-sm {
+    height: 0.75rem;
+    width: 50%;
+  }
+
+  &--line {
+    height: 0.875rem;
+    width: 60%;
+  }
+
+  &--line-lg {
+    height: 1rem;
+    width: 55%;
+  }
+
+  &--badge {
+    height: 1.5rem;
+    width: 4.5rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes shimmer {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}

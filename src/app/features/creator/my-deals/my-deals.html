@@ -22,7 +22,16 @@
   </div>
 
   @if (loading()) {
-    <p class="my-deals__loading">Loading deals...</p>
+    <div class="my-deals__grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--badge"></div></div>
+          <div class="skeleton skeleton--line" style="width:45%"></div>
+          <div class="skeleton skeleton--line" style="width:60%"></div>
+          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+        </div>
+      }
+    </div>
   } @else if (filtered().length === 0) {
     <div class="my-deals__empty">
       <p>No deals found.</p>

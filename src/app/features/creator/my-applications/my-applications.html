@@ -22,7 +22,16 @@
   </div>
 
   @if (loading()) {
-    <p class="my-apps__loading">Loading applications...</p>
+    <div class="my-apps__grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--badge"></div></div>
+          <div class="skeleton skeleton--line" style="width:40%"></div>
+          <div class="skeleton skeleton--line" style="width:80%"></div>
+          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+        </div>
+      }
+    </div>
   } @else if (filtered().length === 0) {
     <div class="my-apps__empty">
       <p>No applications found.</p>
