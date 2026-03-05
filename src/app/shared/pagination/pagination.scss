@@ -16,7 +16,7 @@
 
   &__info {
     font-size: 0.8125rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
     white-space: nowrap;
   }
 }

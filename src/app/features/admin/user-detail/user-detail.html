@@ -104,7 +104,7 @@
           @for (deal of pagedDeals(); track deal.id) {
             <div class="mini-card">
               <div class="mini-card__top">
-                <span class="mini-card__title">{{ deal.requirement.title }}</span>
+                <span class="mini-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</span>
                 <span class="mini-card__badge mini-card__badge--{{ deal.status }}">
                   {{ dealStatusLabel(deal.status) }}
                 </span>

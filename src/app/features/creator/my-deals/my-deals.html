@@ -35,7 +35,7 @@
       @for (deal of paged(); track deal.id) {
         <div class="deal-card">
           <div class="deal-card__top">
-            <h3 class="deal-card__title">{{ deal.requirement.title }}</h3>
+            <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
             <span class="deal-card__badge deal-card__badge--{{ deal.status }}">
               {{ statusLabel(deal.status) }}
             </span>
@@ -43,9 +43,9 @@
 
           <div class="deal-card__business">
             <p class="deal-card__business-name">{{ businessDisplayName(deal) }}</p>
-            <p class="deal-card__contact">{{ deal.business.email }}</p>
-            @if (deal.business.phone) {
-              <p class="deal-card__contact">{{ deal.business.phone }}</p>
+            <p class="deal-card__contact">{{ deal.business?.email }}</p>
+            @if (deal.business?.phone) {
+              <p class="deal-card__contact">{{ deal.business?.phone }}</p>
             }
           </div>
 

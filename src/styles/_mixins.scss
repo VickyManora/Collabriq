@@ -7,11 +7,11 @@
 }
 
 @mixin card {
-  background: $white;
+  background: var(--color-surface);
   border-radius: $radius;
-  border: 1px solid $gray-200;
+  border: 1px solid var(--color-border);
   padding: 1.5rem;
-  box-shadow: $shadow-sm;
+  box-shadow: var(--shadow-sm);
 }
 
 @mixin btn-base {
@@ -34,81 +34,81 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $secondary;
+    outline: 2px solid var(--color-secondary);
     outline-offset: 2px;
   }
 }
 
 @mixin btn-primary {
   @include btn-base;
-  background: $primary;
-  color: $white;
+  background: var(--color-primary);
+  color: #ffffff;
 
   &:hover:not(:disabled) {
-    background: $primary-dark;
+    background: var(--color-primary-dark);
   }
 }
 
 @mixin btn-secondary {
   @include btn-base;
-  background: $secondary;
-  color: $white;
+  background: var(--color-secondary);
+  color: #ffffff;
 
   &:hover:not(:disabled) {
-    background: $secondary-dark;
+    background: var(--color-secondary-dark);
   }
 }
 
 @mixin btn-accent {
   @include btn-base;
-  background: $accent;
-  color: $white;
+  background: var(--color-accent);
+  color: #ffffff;
 
   &:hover:not(:disabled) {
-    background: $accent-dark;
+    background: var(--color-accent-dark);
   }
 }
 
 @mixin btn-outline {
   @include btn-base;
-  background: $white;
-  color: $primary;
-  border: 1px solid $primary;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
 
   &:hover:not(:disabled) {
-    background: rgba($primary, 0.04);
+    background: var(--color-surface-hover);
   }
 }
 
 @mixin btn-outline-danger {
   @include btn-base;
-  background: $white;
-  color: $danger;
-  border: 1px solid $danger;
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
 
   &:hover:not(:disabled) {
-    background: rgba($danger, 0.04);
+    background: var(--color-surface-hover);
   }
 }
 
 @mixin input-base {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  border: 1px solid $gray-300;
+  border: 1px solid var(--color-border);
   border-radius: $radius-sm;
   font-size: 0.875rem;
   font-family: $font-family;
-  color: $gray-900;
-  background: $white;
+  color: var(--color-text);
+  background: var(--color-surface);
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &::placeholder {
-    color: $gray-400;
+    color: var(--color-text-placeholder);
   }
 
   &:focus {
     outline: none;
-    border-color: $secondary;
-    box-shadow: 0 0 0 3px rgba($secondary, 0.15);
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(127, 177, 182, 0.15);
   }
 }

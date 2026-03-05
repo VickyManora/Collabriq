@@ -15,8 +15,8 @@ export type ApplicationWithRequirement = Application & {
 };
 
 export type DealWithDetails = Deal & {
-  requirement: { title: string };
-  business: { business_name: string | null; full_name: string; email: string; phone: string | null };
+  requirement: { title: string } | null;
+  business: { business_name: string | null; full_name: string; email: string; phone: string | null } | null;
 };
 
 @Injectable({ providedIn: 'root' })

@@ -5,13 +5,13 @@
   max-width: 720px;
 
   &__loading {
-    color: $gray-500;
+    color: var(--color-text-muted);
     padding: 2rem 0;
   }
 
   &__error {
-    background: rgba($danger, 0.08);
-    color: $danger;
+    background: var(--color-danger-alpha-faint);
+    color: var(--color-danger);
     padding: 0.75rem 1rem;
     border-radius: $radius-sm;
     margin-bottom: 1rem;
@@ -48,19 +48,19 @@
     border-radius: 999px;
     white-space: nowrap;
     flex-shrink: 0;
-    background: rgba($secondary, 0.15);
-    color: $secondary-dark;
+    background: var(--color-secondary-alpha);
+    color: var(--color-secondary-dark);
   }
 
   &__business {
     font-size: 0.875rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
     margin-bottom: 1rem;
   }
 
   &__desc {
     font-size: 0.9375rem;
-    color: $gray-800;
+    color: var(--color-text-secondary);
     line-height: 1.6;
     margin-bottom: 1.25rem;
     white-space: pre-wrap;
@@ -70,7 +70,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    border-top: 1px solid $gray-200;
+    border-top: 1px solid var(--color-border);
     padding-top: 1rem;
   }
 
@@ -81,7 +81,7 @@
   }
 
   &__info-label {
-    color: $gray-500;
+    color: var(--color-text-muted);
     font-weight: 500;
   }
 
@@ -109,7 +109,7 @@
     label {
       font-size: 0.8125rem;
       font-weight: 500;
-      color: $gray-700;
+      color: var(--color-label);
     }
 
     textarea {
@@ -137,37 +137,37 @@
     border-radius: 999px;
 
     &--applied {
-      background: rgba($accent, 0.12);
-      color: $accent-dark;
+      background: var(--color-accent-alpha);
+      color: var(--color-accent-dark);
     }
     &--accepted {
-      background: rgba($success, 0.12);
-      color: $success-dark;
+      background: var(--color-success-alpha);
+      color: var(--color-success-dark);
     }
     &--rejected {
-      background: rgba($danger, 0.1);
-      color: $danger;
+      background: var(--color-danger-alpha);
+      color: var(--color-danger);
     }
     &--withdrawn {
-      background: $gray-100;
-      color: $gray-600;
+      background: var(--color-surface-hover);
+      color: var(--color-text-muted);
     }
   }
 
   &__app-pitch {
     font-size: 0.875rem;
-    color: $gray-700;
+    color: var(--color-label);
     white-space: pre-wrap;
   }
 
   &__app-date {
     font-size: 0.8125rem;
-    color: $gray-400;
+    color: var(--color-text-faint);
   }
 
   &__app-accepted {
     font-size: 0.875rem;
-    color: $success-dark;
+    color: var(--color-success-dark);
     font-weight: 500;
   }
 

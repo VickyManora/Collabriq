@@ -16,32 +16,32 @@
     gap: 0.25rem;
     margin-bottom: 1.5rem;
     overflow-x: auto;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 0;
   }
 
   &__tab {
     @include btn-base;
     background: none;
-    color: $gray-500;
+    color: var(--color-text-muted);
     border-radius: 0;
     padding: 0.5rem 1rem;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
 
     &:hover:not(:disabled) {
-      color: $accent;
+      color: var(--color-accent);
     }
 
     &--active {
-      color: $primary;
-      border-bottom-color: $primary;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
       font-weight: 600;
     }
   }
 
   &__loading {
-    color: $gray-500;
+    color: var(--color-text-muted);
     text-align: center;
     padding: 3rem 1rem;
   }
@@ -50,11 +50,11 @@
     @include card;
     text-align: center;
     padding: 3rem 1.5rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
 
     p:first-child {
       font-weight: 500;
-      color: $gray-700;
+      color: var(--color-label);
       margin-bottom: 0.5rem;
     }
   }
@@ -84,7 +84,7 @@
   &__title {
     font-size: 1rem;
     font-weight: 600;
-    color: $gray-900;
+    color: var(--color-text);
     margin: 0;
   }
 
@@ -97,20 +97,20 @@
     flex-shrink: 0;
 
     &--active {
-      background: rgba($secondary, 0.15);
-      color: $secondary-dark;
+      background: var(--color-secondary-alpha);
+      color: var(--color-secondary-dark);
     }
     &--creator_marked_done {
-      background: rgba($secondary, 0.15);
-      color: $secondary-dark;
+      background: var(--color-secondary-alpha);
+      color: var(--color-secondary-dark);
     }
     &--completed {
-      background: rgba($primary, 0.08);
-      color: $primary;
+      background: var(--color-primary-alpha);
+      color: var(--color-primary);
     }
     &--cancelled {
-      background: rgba($danger, 0.1);
-      color: $danger;
+      background: var(--color-danger-alpha);
+      color: var(--color-danger);
     }
   }
 
@@ -128,36 +128,36 @@
   &__creator-name {
     font-size: 0.875rem;
     font-weight: 500;
-    color: $gray-800;
+    color: var(--color-text-secondary);
   }
 
   &__avg-rating {
     font-size: 0.75rem;
     font-weight: 500;
-    color: $warning;
+    color: var(--color-warning);
   }
 
   &__contact {
     font-size: 0.8125rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
   }
 
   &__date {
     font-size: 0.8125rem;
-    color: $gray-400;
+    color: var(--color-text-faint);
     margin-bottom: 0.75rem;
   }
 
   &__info {
     font-size: 0.8125rem;
-    color: $secondary-dark;
+    color: var(--color-secondary-dark);
     font-weight: 500;
     margin-bottom: 0.75rem;
   }
 
   &__waiting {
     font-size: 0.8125rem;
-    color: $secondary-dark;
+    color: var(--color-secondary-dark);
     font-style: italic;
   }
 
@@ -174,7 +174,7 @@
   }
 
   &__rating-form {
-    border-top: 1px solid $gray-200;
+    border-top: 1px solid var(--color-border);
     padding-top: 0.75rem;
     margin-top: 0.5rem;
   }
@@ -182,7 +182,7 @@
   &__rating-label {
     font-size: 0.8125rem;
     font-weight: 500;
-    color: $gray-700;
+    color: var(--color-label);
     margin-bottom: 0.5rem;
   }
 
@@ -197,12 +197,12 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: $gray-300;
+    color: var(--color-border);
     padding: 0;
     line-height: 1;
 
     &--active {
-      color: $warning;
+      color: var(--color-warning);
     }
   }
 
@@ -225,18 +225,18 @@
 
   &__rated {
     font-size: 0.875rem;
-    color: $gray-600;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
     gap: 0.25rem;
   }
 
   &__rated-star {
-    color: $gray-300;
+    color: var(--color-border);
     font-size: 1rem;
 
     &--filled {
-      color: $warning;
+      color: var(--color-warning);
     }
   }
 }

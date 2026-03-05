@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, OnInit, output, signal } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -13,10 +14,12 @@ import { RouterLink } from '@angular/router';
 export class Header implements OnInit {
   menuToggle = output<void>();
   dropdownOpen = signal(false);
+  themeMenuOpen = signal(false);
 
   constructor(
     protected auth: AuthService,
     protected notificationSvc: NotificationService,
+    protected theme: ThemeService,
     private elRef: ElementRef,
   ) {}
 
@@ -48,10 +51,20 @@ export class Header implements OnInit {
     this.notificationSvc.markAllAsRead();
   }
 
+  toggleThemeMenu() {
+    this.themeMenuOpen.update(v => !v);
+  }
+
+  setTheme(mode: ThemeMode) {
+    this.theme.setMode(mode);
+    this.themeMenuOpen.set(false);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    if (this.dropdownOpen() && !this.elRef.nativeElement.contains(event.target)) {
+    if (!this.elRef.nativeElement.contains(event.target)) {
       this.dropdownOpen.set(false);
+      this.themeMenuOpen.set(false);
     }
   }
 }

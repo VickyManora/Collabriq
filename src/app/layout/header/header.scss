@@ -7,8 +7,8 @@
   justify-content: space-between;
   height: $header-height;
   padding: 0 1rem;
-  background: $white;
-  border-bottom: 1px solid $gray-200;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   position: fixed;
   top: 0;
   left: 0;
@@ -26,11 +26,11 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
-    color: $primary;
+    color: var(--color-primary);
     border-radius: $radius-sm;
 
     &:hover {
-      background: $gray-100;
+      background: var(--color-surface-hover);
     }
 
     @include respond-to($breakpoint-lg) {
@@ -44,7 +44,7 @@
     gap: 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
-    color: $primary;
+    color: var(--color-primary);
   }
 
   &__logo-icon {
@@ -60,7 +60,7 @@
 
   &__user {
     font-size: 0.875rem;
-    color: $gray-600;
+    color: var(--color-text-muted);
     display: none;
 
     @include respond-to($breakpoint-sm) {
@@ -73,14 +73,73 @@
     align-items: center;
     justify-content: center;
     padding: 0.375rem;
-    color: $primary;
+    color: var(--color-primary);
     border-radius: $radius-sm;
     cursor: pointer;
     text-decoration: none;
 
     &:hover {
-      background: $gray-100;
-      color: $accent;
+      background: var(--color-surface-hover);
+      color: var(--color-accent);
+    }
+  }
+
+  &__theme {
+    position: relative;
+  }
+
+  &__theme-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    color: var(--color-primary);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    background: none;
+    border: none;
+
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-accent);
+    }
+  }
+
+  &__theme-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: $radius;
+    box-shadow: var(--shadow-md);
+    z-index: 200;
+    min-width: 140px;
+    padding: 0.25rem;
+  }
+
+  &__theme-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    border-radius: $radius-sm;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--color-surface-hover);
+    }
+
+    &--active {
+      color: var(--color-primary);
+      font-weight: 600;
+      background: var(--color-secondary-alpha-faint);
     }
   }
 
@@ -94,15 +153,15 @@
     justify-content: center;
     position: relative;
     padding: 0.375rem;
-    color: $primary;
+    color: var(--color-primary);
     border-radius: $radius-sm;
     cursor: pointer;
     background: none;
     border: none;
 
     &:hover {
-      background: $gray-100;
-      color: $accent;
+      background: var(--color-surface-hover);
+      color: var(--color-accent);
     }
   }
 
@@ -114,8 +173,8 @@
     height: 18px;
     padding: 0 4px;
     border-radius: 9px;
-    background: $accent;
-    color: $white;
+    background: var(--color-accent);
+    color: #ffffff;
     font-size: 0.6875rem;
     font-weight: 600;
     line-height: 18px;
@@ -128,10 +187,10 @@
     right: 0;
     width: 320px;
     max-height: 400px;
-    background: $white;
-    border: 1px solid $gray-200;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: $radius;
-    box-shadow: $shadow-md;
+    box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
     z-index: 200;
@@ -150,25 +209,25 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
   }
 
   &__dropdown-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: $gray-800;
+    color: var(--color-text-secondary);
   }
 
   &__dropdown-mark-all {
     background: none;
     border: none;
     font-size: 0.75rem;
-    color: $secondary;
+    color: var(--color-secondary);
     cursor: pointer;
     font-weight: 500;
 
     &:hover {
-      color: $secondary-dark;
+      color: var(--color-secondary-dark);
     }
   }
 
@@ -186,39 +245,39 @@
     text-align: left;
     background: none;
     border: none;
-    border-bottom: 1px solid $gray-100;
+    border-bottom: 1px solid var(--color-surface-hover);
     cursor: pointer;
 
     &:hover {
-      background: $gray-50;
+      background: var(--color-bg);
     }
 
     &--unread {
-      background: rgba($secondary, 0.06);
-      border-left: 3px solid $secondary;
+      background: var(--color-secondary-alpha-faint);
+      border-left: 3px solid var(--color-secondary);
 
       &:hover {
-        background: rgba($secondary, 0.1);
+        background: var(--color-secondary-alpha-mid);
       }
     }
   }
 
   &__dropdown-item-msg {
     font-size: 0.8125rem;
-    color: $gray-800;
+    color: var(--color-text-secondary);
     line-height: 1.4;
   }
 
   &__dropdown-item-time {
     font-size: 0.6875rem;
-    color: $gray-400;
+    color: var(--color-text-faint);
   }
 
   &__dropdown-empty {
     padding: 2rem 1rem;
     text-align: center;
     font-size: 0.8125rem;
-    color: $gray-400;
+    color: var(--color-text-faint);
   }
 
   &__logout {

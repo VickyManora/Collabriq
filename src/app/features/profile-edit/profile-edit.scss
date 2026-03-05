@@ -9,8 +9,8 @@
   }
 
   &__error {
-    background: rgba($danger, 0.08);
-    color: $danger;
+    background: var(--color-danger-alpha-faint);
+    color: var(--color-danger);
     padding: 0.75rem 1rem;
     border-radius: $radius-sm;
     margin-bottom: 1rem;
@@ -29,7 +29,7 @@
     flex-wrap: wrap;
     gap: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
   }
 
   &__info {
@@ -42,7 +42,7 @@
   &__label {
     font-size: 0.75rem;
     font-weight: 500;
-    color: $gray-500;
+    color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.025em;
   }
@@ -55,7 +55,7 @@
     label {
       font-size: 0.8125rem;
       font-weight: 500;
-      color: $gray-700;
+      color: var(--color-label);
     }
 
     input,
@@ -96,18 +96,18 @@
   &__danger-zone {
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid $gray-200;
+    border-top: 1px solid var(--color-border);
 
     h2 {
       font-size: 1rem;
       font-weight: 600;
-      color: $danger;
+      color: var(--color-danger);
       margin-bottom: 0.5rem;
     }
 
     p {
       font-size: 0.8125rem;
-      color: $gray-500;
+      color: var(--color-text-muted);
       margin-bottom: 1rem;
       line-height: 1.5;
     }
@@ -115,11 +115,11 @@
 
   &__deactivate-btn {
     @include btn-base;
-    background: $gray-800;
-    color: $white;
+    background: var(--color-neutral-badge-bg);
+    color: var(--color-neutral-badge-text);
 
     &:hover:not(:disabled) {
-      background: $gray-900;
+      background: var(--color-text);
     }
   }
 }

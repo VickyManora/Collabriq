@@ -16,7 +16,7 @@
   padding: 2.5rem 2rem;
 
   &__icon {
-    color: $accent;
+    color: var(--color-accent);
     margin-bottom: 1rem;
 
     svg {
@@ -29,7 +29,7 @@
   }
 
   &__message {
-    color: $gray-500;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
@@ -41,7 +41,7 @@
     justify-content: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    background: $gray-50;
+    background: var(--color-bg);
     border-radius: $radius-sm;
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
@@ -49,8 +49,8 @@
 
   &__role {
     text-transform: capitalize;
-    background: rgba($secondary, 0.15);
-    color: $primary;
+    background: var(--color-secondary-alpha);
+    color: var(--color-primary);
     padding: 0.125rem 0.5rem;
     border-radius: 999px;
     font-size: 0.75rem;

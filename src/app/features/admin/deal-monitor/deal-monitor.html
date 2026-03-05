@@ -35,7 +35,7 @@
       @for (deal of paged(); track deal.id) {
         <div class="monitor-card">
           <div class="monitor-card__top">
-            <h3 class="monitor-card__title">{{ deal.requirement.title }}</h3>
+            <h3 class="monitor-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
             <span class="monitor-card__badge monitor-card__badge--{{ deal.status }}">
               {{ statusLabel(deal.status) }}
             </span>
@@ -43,7 +43,7 @@
 
           <div class="monitor-card__parties">
             <p class="monitor-card__business">{{ businessDisplayName(deal) }}</p>
-            <p class="monitor-card__creator">{{ deal.creator.full_name }}</p>
+            <p class="monitor-card__creator">{{ deal.creator?.full_name ?? 'Unknown' }}</p>
           </div>
 
           <div class="monitor-card__indicators">

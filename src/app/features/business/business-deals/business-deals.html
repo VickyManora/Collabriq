@@ -35,7 +35,7 @@
       @for (deal of paged(); track deal.id) {
         <div class="deal-card">
           <div class="deal-card__top">
-            <h3 class="deal-card__title">{{ deal.requirement.title }}</h3>
+            <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
             <span class="deal-card__badge deal-card__badge--{{ deal.status }}">
               {{ statusLabel(deal.status) }}
             </span>
@@ -43,18 +43,18 @@
 
           <div class="deal-card__creator">
             <div class="deal-card__creator-header">
-              <p class="deal-card__creator-name">{{ deal.creator.full_name }}</p>
+              <p class="deal-card__creator-name">{{ deal.creator?.full_name ?? 'Unknown' }}</p>
               @if (getAvgRating(deal.creator_id); as avg) {
                 <span class="deal-card__avg-rating">
                   &#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})
                 </span>
               }
             </div>
-            <p class="deal-card__contact">{{ deal.creator.email }}</p>
-            @if (deal.creator.phone) {
+            <p class="deal-card__contact">{{ deal.creator?.email }}</p>
+            @if (deal.creator?.phone) {
               <p class="deal-card__contact">{{ deal.creator.phone }}</p>
             }
-            @if (deal.creator.instagram_handle) {
+            @if (deal.creator?.instagram_handle) {
               <p class="deal-card__contact">@{{ deal.creator.instagram_handle }}</p>
             }
             @if (deal.creator.portfolio_url) {

@@ -9,13 +9,13 @@
   }
 
   &__loading {
-    color: $gray-500;
+    color: var(--color-text-muted);
     padding: 2rem 0;
   }
 
   &__error {
-    background: rgba($danger, 0.08);
-    color: $danger;
+    background: var(--color-danger-alpha-faint);
+    color: var(--color-danger);
     padding: 0.75rem 1rem;
     border-radius: $radius-sm;
     margin-bottom: 1rem;
@@ -37,7 +37,7 @@
     label {
       font-size: 0.8125rem;
       font-weight: 500;
-      color: $gray-700;
+      color: var(--color-label);
     }
 
     input,

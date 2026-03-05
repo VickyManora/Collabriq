@@ -120,11 +120,11 @@
                 @if (app.status === 'accepted') {
                   <div class="app-card__contact">
                     <p class="app-card__contact-title">Contact Details</p>
-                    <p>{{ app.creator.email }}</p>
-                    @if (app.creator.phone) {
+                    <p>{{ app.creator?.email }}</p>
+                    @if (app.creator?.phone) {
                       <p>{{ app.creator.phone }}</p>
                     }
-                    @if (app.creator.portfolio_url) {
+                    @if (app.creator?.portfolio_url) {
                       <p><a [href]="app.creator.portfolio_url" target="_blank" rel="noopener">Portfolio</a></p>
                     }
                   </div>

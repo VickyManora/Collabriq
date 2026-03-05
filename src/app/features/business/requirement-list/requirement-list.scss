@@ -24,32 +24,32 @@
     gap: 0.25rem;
     margin-bottom: 1.5rem;
     overflow-x: auto;
-    border-bottom: 1px solid $gray-200;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 0;
   }
 
   &__tab {
     @include btn-base;
     background: none;
-    color: $gray-500;
+    color: var(--color-text-muted);
     border-radius: 0;
     padding: 0.5rem 1rem;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
 
     &:hover:not(:disabled) {
-      color: $accent;
+      color: var(--color-accent);
     }
 
     &--active {
-      color: $primary;
-      border-bottom-color: $primary;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
       font-weight: 600;
     }
   }
 
   &__loading {
-    color: $gray-500;
+    color: var(--color-text-muted);
     text-align: center;
     padding: 3rem 1rem;
   }
@@ -58,11 +58,11 @@
     @include card;
     text-align: center;
     padding: 3rem 1.5rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
 
     p:first-child {
       font-weight: 500;
-      color: $gray-700;
+      color: var(--color-label);
       margin-bottom: 0.5rem;
     }
   }
@@ -84,7 +84,7 @@
   transition: box-shadow 0.15s;
 
   &:hover {
-    box-shadow: $shadow-md;
+    box-shadow: var(--shadow-md);
   }
 
   &__top {
@@ -98,7 +98,7 @@
   &__title {
     font-size: 1rem;
     font-weight: 600;
-    color: $gray-900;
+    color: var(--color-text);
     margin: 0;
   }
 
@@ -111,34 +111,34 @@
     flex-shrink: 0;
 
     &--draft {
-      background: $gray-100;
-      color: $gray-600;
+      background: var(--color-surface-hover);
+      color: var(--color-text-muted);
     }
     &--pending_approval {
-      background: rgba($accent, 0.12);
-      color: $accent-dark;
+      background: var(--color-accent-alpha);
+      color: var(--color-accent-dark);
     }
     &--open {
-      background: rgba($secondary, 0.15);
-      color: $secondary-dark;
+      background: var(--color-secondary-alpha);
+      color: var(--color-secondary-dark);
     }
     &--partially_filled {
-      background: rgba($secondary, 0.15);
-      color: $secondary-dark;
+      background: var(--color-secondary-alpha);
+      color: var(--color-secondary-dark);
     }
     &--closed {
-      background: $gray-200;
-      color: $gray-700;
+      background: var(--color-surface-active);
+      color: var(--color-label);
     }
     &--cancelled {
-      background: rgba($danger, 0.1);
-      color: $danger;
+      background: var(--color-danger-alpha);
+      color: var(--color-danger);
     }
   }
 
   &__category {
     font-size: 0.8125rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
     margin-bottom: 0.75rem;
   }
 
@@ -146,6 +146,6 @@
     display: flex;
     justify-content: space-between;
     font-size: 0.8125rem;
-    color: $gray-400;
+    color: var(--color-text-faint);
   }
 }

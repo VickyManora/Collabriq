@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: $gray-50;
+  background: var(--color-bg);
 }
 
 .auth-card {
@@ -28,14 +28,14 @@
   }
 
   &__subtitle {
-    color: $gray-500;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
   }
 
   &__error {
-    background: rgba($danger, 0.08);
-    color: $danger;
+    background: var(--color-danger-alpha-faint);
+    color: var(--color-danger);
     padding: 0.75rem 1rem;
     border-radius: $radius-sm;
     font-size: 0.875rem;
@@ -45,15 +45,15 @@
   &__footer {
     text-align: center;
     font-size: 0.875rem;
-    color: $gray-500;
+    color: var(--color-text-muted);
     margin-top: 1.5rem;
 
     a {
-      color: $primary;
+      color: var(--color-primary);
       font-weight: 500;
 
       &:hover {
-        color: $accent;
+        color: var(--color-accent);
         text-decoration: underline;
       }
     }
@@ -74,7 +74,7 @@
   label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: $gray-700;
+    color: var(--color-label);
   }
 
   input {
@@ -84,7 +84,7 @@
 
 .role-toggle {
   display: flex;
-  background: $gray-100;
+  background: var(--color-surface-hover);
   border-radius: $radius-sm;
   padding: 0.25rem;
 
@@ -94,12 +94,12 @@
     border-radius: 4px;
     font-size: 0.875rem;
     font-weight: 500;
-    color: $gray-500;
+    color: var(--color-text-muted);
     transition: all 0.15s;
 
     &--active {
-      background: $white;
-      color: $primary;
+      background: var(--color-surface);
+      color: var(--color-primary);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     }
   }

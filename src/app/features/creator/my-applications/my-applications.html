@@ -35,12 +35,12 @@
       @for (app of paged(); track app.id) {
         <div class="app-card" (click)="viewRequirement(app.requirement_id)">
           <div class="app-card__top">
-            <h3 class="app-card__title">{{ app.requirement.title }}</h3>
+            <h3 class="app-card__title">{{ app.requirement?.title ?? 'Untitled' }}</h3>
             <span class="app-card__badge app-card__badge--{{ app.status }}">
               {{ statusLabel(app.status) }}
             </span>
           </div>
-          @if (app.requirement.category) {
+          @if (app.requirement?.category) {
             <p class="app-card__category">{{ app.requirement.category }}</p>
           }
           @if (app.pitch) {

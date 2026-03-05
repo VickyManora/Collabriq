@@ -1,11 +1,126 @@
 @use 'styles/reset';
 @use 'styles/typography';
 
+// ─── Light Theme (default) ───
 :root {
+  // Brand
   --color-primary: #2B0D2F;
+  --color-primary-dark: #1a0620;
+  --color-primary-light: #4a2050;
   --color-secondary: #7FB1B6;
+  --color-secondary-dark: #5f9499;
+  --color-secondary-light: #b3d4d8;
   --color-accent: #FF6A3D;
-  --color-background: #ffffff;
-  --color-text: #1f1f1f;
-  --color-border: #e5e5e5;
+  --color-accent-dark: #e05528;
+
+  // Status
+  --color-success: #22c55e;
+  --color-success-dark: #178344;
+  --color-warning: #f59e0b;
+  --color-danger: #e74c3c;
+
+  // Surfaces
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f3f4f6;
+  --color-surface-active: #e5e7eb;
+
+  // Borders
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+
+  // Text
+  --color-text: #111827;
+  --color-text-secondary: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-text-faint: #9ca3af;
+  --color-text-placeholder: #9ca3af;
+
+  // Label text
+  --color-label: #374151;
+
+  // Shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  // Badge backgrounds (semi-transparent)
+  --color-primary-alpha: rgba(43, 13, 47, 0.08);
+  --color-secondary-alpha: rgba(127, 177, 182, 0.15);
+  --color-secondary-alpha-faint: rgba(127, 177, 182, 0.06);
+  --color-accent-alpha: rgba(255, 106, 61, 0.12);
+  --color-danger-alpha: rgba(231, 76, 60, 0.1);
+  --color-danger-alpha-faint: rgba(231, 76, 60, 0.08);
+  --color-success-alpha: rgba(34, 197, 94, 0.12);
+  --color-secondary-alpha-mid: rgba(127, 177, 182, 0.1);
+  --color-danger-dark: #c0392b;
+
+  // Neutral badge (deactivate, etc.)
+  --color-neutral-badge-bg: #374151;
+  --color-neutral-badge-text: #ffffff;
+
+  // Overlay
+  --color-overlay: rgba(0, 0, 0, 0.3);
+}
+
+// ─── Dark Theme ───
+[data-theme="dark"] {
+  // Brand (slightly brighter for dark bg)
+  --color-primary: #c9a3d0;
+  --color-primary-dark: #e0c8e5;
+  --color-primary-light: #8a5c90;
+  --color-secondary: #7FB1B6;
+  --color-secondary-dark: #a0cdd2;
+  --color-secondary-light: #4d8a90;
+  --color-accent: #FF6A3D;
+  --color-accent-dark: #ff8a65;
+
+  // Status
+  --color-success: #4ade80;
+  --color-success-dark: #86efac;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  // Surfaces
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-surface-hover: #2a2a2a;
+  --color-surface-active: #333333;
+
+  // Borders
+  --color-border: #2e2e2e;
+  --color-border-light: #252525;
+
+  // Text
+  --color-text: #f1f1f1;
+  --color-text-secondary: #e0e0e0;
+  --color-text-muted: #aaaaaa;
+  --color-text-faint: #777777;
+  --color-text-placeholder: #666666;
+
+  // Label text
+  --color-label: #cccccc;
+
+  // Shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  // Badge backgrounds (semi-transparent)
+  --color-primary-alpha: rgba(201, 163, 208, 0.15);
+  --color-secondary-alpha: rgba(127, 177, 182, 0.2);
+  --color-secondary-alpha-faint: rgba(127, 177, 182, 0.08);
+  --color-accent-alpha: rgba(255, 106, 61, 0.18);
+  --color-danger-alpha: rgba(248, 113, 113, 0.15);
+  --color-danger-alpha-faint: rgba(248, 113, 113, 0.12);
+  --color-success-alpha: rgba(74, 222, 128, 0.15);
+  --color-secondary-alpha-mid: rgba(127, 177, 182, 0.12);
+  --color-danger-dark: #ef4444;
+
+  // Neutral badge (deactivate, etc.)
+  --color-neutral-badge-bg: #555555;
+  --color-neutral-badge-text: #f1f1f1;
+
+  // Overlay
+  --color-overlay: rgba(0, 0, 0, 0.6);
 }
