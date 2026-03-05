@@ -25,37 +25,57 @@
     <div class="my-apps__grid">
       @for (i of [1, 2, 3, 4]; track i) {
         <div class="skeleton-card">
-          <div class="skeleton-row"><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--badge"></div></div>
-          <div class="skeleton skeleton--line" style="width:40%"></div>
-          <div class="skeleton skeleton--line" style="width:80%"></div>
-          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+          <div class="skeleton-row"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:40%"></div></div>
+          <div class="skeleton skeleton--line-lg"></div>
+          <div class="skeleton skeleton--line" style="width:50%"></div>
+          <div class="skeleton-row"><div class="skeleton skeleton--line-sm" style="width:35%"></div><div class="skeleton skeleton--badge"></div></div>
         </div>
       }
     </div>
   } @else if (filtered().length === 0) {
     <div class="my-apps__empty">
-      <p>No applications found.</p>
       @if (activeFilter() === 'all' && !searchQuery()) {
-        <p>Browse open requirements and apply to get started.</p>
+        <p>You haven't applied to any opportunities yet.</p>
+        <a class="my-apps__browse-btn" routerLink="/creator/browse">Browse Opportunities</a>
+      } @else {
+        <p>No applications found.</p>
       }
     </div>
   } @else {
     <div class="my-apps__grid">
       @for (app of paged(); track app.id) {
         <div class="app-card" (click)="viewRequirement(app.requirement_id)">
-          <div class="app-card__top">
-            <h3 class="app-card__title">{{ app.requirement?.title ?? 'Untitled' }}</h3>
+          <div class="app-card__header">
+            <div class="app-card__biz-link" (click)="viewBusiness($event, app)">
+              <span class="app-card__avatar">{{ businessInitial(app) }}</span>
+              <div class="app-card__header-text">
+                <span class="app-card__business">{{ businessDisplayName(app) }}</span>
+                @if (businessHandle(app)) {
+                  <span class="app-card__handle">@{{ businessHandle(app) }}</span>
+                }
+              </div>
+            </div>
             <span class="app-card__badge app-card__badge--{{ app.status }}">
-              {{ statusLabel(app.status) }}
+              {{ statusLabel(app.status) }}@if (app.status === 'accepted') { &#10003;}
             </span>
           </div>
+
+          <h3 class="app-card__title">{{ app.requirement?.title ?? 'Untitled' }}</h3>
+
           @if (app.requirement?.category) {
-            <p class="app-card__category">{{ app.requirement.category }}</p>
+            <span class="app-card__category">{{ app.requirement.category }}</span>
           }
-          @if (app.pitch) {
-            <p class="app-card__pitch">{{ pitchPreview(app.pitch) }}</p>
-          }
+
           <p class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
+
+          @if (app.status === 'accepted') {
+            <a
+              class="app-card__deal-btn"
+              routerLink="/creator/deals"
+              (click)="$event.stopPropagation()"
+            >View Deal</a>
+          }
+
           @if (app.status === 'applied') {
             <button
               class="app-card__withdraw-btn"

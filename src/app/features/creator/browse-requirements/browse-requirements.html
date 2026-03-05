@@ -4,7 +4,7 @@
   <input
     class="browse__search"
     type="text"
-    placeholder="Search by title, description, category..."
+    placeholder="Search opportunities..."
     [ngModel]="searchQuery()"
     (ngModelChange)="onSearch($event)"
   />
@@ -86,6 +86,9 @@
           </ul>
         }
       </div>
+      @if (hasActiveFilters()) {
+        <button class="browse__reset-btn" (click)="clearFilters()">Reset Filters</button>
+      }
     </div>
   </div>
 
@@ -132,41 +135,56 @@
           @if (isNew(req)) {
             <span class="browse-card__new">NEW</span>
           }
+          @if (isClosingSoon(req)) {
+            <span class="browse-card__closing-soon">Closing Soon</span>
+          }
 
-          <div class="browse-card__header">
+          <div class="browse-card__header" (click)="viewBusiness($event, req.business_id)">
             <span class="browse-card__avatar">{{ businessInitial(req) }}</span>
             <div class="browse-card__header-text">
               <p class="browse-card__business">{{ businessDisplayName(req) }}</p>
-              @if (req.category) {
-                <span class="browse-card__category">{{ req.category }}</span>
+              @if (businessHandle(req)) {
+                <p class="browse-card__handle">@{{ businessHandle(req) }}</p>
               }
             </div>
           </div>
 
-          <h3 class="browse-card__title">{{ req.title }}</h3>
-
-          @if (req.description) {
-            <p class="browse-card__desc">{{ req.description }}</p>
+          @if (req.category) {
+            <span class="browse-card__category">{{ req.category }}</span>
           }
 
           @if (req.compensation_details) {
             <p class="browse-card__compensation">{{ req.compensation_details }}</p>
           }
 
+          <h3 class="browse-card__title">{{ req.title }}</h3>
+
+          @if (req.description && req.description !== req.title) {
+            <p class="browse-card__desc">{{ req.description }}</p>
+          }
+
           <div class="browse-card__footer">
             <div class="browse-card__meta">
-              <span>{{ spotsLeftText(req) }}</span>
+              <span class="browse-card__spots">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
+                {{ spotsLeftText(req) }}
+              </span>
+              @if (applicationsCount(req) > 0) {
+                <span class="browse-card__applicants">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                  {{ applicationsCount(req) }} applied
+                </span>
+              }
               @if (req.closes_at) {
-                <span>{{ req.closes_at | closesIn }}</span>
+                <span class="browse-card__time" [class.browse-card__time--urgent]="isClosingSoon(req)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  {{ req.closes_at | closesIn }}
+                </span>
               }
             </div>
-            <div class="browse-card__actions">
-              @if (getAppliedInfo(req.id); as appInfo) {
-                <span class="browse-card__applied">Applied &#10003;</span>
-              } @else {
-                <button class="browse-card__apply-btn" (click)="viewRequirement(req.id); $event.stopPropagation()">Apply</button>
-              }
-            </div>
+            @if (getAppliedInfo(req.id)) {
+              <span class="browse-card__applied">Applied &#10003;</span>
+            }
           </div>
         </div>
       }

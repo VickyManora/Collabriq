@@ -246,12 +246,21 @@ export class BrowseRequirements implements OnInit {
     this.router.navigate(['/creator/browse', id]);
   }
 
+  viewBusiness(event: MouseEvent, businessId: string) {
+    event.stopPropagation();
+    this.router.navigate(['/creator/business', businessId]);
+  }
+
   businessDisplayName(req: RequirementWithBusiness): string {
     return req.business?.business_name || req.business?.full_name || 'Unknown';
   }
 
   businessInitial(req: RequirementWithBusiness): string {
     return this.businessDisplayName(req).replace(/^@/, '').charAt(0).toUpperCase();
+  }
+
+  businessHandle(req: RequirementWithBusiness): string | null {
+    return req.business?.instagram_handle?.replace(/^@/, '') || null;
   }
 
   slotsAvailable(req: RequirementWithBusiness): number {
@@ -265,5 +274,14 @@ export class BrowseRequirements implements OnInit {
 
   isNew(req: RequirementWithBusiness): boolean {
     return Date.now() - new Date(req.created_at).getTime() < 48 * 60 * 60 * 1000;
+  }
+
+  isClosingSoon(req: RequirementWithBusiness): boolean {
+    if (!req.closes_at) return false;
+    return new Date(req.closes_at).getTime() - Date.now() < 48 * 60 * 60 * 1000;
+  }
+
+  applicationsCount(req: RequirementWithBusiness): number {
+    return req.applications?.[0]?.count ?? 0;
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreatorService, ApplicationWithRequirement } from '../../../core/services/creator.service';
@@ -13,7 +13,7 @@ type FilterTab = 'all' | ApplicationStatus;
   selector: 'app-my-applications',
   templateUrl: './my-applications.html',
   styleUrl: './my-applications.scss',
-  imports: [DatePipe, FormsModule, Pagination],
+  imports: [DatePipe, FormsModule, Pagination, RouterLink],
 })
 export class MyApplications implements OnInit {
   applications = signal<ApplicationWithRequirement[]>([]);
@@ -90,6 +90,12 @@ export class MyApplications implements OnInit {
     this.router.navigate(['/creator/browse', requirementId]);
   }
 
+  viewBusiness(event: MouseEvent, app: ApplicationWithRequirement) {
+    event.stopPropagation();
+    const businessId = app.requirement?.business_id;
+    if (businessId) this.router.navigate(['/creator/business', businessId]);
+  }
+
   async withdraw(appId: string) {
     this.actionLoading.set(true);
     const { error } = await this.creatorService.withdrawApplication(appId);
@@ -115,5 +121,17 @@ export class MyApplications implements OnInit {
   pitchPreview(pitch: string | null): string {
     if (!pitch) return '';
     return pitch.length > 100 ? pitch.substring(0, 100) + '...' : pitch;
+  }
+
+  businessDisplayName(app: ApplicationWithRequirement): string {
+    return app.requirement?.business?.business_name || app.requirement?.business?.full_name || 'Unknown';
+  }
+
+  businessInitial(app: ApplicationWithRequirement): string {
+    return this.businessDisplayName(app).replace(/^@/, '').charAt(0).toUpperCase();
+  }
+
+  businessHandle(app: ApplicationWithRequirement): string | null {
+    return app.requirement?.business?.instagram_handle?.replace(/^@/, '') || null;
   }
 }

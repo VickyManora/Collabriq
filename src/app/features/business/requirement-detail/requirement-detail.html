@@ -1,6 +1,42 @@
 <div class="req-detail">
   @if (loading()) {
-    <p class="req-detail__loading">Loading...</p>
+    <div class="skeleton-back"></div>
+    <div class="skeleton-detail-card">
+      <div class="skeleton-row">
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--badge"></div>
+      </div>
+      <div class="skeleton skeleton--line-sm" style="width:25%"></div>
+      <div class="skeleton skeleton--line" style="width:100%; margin-top:0.5rem"></div>
+      <div class="skeleton skeleton--line" style="width:85%"></div>
+      <div class="skeleton skeleton--line" style="width:60%"></div>
+      <div class="skeleton-divider"></div>
+      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:60px"></div></div>
+      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:120px"></div></div>
+      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:90px"></div></div>
+      <div class="skeleton-divider"></div>
+      <div class="skeleton-row" style="gap:0.75rem">
+        <div class="skeleton skeleton--btn"></div>
+        <div class="skeleton skeleton--btn"></div>
+      </div>
+    </div>
+
+    <div class="skeleton-apps">
+      <div class="skeleton skeleton--line" style="width:160px; margin-bottom:1rem"></div>
+      @for (i of [1, 2]; track i) {
+        <div class="skeleton-app-card">
+          <div class="skeleton-row">
+            <div style="flex:1">
+              <div class="skeleton skeleton--line" style="width:45%"></div>
+              <div class="skeleton skeleton--line-sm" style="width:30%"></div>
+            </div>
+            <div class="skeleton skeleton--badge"></div>
+          </div>
+          <div class="skeleton skeleton--line" style="width:80%"></div>
+          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+        </div>
+      }
+    </div>
   } @else if (error() && !requirement()) {
     <p class="req-detail__error">{{ error() }}</p>
     <button class="req-detail__back-btn" (click)="goBack()">Back to Requirements</button>

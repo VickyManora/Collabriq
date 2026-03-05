@@ -81,12 +81,14 @@
               }
 
               <div class="opp-card__top">
-                <span class="opp-card__avatar">{{ businessInitial(req) }}</span>
-                <div class="opp-card__top-info">
-                  <p class="opp-card__business">{{ businessName(req) }}</p>
-                  @if (businessHandle(req)) {
-                    <p class="opp-card__handle">@{{ businessHandle(req) }}</p>
-                  }
+                <div class="opp-card__biz-link" (click)="viewBusiness($event, req.business_id)">
+                  <span class="opp-card__avatar">{{ businessInitial(req) }}</span>
+                  <div class="opp-card__top-info">
+                    <p class="opp-card__business">{{ businessName(req) }}</p>
+                    @if (businessHandle(req)) {
+                      <p class="opp-card__handle">@{{ businessHandle(req) }}</p>
+                    }
+                  </div>
                 </div>
                 @if (req.category) {
                   <span class="opp-card__category">{{ req.category }}</span>
@@ -101,6 +103,12 @@
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
                     {{ spotsLeft(req) }}
                   </span>
+                  @if (applicationsCount(req) > 0) {
+                    <span class="opp-card__applicants">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                      {{ applicationsCount(req) }} applied
+                    </span>
+                  }
                   @if (req.closes_at) {
                     <span class="opp-card__time" [class.opp-card__time--urgent]="isClosingSoon(req)">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -123,5 +131,30 @@
         <p class="dashboard__latest-empty">No open opportunities right now. Check back soon!</p>
       }
     </section>
+
+    @if (!loading() && recentActivity().length > 0) {
+      <section class="dashboard__activity">
+        <h2>Recent Activity</h2>
+        <div class="activity-list">
+          @for (item of recentActivity(); track item.timestamp) {
+            <div class="activity-item">
+              <span class="activity-item__icon activity-item__icon--{{ item.icon }}">
+                @switch (item.icon) {
+                  @case ('accepted') { <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> }
+                  @case ('rejected') { <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg> }
+                  @case ('applied') { <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg> }
+                  @case ('deal') { <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3C19.5 3 22 5.5 22 8.5c0 3.8-3.4 6.9-8.5 11.6L12 21.4l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.5 4.5 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3z"/></svg> }
+                  @case ('rating') { <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> }
+                }
+              </span>
+              <div class="activity-item__content">
+                <p class="activity-item__message">{{ item.message }}</p>
+                <span class="activity-item__time">{{ timeAgo(item.timestamp) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
   }
 </div>

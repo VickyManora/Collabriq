@@ -12,6 +12,12 @@ interface AppliedInfo {
   created_at: string;
 }
 
+interface ActivityItem {
+  message: string;
+  timestamp: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.html',
@@ -29,6 +35,7 @@ export class Dashboard implements OnInit {
   creatorActiveDeals = signal(0);
   latestOpportunities = signal<RequirementWithBusiness[]>([]);
   appliedMap = signal<Map<string, AppliedInfo>>(new Map());
+  recentActivity = signal<ActivityItem[]>([]);
 
   // Admin counts
   pendingUsers = signal(0);
@@ -64,10 +71,11 @@ export class Dashboard implements OnInit {
   }
 
   private async loadCreatorData() {
-    const [counts, recentResult, appResult] = await Promise.all([
+    const [counts, recentResult, appResult, activity] = await Promise.all([
       this.creatorService.getCreatorDashboardCounts(),
       this.creatorService.getRecentRequirements(3),
       this.creatorService.getMyApplicationsBrief(),
+      this.creatorService.getRecentActivity(5),
     ]);
 
     this.openRequirements.set(counts.openRequirements);
@@ -85,6 +93,8 @@ export class Dashboard implements OnInit {
       }
       this.appliedMap.set(map);
     }
+
+    this.recentActivity.set(activity);
 
     this.loading.set(false);
   }
@@ -110,6 +120,10 @@ export class Dashboard implements OnInit {
     return this.businessName(req).replace(/^@/, '').charAt(0).toUpperCase();
   }
 
+  applicationsCount(req: RequirementWithBusiness): number {
+    return req.applications?.[0]?.count ?? 0;
+  }
+
   businessHandle(req: RequirementWithBusiness): string | null {
     return req.business?.instagram_handle?.replace(/^@/, '') || null;
   }
@@ -129,5 +143,22 @@ export class Dashboard implements OnInit {
 
   viewRequirement(id: string) {
     this.router.navigate(['/creator/browse', id]);
+  }
+
+  viewBusiness(event: MouseEvent, businessId: string) {
+    event.stopPropagation();
+    this.router.navigate(['/creator/business', businessId]);
+  }
+
+  timeAgo(timestamp: string): string {
+    const diff = Date.now() - new Date(timestamp).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }

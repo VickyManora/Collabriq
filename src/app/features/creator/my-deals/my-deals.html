@@ -25,10 +25,10 @@
     <div class="my-deals__grid">
       @for (i of [1, 2, 3, 4]; track i) {
         <div class="skeleton-card">
-          <div class="skeleton-row"><div class="skeleton skeleton--line-lg"></div><div class="skeleton skeleton--badge"></div></div>
-          <div class="skeleton skeleton--line" style="width:45%"></div>
-          <div class="skeleton skeleton--line" style="width:60%"></div>
-          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+          <div class="skeleton-row"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:40%"></div></div>
+          <div class="skeleton skeleton--line-lg"></div>
+          <div class="skeleton skeleton--line" style="width:50%"></div>
+          <div class="skeleton-row"><div class="skeleton skeleton--line-sm" style="width:35%"></div><div class="skeleton skeleton--badge"></div></div>
         </div>
       }
     </div>
@@ -42,28 +42,33 @@
   } @else {
     <div class="my-deals__grid">
       @for (deal of paged(); track deal.id) {
-        <div class="deal-card">
-          <div class="deal-card__top">
-            <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
+        <div class="deal-card" (click)="viewRequirement(deal)">
+          <div class="deal-card__header">
+            <div class="deal-card__biz-link" (click)="viewBusiness($event, deal)">
+              <span class="deal-card__avatar">{{ businessInitial(deal) }}</span>
+              <div class="deal-card__header-text">
+                <span class="deal-card__business-name">{{ businessDisplayName(deal) }}</span>
+                @if (businessHandle(deal)) {
+                  <span class="deal-card__handle">@{{ businessHandle(deal) }}</span>
+                }
+                @if (deal.business?.email) {
+                  <span class="deal-card__contact">{{ deal.business?.email }}</span>
+                }
+              </div>
+            </div>
             <span class="deal-card__badge deal-card__badge--{{ deal.status }}">
               {{ statusLabel(deal.status) }}
             </span>
           </div>
 
-          <div class="deal-card__business">
-            <p class="deal-card__business-name">{{ businessDisplayName(deal) }}</p>
-            <p class="deal-card__contact">{{ deal.business?.email }}</p>
-            @if (deal.business?.phone) {
-              <p class="deal-card__contact">{{ deal.business?.phone }}</p>
-            }
-          </div>
+          <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
 
           <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
 
           @if (canMarkDone(deal)) {
             <button
               class="deal-card__done-btn"
-              (click)="markDone(deal.id)"
+              (click)="markDone(deal.id); $event.stopPropagation()"
               [disabled]="actionLoading()"
             >
               Mark as Done
@@ -76,7 +81,7 @@
 
           @if (canRate(deal)) {
             @if (ratingDealId() === deal.id) {
-              <div class="deal-card__rating-form">
+              <div class="deal-card__rating-form" (click)="$event.stopPropagation()">
                 <p class="deal-card__rating-label">Rate this business:</p>
                 <div class="deal-card__stars">
                   @for (star of starOptions; track star) {
@@ -103,7 +108,7 @@
                 </div>
               </div>
             } @else {
-              <button class="deal-card__rate-btn" (click)="startRating(deal.id)">
+              <button class="deal-card__rate-btn" (click)="startRating(deal.id); $event.stopPropagation()">
                 Rate Business
               </button>
             }
@@ -111,10 +116,12 @@
 
           @if (hasRated(deal.id)) {
             <div class="deal-card__rated">
-              <span>Your rating: </span>
-              @for (star of starOptions; track star) {
-                <span class="deal-card__rated-star" [class.deal-card__rated-star--filled]="getRating(deal.id) >= star">&#9733;</span>
-              }
+              <span class="deal-card__rated-label">Your Rating</span>
+              <div class="deal-card__rated-stars">
+                @for (star of starOptions; track star) {
+                  <span class="deal-card__rated-star" [class.deal-card__rated-star--filled]="getRating(deal.id) >= star">&#9733;</span>
+                }
+              </div>
             </div>
           }
         </div>

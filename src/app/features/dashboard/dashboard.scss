@@ -91,6 +91,84 @@
     font-size: 0.875rem;
     color: var(--color-text-muted);
   }
+
+  &__activity {
+    margin-top: 2rem;
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// ─── Activity feed ───
+
+.activity-list {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+
+  & + & {
+    border-top: 1px solid var(--color-border);
+  }
+
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--accepted {
+      background: var(--color-success-alpha);
+      color: var(--color-success-dark);
+    }
+    &--rejected {
+      background: var(--color-danger-alpha);
+      color: var(--color-danger);
+    }
+    &--applied {
+      background: var(--color-accent-alpha);
+      color: var(--color-accent-dark);
+    }
+    &--deal {
+      background: var(--color-primary-alpha);
+      color: var(--color-primary);
+    }
+    &--rating {
+      background: var(--color-warning-alpha, #fff3cd);
+      color: var(--color-warning, #f59e0b);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__message {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__time {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
+  }
 }
 
 // ─── Stat cards ───
@@ -183,6 +261,19 @@
     margin-bottom: 0.5rem;
   }
 
+  &__biz-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+    min-width: 0;
+    flex: 1;
+
+    &:hover .opp-card__business {
+      color: var(--color-primary);
+    }
+  }
+
   &__avatar {
     width: 2rem;
     height: 2rem;
@@ -266,6 +357,17 @@
 
     svg {
       flex-shrink: 0;
+    }
+  }
+
+  &__applicants {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    svg {
+      flex-shrink: 0;
+      color: var(--color-primary);
     }
   }
 

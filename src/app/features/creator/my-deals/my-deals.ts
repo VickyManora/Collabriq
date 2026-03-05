@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DealStatus } from '../../../core/models/deal.model';
@@ -68,6 +68,7 @@ export class MyDeals implements OnInit {
     private creatorService: CreatorService,
     private toast: ToastService,
     private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -115,6 +116,27 @@ export class MyDeals implements OnInit {
 
   businessDisplayName(deal: DealWithDetails): string {
     return deal.business?.business_name || deal.business?.full_name || 'Unknown';
+  }
+
+  businessInitial(deal: DealWithDetails): string {
+    return this.businessDisplayName(deal).replace(/^@/, '').charAt(0).toUpperCase();
+  }
+
+  businessHandle(deal: DealWithDetails): string | null {
+    return deal.business?.instagram_handle?.replace(/^@/, '') || null;
+  }
+
+  viewRequirement(deal: DealWithDetails) {
+    if (deal.requirement_id) {
+      this.router.navigate(['/creator/browse', deal.requirement_id]);
+    }
+  }
+
+  viewBusiness(event: MouseEvent, deal: DealWithDetails) {
+    event.stopPropagation();
+    if (deal.business_id) {
+      this.router.navigate(['/creator/business', deal.business_id]);
+    }
   }
 
   canMarkDone(deal: DealWithDetails): boolean {

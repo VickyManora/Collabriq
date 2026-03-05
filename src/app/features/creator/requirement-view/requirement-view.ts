@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
@@ -12,7 +12,7 @@ import { Application } from '../../../core/models/application.model';
   selector: 'app-requirement-view',
   templateUrl: './requirement-view.html',
   styleUrl: './requirement-view.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog],
+  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog, RouterLink],
 })
 export class RequirementView implements OnInit {
   requirement = signal<RequirementWithBusiness | null>(null);
@@ -62,6 +62,23 @@ export class RequirementView implements OnInit {
   businessDisplayName(): string {
     const req = this.requirement();
     return req?.business?.business_name || req?.business?.full_name || 'Unknown';
+  }
+
+  businessInitial(): string {
+    return this.businessDisplayName().replace(/^@/, '').charAt(0).toUpperCase();
+  }
+
+  businessHandle(): string | null {
+    return this.requirement()?.business?.instagram_handle?.replace(/^@/, '') || null;
+  }
+
+  spotsRemaining(): number {
+    const req = this.requirement();
+    return req ? req.creator_slots - req.filled_slots : 0;
+  }
+
+  applicationsCount(): number {
+    return this.requirement()?.applications?.[0]?.count ?? 0;
   }
 
   get canApply(): boolean {
@@ -123,6 +140,11 @@ export class RequirementView implements OnInit {
 
   goBack() {
     this.router.navigate(['/creator/browse']);
+  }
+
+  viewBusiness() {
+    const id = this.requirement()?.business_id;
+    if (id) this.router.navigate(['/creator/business', id]);
   }
 
   appStatusLabel(status: string): string {

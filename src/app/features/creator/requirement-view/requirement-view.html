@@ -33,30 +33,54 @@
         }
       </div>
 
-      <p class="req-view__business">by {{ businessDisplayName() }}</p>
+      @if (req.compensation_details) {
+        <p class="req-view__compensation">{{ req.compensation_details }}</p>
+      }
+
+      <div class="req-view__business-row req-view__business-row--clickable" (click)="viewBusiness()">
+        <span class="req-view__avatar">{{ businessInitial() }}</span>
+        <div class="req-view__business-info">
+          <span class="req-view__business-name">{{ businessDisplayName() }}</span>
+          @if (businessHandle()) {
+            <span class="req-view__handle">@{{ businessHandle() }}</span>
+          }
+        </div>
+      </div>
 
       <p class="req-view__desc">{{ req.description }}</p>
 
       <div class="req-view__info">
         <div class="req-view__info-item">
-          <span class="req-view__info-label">Creator Slots</span>
-          <span>{{ req.filled_slots }} / {{ req.creator_slots }}</span>
+          <span class="req-view__info-label">
+            <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
+            Spots
+          </span>
+          <span class="req-view__spots">{{ spotsRemaining() }} of {{ req.creator_slots }} remaining</span>
         </div>
-        @if (req.compensation_details) {
+        @if (applicationsCount() > 0) {
           <div class="req-view__info-item">
-            <span class="req-view__info-label">Compensation</span>
-            <span>{{ req.compensation_details }}</span>
+            <span class="req-view__info-label">
+              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              Applied
+            </span>
+            <span class="req-view__applicants">{{ applicationsCount() }} creators applied</span>
           </div>
         }
         @if (req.opened_at) {
           <div class="req-view__info-item">
-            <span class="req-view__info-label">Opened</span>
+            <span class="req-view__info-label">
+              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              Opened
+            </span>
             <span>{{ req.opened_at | date: 'mediumDate' }}</span>
           </div>
         }
         @if (req.closes_at) {
           <div class="req-view__info-item">
-            <span class="req-view__info-label">Closes</span>
+            <span class="req-view__info-label">
+              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              Closes
+            </span>
             <span>{{ req.closes_at | closesIn }}</span>
           </div>
         }
@@ -89,16 +113,22 @@
       } @else if (existingApplication(); as app) {
         <h2>Your Application</h2>
         <div class="req-view__app-status">
-          <span class="req-view__app-badge req-view__app-badge--{{ app.status }}">
-            {{ appStatusLabel(app.status) }}
-          </span>
+          <div class="req-view__app-top">
+            <span class="req-view__app-badge req-view__app-badge--{{ app.status }}">
+              {{ appStatusLabel(app.status) }}
+            </span>
+            <span class="req-view__app-date">Applied {{ app.created_at | date: 'mediumDate' }}</span>
+          </div>
+
           @if (app.pitch) {
             <p class="req-view__app-pitch">{{ app.pitch }}</p>
           }
-          <p class="req-view__app-date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
 
           @if (app.status === 'accepted') {
-            <p class="req-view__app-accepted">Your application has been accepted! Check your deals for next steps.</p>
+            <div class="req-view__app-accepted-section">
+              <p class="req-view__app-accepted">Your application has been accepted! Check your deals for next steps.</p>
+              <a class="req-view__deal-btn" routerLink="/creator/deals">View Deal</a>
+            </div>
           }
 
           @if (canWithdraw) {

@@ -17,7 +17,22 @@
   </div>
 
   @if (loading()) {
-    <p class="req-list__loading">Loading requirements...</p>
+    <div class="req-list__grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row">
+            <div class="skeleton skeleton--line-lg"></div>
+            <div class="skeleton skeleton--badge"></div>
+          </div>
+          <div class="skeleton skeleton--line-sm" style="width:35%"></div>
+          <div class="skeleton-row">
+            <div class="skeleton skeleton--line-sm" style="width:30%"></div>
+            <div class="skeleton skeleton--line-sm" style="width:25%"></div>
+            <div class="skeleton skeleton--line-sm" style="width:20%"></div>
+          </div>
+        </div>
+      }
+    </div>
   } @else if (filtered().length === 0) {
     <div class="req-list__empty">
       <p>No requirements found.</p>
