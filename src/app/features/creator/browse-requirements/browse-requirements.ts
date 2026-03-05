@@ -251,7 +251,7 @@ export class BrowseRequirements implements OnInit {
   }
 
   businessInitial(req: RequirementWithBusiness): string {
-    return this.businessDisplayName(req).charAt(0).toUpperCase();
+    return this.businessDisplayName(req).replace(/^@/, '').charAt(0).toUpperCase();
   }
 
   slotsAvailable(req: RequirementWithBusiness): number {

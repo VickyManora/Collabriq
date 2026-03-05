@@ -107,11 +107,11 @@ export class Dashboard implements OnInit {
   }
 
   businessInitial(req: RequirementWithBusiness): string {
-    return this.businessName(req).charAt(0).toUpperCase();
+    return this.businessName(req).replace(/^@/, '').charAt(0).toUpperCase();
   }
 
   businessHandle(req: RequirementWithBusiness): string | null {
-    return req.business?.instagram_handle || null;
+    return req.business?.instagram_handle?.replace(/^@/, '') || null;
   }
 
   isNew(req: RequirementWithBusiness): boolean {
