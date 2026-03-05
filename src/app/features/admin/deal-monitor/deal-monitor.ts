@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService, DealWithDetails } from '../../../core/services/admin.service';
@@ -14,7 +14,7 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   selector: 'app-deal-monitor',
   templateUrl: './deal-monitor.html',
   styleUrl: './deal-monitor.scss',
-  imports: [DatePipe, FormsModule, ConfirmDialog, Pagination],
+  imports: [DatePipe, TitleCasePipe, FormsModule, ConfirmDialog, Pagination],
 })
 export class DealMonitor implements OnInit {
   deals = signal<DealWithDetails[]>([]);

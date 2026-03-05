@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { AdminService, UserDeal, UserRequirement } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Profile, ApprovalStatus } from '../../../core/models/user.model';
@@ -13,7 +13,7 @@ import { Pagination } from '../../../shared/pagination/pagination';
   selector: 'app-user-detail',
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.scss',
-  imports: [DatePipe, ConfirmDialog, Pagination],
+  imports: [DatePipe, TitleCasePipe, ConfirmDialog, Pagination],
 })
 export class UserDetail implements OnInit {
   user = signal<Profile | null>(null);

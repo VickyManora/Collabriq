@@ -15,7 +15,7 @@
 
     @if (auth.profile(); as profile) {
       <div class="pending-card__info">
-        <span>{{ profile.full_name }}</span>
+        <span>{{ profile.full_name | titlecase }}</span>
         <span class="pending-card__role">{{ profile.role }}</span>
       </div>
     }

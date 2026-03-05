@@ -10,7 +10,7 @@
     <!-- Profile Card -->
     <div class="user-detail__card">
       <div class="user-detail__top">
-        <h1>{{ u.full_name }}</h1>
+        <h1>{{ u.full_name | titlecase }}</h1>
         <div class="user-detail__badges">
           <span class="user-detail__role user-detail__role--{{ u.role }}">{{ u.role }}</span>
           <span class="user-detail__status user-detail__status--{{ u.approval_status }}">
@@ -111,7 +111,7 @@
               </div>
               <div class="mini-card__meta">
                 <span>{{ dealBusinessName(deal) }}</span>
-                <span>{{ deal.creator.full_name }}</span>
+                <span>{{ deal.creator.full_name | titlecase }}</span>
                 <span>{{ deal.created_at | date: 'mediumDate' }}</span>
               </div>
             </div>

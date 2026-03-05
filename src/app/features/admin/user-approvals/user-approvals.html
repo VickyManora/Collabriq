@@ -35,7 +35,7 @@
       @for (user of paged(); track user.id) {
         <div class="user-card" (click)="viewUser(user.id)">
           <div class="user-card__top">
-            <h3 class="user-card__name">{{ user.full_name }}</h3>
+            <h3 class="user-card__name">{{ user.full_name | titlecase }}</h3>
             @if (user.is_deleted) {
               <span class="user-card__badge user-card__badge--deactivated">Deactivated</span>
             } @else {

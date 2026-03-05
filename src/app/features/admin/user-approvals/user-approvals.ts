@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -14,7 +14,7 @@ type FilterTab = 'pending' | 'all' | 'deactivated';
   selector: 'app-user-approvals',
   templateUrl: './user-approvals.html',
   styleUrl: './user-approvals.scss',
-  imports: [DatePipe, FormsModule, ConfirmDialog, Pagination],
+  imports: [DatePipe, TitleCasePipe, FormsModule, ConfirmDialog, Pagination],
 })
 export class UserApprovals implements OnInit {
   users = signal<Profile[]>([]);

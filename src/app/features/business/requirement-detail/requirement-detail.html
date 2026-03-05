@@ -97,7 +97,7 @@
                 <div class="app-card__header">
                   <div>
                     <div class="app-card__name-row">
-                      <h3 class="app-card__name">{{ app.creator.full_name }}</h3>
+                      <h3 class="app-card__name">{{ app.creator.full_name | titlecase }}</h3>
                       @if (getAvgRating(app.creator.id); as avg) {
                         <span class="app-card__avg-rating">&#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})</span>
                       }

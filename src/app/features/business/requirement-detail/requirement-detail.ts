@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RequirementService } from '../../../core/services/requirement.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -25,7 +25,7 @@ type ApplicationWithCreator = Application & {
   selector: 'app-requirement-detail',
   templateUrl: './requirement-detail.html',
   styleUrl: './requirement-detail.scss',
-  imports: [DatePipe, DecimalPipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination],
 })
 export class RequirementDetail implements OnInit {
   requirement = signal<Requirement | null>(null);

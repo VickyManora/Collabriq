@@ -1,7 +1,7 @@
 <div class="dashboard">
   <h1>Dashboard</h1>
   <p class="dashboard__welcome">
-    Welcome back, {{ auth.profile()?.full_name }}
+    Welcome back, {{ auth.profile()?.full_name | titlecase }}
   </p>
 
   <div class="dashboard__grid">

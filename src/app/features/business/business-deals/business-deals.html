@@ -43,7 +43,7 @@
 
           <div class="deal-card__creator">
             <div class="deal-card__creator-header">
-              <p class="deal-card__creator-name">{{ deal.creator?.full_name ?? 'Unknown' }}</p>
+              <p class="deal-card__creator-name">{{ (deal.creator?.full_name ?? 'Unknown') | titlecase }}</p>
               @if (getAvgRating(deal.creator_id); as avg) {
                 <span class="deal-card__avg-rating">
                   &#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})

@@ -43,7 +43,7 @@
 
           <div class="monitor-card__parties">
             <p class="monitor-card__business">{{ businessDisplayName(deal) }}</p>
-            <p class="monitor-card__creator">{{ deal.creator?.full_name ?? 'Unknown' }}</p>
+            <p class="monitor-card__creator">{{ (deal.creator?.full_name ?? 'Unknown') | titlecase }}</p>
           </div>
 
           <div class="monitor-card__indicators">

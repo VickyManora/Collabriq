@@ -2,14 +2,14 @@ import { Component, ElementRef, HostListener, OnInit, output, signal } from '@an
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ThemeService, ThemeMode } from '../../core/services/theme.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, TitleCasePipe, RouterLink],
 })
 export class Header implements OnInit {
   menuToggle = output<void>();

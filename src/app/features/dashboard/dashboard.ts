@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { RequirementService } from '../../core/services/requirement.service';
@@ -9,7 +10,7 @@ import { AdminService } from '../../core/services/admin.service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
-  imports: [RouterLink],
+  imports: [TitleCasePipe, RouterLink],
 })
 export class Dashboard implements OnInit {
   activeRequirements = signal(0);

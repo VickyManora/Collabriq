@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RequirementService, BusinessDealWithDetails } from '../../../core/services/requirement.service';
@@ -14,7 +14,7 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   selector: 'app-business-deals',
   templateUrl: './business-deals.html',
   styleUrl: './business-deals.scss',
-  imports: [DatePipe, DecimalPipe, FormsModule, Pagination],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination],
 })
 export class BusinessDeals implements OnInit {
   deals = signal<BusinessDealWithDetails[]>([]);

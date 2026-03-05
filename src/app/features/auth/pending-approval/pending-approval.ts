@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -6,6 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
   selector: 'app-pending-approval',
   templateUrl: './pending-approval.html',
   styleUrl: './pending-approval.scss',
+  imports: [TitleCasePipe],
 })
 export class PendingApproval {
   checking = signal(false);
