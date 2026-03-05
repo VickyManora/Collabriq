@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { UserRole } from '../../../core/models/user.model';
 
 @Component({
@@ -23,6 +24,7 @@ export class Signup {
   constructor(
     private auth: AuthService,
     private router: Router,
+    protected theme: ThemeService,
   ) {}
 
   async onSubmit() {

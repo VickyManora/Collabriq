@@ -6,6 +6,7 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 export class ThemeService {
   private readonly STORAGE_KEY = 'collabriq-theme';
   readonly mode = signal<ThemeMode>(this.loadMode());
+  readonly isDark = signal(false);
 
   constructor() {
     effect(() => {
@@ -35,7 +36,8 @@ export class ThemeService {
   }
 
   private applyTheme(mode: ThemeMode) {
-    const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    const dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    this.isDark.set(dark);
   }
 }

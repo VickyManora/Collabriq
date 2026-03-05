@@ -8,13 +8,13 @@
       </svg>
     </button>
     <a class="header__logo" routerLink="/dashboard">
-      <img src="collabriq_logo.svg" alt="Collabriq" class="header__logo-icon" />
+      <img [src]="theme.isDark() ? 'assets/logo/collabriq_logo_darkmode.svg' : 'collabriq_logo.svg'" alt="Collabriq" class="header__logo-icon" />
     </a>
   </div>
 
   <div class="header__right">
     @if (auth.profile(); as profile) {
-      <span class="header__user">{{ profile.full_name }}</span>
+      <span class="header__user">{{ profile.full_name | titlecase }}</span>
     }
 
     <a class="header__profile-btn" routerLink="/profile" aria-label="Edit profile">

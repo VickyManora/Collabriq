@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -14,7 +15,7 @@ export class ForgotPassword {
   loading = signal(false);
   submitted = signal(false);
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, protected theme: ThemeService) {}
 
   async onSubmit() {
     if (!this.email.trim()) return;
