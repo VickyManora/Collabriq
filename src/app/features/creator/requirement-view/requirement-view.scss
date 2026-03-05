@@ -175,3 +175,80 @@
     @include btn-outline-danger;
   }
 }
+
+// ─── Skeleton loading ───
+
+.skeleton-back {
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  max-width: 720px;
+
+  &--detail {
+    gap: 0.625rem;
+  }
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.skeleton-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.25rem 0;
+}
+
+.skeleton {
+  background: var(--color-border);
+  border-radius: 4px;
+  animation: shimmer 1.2s ease-in-out infinite alternate;
+
+  &--line-sm {
+    height: 0.75rem;
+    width: 50%;
+  }
+
+  &--line {
+    height: 0.875rem;
+    width: 60%;
+  }
+
+  &--line-lg {
+    height: 1.25rem;
+    width: 65%;
+  }
+
+  &--badge {
+    height: 1.5rem;
+    width: 5rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  &--block {
+    height: 4.5rem;
+    width: 100%;
+    border-radius: $radius-sm;
+  }
+
+  &--block-sm {
+    height: 5rem;
+    width: 100%;
+    border-radius: $radius-sm;
+  }
+}
+
+@keyframes shimmer {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
