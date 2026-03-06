@@ -297,6 +297,26 @@
     }
   }
 
+  &__profile-info {
+    margin-bottom: 0.5rem;
+  }
+
+  &__city {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
+  }
+
+  &__bio {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0.25rem 0 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   &__pitch-section {
     margin-bottom: 0.5rem;
   }

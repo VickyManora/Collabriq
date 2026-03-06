@@ -127,7 +127,7 @@
         <h2>Applications ({{ applications().length }})</h2>
 
         @if (applications().length === 0) {
-          <p class="req-detail__apps-empty">No applications yet.</p>
+          <p class="req-detail__apps-empty">No applications yet. Creators will appear here once they apply.</p>
         } @else {
           <input
             class="req-detail__apps-search"
@@ -169,6 +169,15 @@
                   <span class="app-card__status app-card__status--{{ app.status }}">
                     {{ appStatusLabel(app.status) }}
                   </span>
+                </div>
+
+                <div class="app-card__profile-info">
+                  @if (app.creator.city) {
+                    <span class="app-card__city">📍 {{ app.creator.city }}</span>
+                  }
+                  @if (app.creator.bio) {
+                    <p class="app-card__bio">{{ app.creator.bio }}</p>
+                  }
                 </div>
 
                 @if (app.pitch) {

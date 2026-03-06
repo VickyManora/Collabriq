@@ -36,9 +36,11 @@
     <div class="my-apps__empty">
       @if (activeFilter() === 'all' && !searchQuery()) {
         <p>You haven't applied to any opportunities yet.</p>
+        <p class="my-apps__empty-sub">Explore collaborations and apply to start working with brands.</p>
         <a class="my-apps__browse-btn" routerLink="/creator/browse">Browse Opportunities</a>
       } @else {
-        <p>No applications found.</p>
+        <p>No applications match your filters.</p>
+        <p class="my-apps__empty-sub">Try a different filter or search term.</p>
       }
     </div>
   } @else {

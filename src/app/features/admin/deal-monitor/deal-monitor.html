@@ -25,9 +25,12 @@
     <p class="deal-monitor__loading">Loading deals...</p>
   } @else if (filtered().length === 0) {
     <div class="deal-monitor__empty">
-      <p>No deals found.</p>
-      @if (activeFilter() !== 'all' || searchQuery()) {
-        <p>No deals match the current filter.</p>
+      @if (activeFilter() === 'all' && !searchQuery()) {
+        <p>No deals yet.</p>
+        <p class="deal-monitor__empty-sub">Deals will appear here as businesses and creators start collaborating.</p>
+      } @else {
+        <p>No deals match your filters.</p>
+        <p class="deal-monitor__empty-sub">Try a different filter or search term.</p>
       }
     </div>
   } @else {

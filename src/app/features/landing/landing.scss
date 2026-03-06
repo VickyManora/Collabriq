@@ -665,6 +665,14 @@
     gap: 0.25rem;
     font-weight: 600;
     color: var(--color-accent);
+
+    &--urgent {
+      color: var(--color-danger);
+    }
+
+    &--warning {
+      color: var(--color-accent);
+    }
   }
 
   &__applicants {

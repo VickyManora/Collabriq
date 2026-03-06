@@ -105,7 +105,7 @@
       <h2>Deals ({{ deals().length }})</h2>
 
       @if (deals().length === 0) {
-        <p class="user-detail__section-empty">No deals found.</p>
+        <p class="user-detail__section-empty">No deals yet for this user.</p>
       } @else {
         <div class="user-detail__list">
           @for (deal of pagedDeals(); track deal.id) {
@@ -140,7 +140,7 @@
         <h2>Requirements Created ({{ requirements().length }})</h2>
 
         @if (requirements().length === 0) {
-          <p class="user-detail__section-empty">No requirements created.</p>
+          <p class="user-detail__section-empty">No requirements created yet.</p>
         } @else {
           <div class="user-detail__list">
             @for (req of pagedRequirements(); track req.id) {

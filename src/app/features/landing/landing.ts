@@ -1,18 +1,37 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
+import { SupabaseService } from '../../core/services/supabase.service';
+import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
+
+interface FeaturedRequirement {
+  id: string;
+  title: string;
+  category: string | null;
+  compensation_details: string | null;
+  creator_slots: number;
+  filled_slots: number;
+  created_at: string;
+  business: { business_name: string | null; full_name: string; instagram_handle: string | null; city: string | null };
+  applications: { count: number }[];
+}
 
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.html',
   styleUrl: './landing.scss',
-  imports: [RouterLink],
+  imports: [RouterLink, TimeAgoPipe],
 })
-export class Landing {
-  constructor(protected theme: ThemeService) {}
+export class Landing implements OnInit {
+  constructor(
+    protected theme: ThemeService,
+    private supabaseService: SupabaseService,
+  ) {}
 
   mobileMenuOpen = signal(false);
   activePreview = signal<'creator' | 'business'>('creator');
+  featuredRequirements = signal<FeaturedRequirement[]>([]);
+  featuredLoading = signal(true);
 
   toggleMobileMenu() {
     this.mobileMenuOpen.update((v) => !v);
@@ -22,6 +41,77 @@ export class Landing {
     this.mobileMenuOpen.set(false);
   }
 
+  async ngOnInit() {
+    // Try featured first, fallback to newest
+    const { data: featured } = await this.supabaseService.client
+      .from('requirements')
+      .select('id, title, category, compensation_details, creator_slots, filled_slots, created_at, business:profiles!business_id(business_name, full_name, instagram_handle, city), applications(count)')
+      .eq('is_featured', true)
+      .in('status', ['open', 'partially_filled'])
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (featured && featured.length > 0) {
+      this.featuredRequirements.set(featured as unknown as FeaturedRequirement[]);
+    } else {
+      // Fallback to newest
+      const { data: newest } = await this.supabaseService.client
+        .from('requirements')
+        .select('id, title, category, compensation_details, creator_slots, filled_slots, created_at, business:profiles!business_id(business_name, full_name, instagram_handle, city), applications(count)')
+        .in('status', ['open', 'partially_filled'])
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (newest) {
+        this.featuredRequirements.set(newest as unknown as FeaturedRequirement[]);
+      }
+    }
+    this.featuredLoading.set(false);
+  }
+
+  featuredBusinessName(req: FeaturedRequirement): string {
+    return req.business?.business_name || req.business?.full_name || 'Unknown';
+  }
+
+  featuredBusinessInitial(req: FeaturedRequirement): string {
+    return this.featuredBusinessName(req).replace(/^@/, '').charAt(0).toUpperCase();
+  }
+
+  featuredBusinessHandle(req: FeaturedRequirement): string | null {
+    const handle = req.business?.instagram_handle;
+    if (!handle) return null;
+    return handle.startsWith('@') ? handle : `@${handle}`;
+  }
+
+  featuredSpotsLeft(req: FeaturedRequirement): number {
+    return req.creator_slots - req.filled_slots;
+  }
+
+  featuredSpotsText(req: FeaturedRequirement): string {
+    const remaining = this.featuredSpotsLeft(req);
+    return remaining === 1 ? '1 spot left' : `${remaining} spots left`;
+  }
+
+  featuredApplicants(req: FeaturedRequirement): number {
+    return req.applications?.[0]?.count ?? 0;
+  }
+
+  featuredIsNew(req: FeaturedRequirement): boolean {
+    return Date.now() - new Date(req.created_at).getTime() < 48 * 60 * 60 * 1000;
+  }
+
+  featuredCity(req: FeaturedRequirement): string {
+    return req.business?.city || 'Pune';
+  }
+
+  spotsUrgencyClass(req: FeaturedRequirement): string {
+    const remaining = this.featuredSpotsLeft(req);
+    if (remaining <= 1) return 'ex-card__spots--urgent';
+    if (remaining <= 3) return 'ex-card__spots--warning';
+    return '';
+  }
+
+  // Static example opportunities (fallback if DB is empty)
   readonly opportunities = [
     {
       business: 'The Brew Studio',

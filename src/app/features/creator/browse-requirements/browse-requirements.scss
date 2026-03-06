@@ -212,6 +212,10 @@
     }
   }
 
+  &__empty-sub {
+    font-size: 0.875rem;
+  }
+
   &__grid {
     display: grid;
     gap: 1rem;
@@ -227,12 +231,13 @@
   @include card;
   position: relative;
   cursor: pointer;
-  transition: box-shadow 0.15s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    box-shadow: var(--shadow-md);
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
   }
 
   &__new {
@@ -385,6 +390,28 @@
       flex-shrink: 0;
       color: #ff6a3d;
     }
+
+    &--urgent {
+      font-weight: 600;
+      color: var(--color-danger);
+
+      svg {
+        color: var(--color-danger);
+      }
+    }
+
+    &--warning {
+      color: var(--color-accent);
+
+      svg {
+        color: var(--color-accent);
+      }
+    }
+  }
+
+  &__posted {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
   }
 
   &__applicants {

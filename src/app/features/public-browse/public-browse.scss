@@ -99,7 +99,16 @@
     text-align: center;
     padding: 3rem 1.5rem;
     color: var(--color-text-muted);
-    font-weight: 500;
+
+    p:first-child {
+      font-weight: 500;
+      color: var(--color-label);
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__empty-sub {
+    font-size: 0.875rem;
   }
 
   &__cta {
@@ -136,6 +145,12 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  }
 
   &__new {
     position: absolute;
@@ -251,6 +266,19 @@
     color: var(--color-accent);
 
     svg { flex-shrink: 0; }
+
+    &--urgent {
+      color: var(--color-danger);
+    }
+
+    &--warning {
+      color: var(--color-accent);
+    }
+  }
+
+  &__posted {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
   }
 
   &__time {

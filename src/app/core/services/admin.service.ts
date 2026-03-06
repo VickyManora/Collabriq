@@ -148,6 +148,15 @@ export class AdminService {
       .returns<UserRequirement[]>();
   }
 
+  async toggleFeatured(id: string, isFeatured: boolean) {
+    return this.supabase
+      .from('requirements')
+      .update({ is_featured: isFeatured })
+      .eq('id', id)
+      .select()
+      .single<Requirement>();
+  }
+
   async deactivateUser(id: string) {
     return this.supabase
       .from('profiles')

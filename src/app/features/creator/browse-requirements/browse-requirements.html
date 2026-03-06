@@ -121,11 +121,13 @@
     </div>
   } @else if (filtered().length === 0) {
     <div class="browse__empty">
-      <p>No requirements found for the selected filters.</p>
       @if (hasActiveFilters()) {
+        <p>No opportunities match your filters.</p>
+        <p class="browse__empty-sub">Try adjusting your filters or check back later.</p>
         <button class="browse__clear-btn browse__clear-btn--block" (click)="clearFilters()">Clear all filters</button>
       } @else {
-        <p>Check back soon for new opportunities.</p>
+        <p>No opportunities yet.</p>
+        <p class="browse__empty-sub">Check back soon for new collaborations.</p>
       }
     </div>
   } @else {
@@ -166,7 +168,7 @@
 
           <div class="browse-card__footer">
             <div class="browse-card__meta">
-              <span class="browse-card__spots">
+              <span class="browse-card__spots" [class]="spotsUrgencyClass(req)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
                 {{ spotsLeftText(req) }}
               </span>
@@ -176,6 +178,7 @@
                   {{ applicationsCount(req) }} applied
                 </span>
               }
+              <span class="browse-card__posted">Posted {{ req.created_at | timeAgo }}</span>
               @if (req.closes_at) {
                 <span class="browse-card__time" [class.browse-card__time--urgent]="isClosingSoon(req)">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>

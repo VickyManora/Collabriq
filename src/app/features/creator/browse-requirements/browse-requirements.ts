@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { Pagination } from '../../../shared/pagination/pagination';
 import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
@@ -22,7 +23,7 @@ interface AppliedInfo {
   selector: 'app-browse-requirements',
   templateUrl: './browse-requirements.html',
   styleUrl: './browse-requirements.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, Pagination, InstagramLink],
+  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, Pagination, InstagramLink],
 })
 export class BrowseRequirements implements OnInit {
   requirements = signal<RequirementWithBusiness[]>([]);
@@ -284,5 +285,12 @@ export class BrowseRequirements implements OnInit {
 
   applicationsCount(req: RequirementWithBusiness): number {
     return req.applications?.[0]?.count ?? 0;
+  }
+
+  spotsUrgencyClass(req: RequirementWithBusiness): string {
+    const remaining = this.slotsAvailable(req);
+    if (remaining <= 1) return 'browse-card__spots--urgent';
+    if (remaining <= 3) return 'browse-card__spots--warning';
+    return '';
   }
 }

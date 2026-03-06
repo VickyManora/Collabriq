@@ -126,6 +126,22 @@ export class RequirementApprovals implements OnInit {
     this.rejectingReqId.set(null);
   }
 
+  async toggleFeatured(req: RequirementWithBusiness) {
+    this.actionLoading.set(req.id);
+    const { error } = await this.adminService.toggleFeatured(req.id, !req.is_featured);
+    if (error) {
+      this.toast.error('Failed to update featured status.');
+    } else {
+      this.toast.success(req.is_featured ? 'Removed from featured.' : 'Marked as featured.');
+      await this.loadRequirements();
+    }
+    this.actionLoading.set(null);
+  }
+
+  isOpenOrPartial(req: RequirementWithBusiness): boolean {
+    return req.status === 'open' || req.status === 'partially_filled';
+  }
+
   statusLabel(status: RequirementStatus): string {
     const labels: Record<RequirementStatus, string> = {
       draft: 'Draft',

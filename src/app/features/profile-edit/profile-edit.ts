@@ -45,7 +45,7 @@ export class ProfileEdit implements OnInit {
       this.full_name = p.full_name ?? '';
       this.phone = p.phone ?? '';
       this.bio = p.bio ?? '';
-      this.city = p.city ?? '';
+      this.city = p.city ?? 'Pune';
       this.portfolio_url = p.portfolio_url ?? '';
       this.instagram_handle = p.instagram_handle ?? '';
       this.business_name = p.business_name ?? '';
@@ -55,6 +55,8 @@ export class ProfileEdit implements OnInit {
 
   get isValid(): boolean {
     if (!this.full_name.trim()) return false;
+    if (!this.phone.trim()) return false;
+    if (!this.city.trim()) return false;
     if (this.auth.userRole() === 'business' && !this.business_name.trim()) return false;
     return true;
   }
@@ -69,7 +71,7 @@ export class ProfileEdit implements OnInit {
 
     const updates: Record<string, string | null> = {
       full_name: this.full_name.trim(),
-      phone: this.phone.trim() || null,
+      phone: this.phone.trim(),
       bio: this.bio.trim() || null,
       city: this.city.trim(),
       portfolio_url: this.portfolio_url.trim() || null,

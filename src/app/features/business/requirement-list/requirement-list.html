@@ -39,9 +39,12 @@
     </div>
   } @else if (filtered().length === 0) {
     <div class="req-list__empty">
-      <p>No requirements found.</p>
       @if (activeFilter() === 'all') {
-        <p>Create your first requirement to start finding creators.</p>
+        <p>No requirements yet.</p>
+        <p class="req-list__empty-sub">Create your first collaboration to start finding creators.</p>
+      } @else {
+        <p>No requirements match this filter.</p>
+        <p class="req-list__empty-sub">Try a different filter to see your requirements.</p>
       }
     </div>
   } @else {

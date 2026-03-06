@@ -4,6 +4,7 @@ import { SupabaseService } from '../../core/services/supabase.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ClosesInPipe } from '../../shared/pipes/closes-in.pipe';
+import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
 
 interface PublicRequirement {
   id: string;
@@ -22,7 +23,7 @@ interface PublicRequirement {
   selector: 'app-public-browse',
   templateUrl: './public-browse.html',
   styleUrl: './public-browse.scss',
-  imports: [RouterLink, ClosesInPipe],
+  imports: [RouterLink, ClosesInPipe, TimeAgoPipe],
 })
 export class PublicBrowse implements OnInit {
   requirements = signal<PublicRequirement[]>([]);
@@ -70,5 +71,12 @@ export class PublicBrowse implements OnInit {
   isClosingSoon(req: PublicRequirement): boolean {
     if (!req.closes_at) return false;
     return new Date(req.closes_at).getTime() - Date.now() < 48 * 60 * 60 * 1000;
+  }
+
+  spotsUrgencyClass(req: PublicRequirement): string {
+    const remaining = req.creator_slots - req.filled_slots;
+    if (remaining <= 1) return 'pub-card__spots--urgent';
+    if (remaining <= 3) return 'pub-card__spots--warning';
+    return '';
   }
 }

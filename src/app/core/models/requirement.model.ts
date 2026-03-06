@@ -17,6 +17,7 @@ export interface Requirement {
   status: RequirementStatus;
   compensation_details: string | null;
   rejection_reason: string | null;
+  is_featured: boolean;
   opened_at: string | null;
   closes_at: string | null;
   created_at: string;

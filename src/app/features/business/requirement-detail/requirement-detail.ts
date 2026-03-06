@@ -21,6 +21,8 @@ type ApplicationWithCreator = Application & {
     phone: string | null;
     instagram_handle: string | null;
     portfolio_url: string | null;
+    bio: string | null;
+    city: string | null;
   };
 };
 

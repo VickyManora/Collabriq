@@ -98,10 +98,10 @@ export class RequirementService {
   async getApplicationsForRequirement(id: string) {
     return this.supabase
       .from('applications')
-      .select('*, creator:profiles!creator_id(id, full_name, email, phone, instagram_handle, portfolio_url)')
+      .select('*, creator:profiles!creator_id(id, full_name, email, phone, instagram_handle, portfolio_url, bio, city)')
       .eq('requirement_id', id)
       .order('created_at', { ascending: false })
-      .returns<(Application & { creator: { id: string; full_name: string; email: string; phone: string | null; instagram_handle: string | null; portfolio_url: string | null } })[]>();
+      .returns<(Application & { creator: { id: string; full_name: string; email: string; phone: string | null; instagram_handle: string | null; portfolio_url: string | null; bio: string | null; city: string | null } })[]>();
   }
 
   async acceptApplication(id: string) {

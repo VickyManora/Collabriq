@@ -6,6 +6,7 @@ import { CreatorService, RequirementWithBusiness } from '../../../core/services/
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
 import { ProfileGateModal } from '../../../shared/profile-gate-modal/profile-gate-modal';
@@ -16,7 +17,7 @@ import { Application } from '../../../core/models/application.model';
   selector: 'app-requirement-view',
   templateUrl: './requirement-view.html',
   styleUrl: './requirement-view.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog, RouterLink, PendingBanner, ProfileGateModal, InstagramLink],
+  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, ConfirmDialog, RouterLink, PendingBanner, ProfileGateModal, InstagramLink],
 })
 export class RequirementView implements OnInit {
   requirement = signal<RequirementWithBusiness | null>(null);

@@ -154,39 +154,83 @@
   </div>
 </section>
 
-<!-- Example Opportunities -->
-<section class="examples">
-  <div class="examples__inner">
-    <h2 class="section-title">Example Opportunities</h2>
-    <div class="examples__grid">
-      @for (opp of opportunities; track opp.title) {
-        <div class="ex-card">
-          @if (opp.isNew) {
-            <span class="ex-card__badge">NEW</span>
-          }
-          <div class="ex-card__header">
-            <span class="ex-card__avatar">{{ opp.initial }}</span>
-            <div class="ex-card__header-text">
-              <p class="ex-card__business">{{ opp.business }}</p>
-              <p class="ex-card__handle">{{ opp.handle }}</p>
+<!-- Featured Collaborations (from DB) -->
+@if (!featuredLoading() && featuredRequirements().length > 0) {
+  <section class="examples">
+    <div class="examples__inner">
+      <h2 class="section-title">Featured Collaborations in Pune</h2>
+      <div class="examples__grid">
+        @for (req of featuredRequirements(); track req.id) {
+          <div class="ex-card">
+            @if (featuredIsNew(req)) {
+              <span class="ex-card__badge">NEW</span>
+            }
+            <div class="ex-card__header">
+              <span class="ex-card__avatar">{{ featuredBusinessInitial(req) }}</span>
+              <div class="ex-card__header-text">
+                <p class="ex-card__business">{{ featuredBusinessName(req) }}</p>
+                @if (featuredBusinessHandle(req)) {
+                  <p class="ex-card__handle">{{ featuredBusinessHandle(req) }}</p>
+                }
+              </div>
+              @if (req.category) {
+                <span class="ex-card__category">{{ req.category }}</span>
+              }
             </div>
-            <span class="ex-card__category">{{ opp.category }}</span>
+            <h3 class="ex-card__title">{{ req.title }}</h3>
+            @if (req.compensation_details) {
+              <p class="ex-card__compensation">{{ req.compensation_details }}</p>
+            }
+            <p class="ex-card__location">📍 {{ featuredCity(req) }} &bull; Posted {{ req.created_at | timeAgo }}</p>
+            <div class="ex-card__footer">
+              <span class="ex-card__spots" [class]="spotsUrgencyClass(req)">🔥 {{ featuredSpotsText(req) }}</span>
+              @if (featuredApplicants(req) > 0) {
+                <span class="ex-card__applicants">👥 {{ featuredApplicants(req) }} creators applied</span>
+              }
+            </div>
           </div>
-          <h3 class="ex-card__title">{{ opp.title }}</h3>
-          <p class="ex-card__compensation">{{ opp.compensation }}</p>
-          <p class="ex-card__location">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
-          <div class="ex-card__footer">
-            <span class="ex-card__spots">{{ opp.spots }}</span>
-            <span class="ex-card__applicants">👥 {{ opp.applicants }} creators applied</span>
+        }
+      </div>
+      <div class="examples__cta">
+        <a routerLink="/browse" class="examples__browse-btn">Browse All Opportunities</a>
+      </div>
+    </div>
+  </section>
+} @else if (!featuredLoading()) {
+  <!-- Fallback: Example Opportunities -->
+  <section class="examples">
+    <div class="examples__inner">
+      <h2 class="section-title">Example Opportunities</h2>
+      <div class="examples__grid">
+        @for (opp of opportunities; track opp.title) {
+          <div class="ex-card">
+            @if (opp.isNew) {
+              <span class="ex-card__badge">NEW</span>
+            }
+            <div class="ex-card__header">
+              <span class="ex-card__avatar">{{ opp.initial }}</span>
+              <div class="ex-card__header-text">
+                <p class="ex-card__business">{{ opp.business }}</p>
+                <p class="ex-card__handle">{{ opp.handle }}</p>
+              </div>
+              <span class="ex-card__category">{{ opp.category }}</span>
+            </div>
+            <h3 class="ex-card__title">{{ opp.title }}</h3>
+            <p class="ex-card__compensation">{{ opp.compensation }}</p>
+            <p class="ex-card__location">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
+            <div class="ex-card__footer">
+              <span class="ex-card__spots">{{ opp.spots }}</span>
+              <span class="ex-card__applicants">👥 {{ opp.applicants }} creators applied</span>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
+      <div class="examples__cta">
+        <a routerLink="/browse" class="examples__browse-btn">Browse All Opportunities</a>
+      </div>
     </div>
-    <div class="examples__cta">
-      <a routerLink="/browse" class="examples__browse-btn">Browse All Opportunities</a>
-    </div>
-  </div>
-</section>
+  </section>
+}
 
 <!-- Final CTA -->
 <section class="cta">

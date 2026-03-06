@@ -38,9 +38,12 @@
     </div>
   } @else if (filtered().length === 0) {
     <div class="my-deals__empty">
-      <p>No deals found.</p>
       @if (activeFilter() === 'all' && !searchQuery()) {
-        <p>Deals appear here after a business accepts your application.</p>
+        <p>No deals yet.</p>
+        <p class="my-deals__empty-sub">Deals appear here once a business accepts your application.</p>
+      } @else {
+        <p>No deals match your filters.</p>
+        <p class="my-deals__empty-sub">Try a different filter or search term.</p>
       }
     </div>
   } @else {

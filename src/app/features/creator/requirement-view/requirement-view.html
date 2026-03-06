@@ -66,15 +66,13 @@
             <span class="req-view__applicants">{{ applicationsCount() }} creators applied</span>
           </div>
         }
-        @if (req.opened_at) {
-          <div class="req-view__info-item">
-            <span class="req-view__info-label">
-              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              Opened
-            </span>
-            <span>{{ req.opened_at | date: 'mediumDate' }}</span>
-          </div>
-        }
+        <div class="req-view__info-item">
+          <span class="req-view__info-label">
+            <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Posted
+          </span>
+          <span>{{ req.created_at | timeAgo }}</span>
+        </div>
         @if (req.closes_at) {
           <div class="req-view__info-item">
             <span class="req-view__info-label">

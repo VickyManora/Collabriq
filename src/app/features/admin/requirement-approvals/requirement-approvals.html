@@ -25,9 +25,12 @@
     <p class="req-approvals__loading">Loading requirements...</p>
   } @else if (filtered().length === 0) {
     <div class="req-approvals__empty">
-      <p>No requirements found.</p>
       @if (activeFilter() === 'pending' && !searchQuery()) {
-        <p>There are no requirements awaiting approval right now.</p>
+        <p>All caught up!</p>
+        <p class="req-approvals__empty-sub">No requirements awaiting approval right now.</p>
+      } @else {
+        <p>No requirements match your filters.</p>
+        <p class="req-approvals__empty-sub">Try a different filter or search term.</p>
       }
     </div>
   } @else {
@@ -71,6 +74,18 @@
                 [disabled]="actionLoading() === req.id"
               >
                 Reject
+              </button>
+            </div>
+          }
+          @if (isOpenOrPartial(req)) {
+            <div class="req-card__featured">
+              <button
+                class="req-card__featured-btn"
+                [class.req-card__featured-btn--active]="req.is_featured"
+                (click)="toggleFeatured(req)"
+                [disabled]="actionLoading() === req.id"
+              >
+                {{ req.is_featured ? '★ Featured' : '☆ Feature' }}
               </button>
             </div>
           }

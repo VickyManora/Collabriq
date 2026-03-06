@@ -25,9 +25,12 @@
     <p class="user-approvals__loading">Loading users...</p>
   } @else if (filtered().length === 0) {
     <div class="user-approvals__empty">
-      <p>No users found.</p>
       @if (activeFilter() === 'pending' && !searchQuery()) {
-        <p>There are no users awaiting approval right now.</p>
+        <p>All caught up!</p>
+        <p class="user-approvals__empty-sub">No users awaiting approval right now.</p>
+      } @else {
+        <p>No users match your filters.</p>
+        <p class="user-approvals__empty-sub">Try a different filter or search term.</p>
       }
     </div>
   } @else {

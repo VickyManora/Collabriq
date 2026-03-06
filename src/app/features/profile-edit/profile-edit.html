@@ -53,24 +53,26 @@
 
     <div class="profile-edit__row">
       <div class="profile-edit__field">
-        <label for="phone">Phone</label>
+        <label for="phone">Phone *</label>
         <input
           id="phone"
           type="tel"
           [(ngModel)]="phone"
           name="phone"
           placeholder="e.g. +91 98765 43210"
+          required
         />
       </div>
 
       <div class="profile-edit__field">
-        <label for="city">City</label>
+        <label for="city">City *</label>
         <input
           id="city"
           type="text"
           [(ngModel)]="city"
           name="city"
           placeholder="e.g. Pune"
+          required
         />
       </div>
     </div>
