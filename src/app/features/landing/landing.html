@@ -39,15 +39,18 @@
 <section class="hero">
   <div class="hero__glow"></div>
   <div class="hero__inner">
-    <h1 class="hero__title">Connect Local Businesses with Creators Who Tell Their Story</h1>
+    <h1 class="hero__title">Connect Local Businesses with Creators</h1>
     <p class="hero__sub">
-      Post collaborations, discover creators, and manage brand partnerships — all in one place.
+      Collabriq helps Pune businesses collaborate with creators for social media promotions.
     </p>
     <div class="hero__actions">
-      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--accent">Join as Creator</a>
-      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--outline">Join as Business</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--accent">Post a Collaboration</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--outline">Join as Creator</a>
     </div>
     <p class="hero__trust">✨ Built for creators and businesses in Pune</p>
+    <p class="hero__browse-hint">
+      <a routerLink="/browse">Browse real collaborations before signing up.</a>
+    </p>
   </div>
 </section>
 
@@ -55,6 +58,7 @@
 <section class="preview">
   <div class="preview__inner">
     <h2 class="section-title">See the Platform in Action</h2>
+    <p class="preview__subtitle">See how creators discover opportunities and businesses manage collaborations.</p>
     <div class="preview__tabs">
       <button
         class="preview__tab"
@@ -157,6 +161,9 @@
     <div class="examples__grid">
       @for (opp of opportunities; track opp.title) {
         <div class="ex-card">
+          @if (opp.isNew) {
+            <span class="ex-card__badge">NEW</span>
+          }
           <div class="ex-card__header">
             <span class="ex-card__avatar">{{ opp.initial }}</span>
             <div class="ex-card__header-text">
@@ -167,7 +174,7 @@
           </div>
           <h3 class="ex-card__title">{{ opp.title }}</h3>
           <p class="ex-card__compensation">{{ opp.compensation }}</p>
-          <p class="ex-card__location">📍 {{ opp.location }}</p>
+          <p class="ex-card__location">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
           <div class="ex-card__footer">
             <span class="ex-card__spots">{{ opp.spots }}</span>
             <span class="ex-card__applicants">👥 {{ opp.applicants }} creators applied</span>
@@ -184,7 +191,7 @@
 <!-- Final CTA -->
 <section class="cta">
   <div class="cta__inner">
-    <h2 class="cta__title">Start your first creator collaboration today.</h2>
+    <h2 class="cta__title">Start your first creator collaboration in minutes.</h2>
     <div class="cta__actions">
       <a routerLink="/auth/signup" class="cta__btn cta__btn--accent">Sign Up</a>
       <a routerLink="/auth/login" class="cta__btn cta__btn--outline">Login</a>

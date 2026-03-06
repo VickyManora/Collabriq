@@ -33,6 +33,8 @@ export class Landing {
       spots: '\uD83D\uDD25 3 spots left',
       applicants: 5,
       location: 'Pune',
+      postedAgo: '2 days ago',
+      isNew: true,
     },
     {
       business: 'Urban Threads',
@@ -44,6 +46,8 @@ export class Landing {
       spots: '\uD83D\uDD25 2 spots left',
       applicants: 12,
       location: 'Pune',
+      postedAgo: '5 days ago',
+      isNew: false,
     },
     {
       business: 'Caf\u00E9 Mosaic',
@@ -55,6 +59,8 @@ export class Landing {
       spots: '\uD83D\uDD25 1 spot left',
       applicants: 8,
       location: 'Pune',
+      postedAgo: '1 day ago',
+      isNew: true,
     },
   ];
 }
