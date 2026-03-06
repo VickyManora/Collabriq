@@ -78,14 +78,10 @@
 
 .req-card {
   @include card;
+  @include card-hover;
   cursor: pointer;
-  transition: box-shadow 0.15s;
   display: flex;
   flex-direction: column;
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-  }
 
   &__top {
     display: flex;

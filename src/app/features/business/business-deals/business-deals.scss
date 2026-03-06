@@ -76,6 +76,7 @@
 
 .deal-card {
   @include card;
+  @include card-hover;
 
   &__top {
     display: flex;

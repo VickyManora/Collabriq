@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../../shared/pipes/comp-class.pipe';
 import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 interface BusinessProfile {
@@ -27,7 +29,7 @@ interface BusinessStats {
   selector: 'app-business-profile',
   templateUrl: './business-profile.html',
   styleUrl: './business-profile.scss',
-  imports: [ClosesInPipe, InstagramLink],
+  imports: [ClosesInPipe, CategoryClassPipe, CompClassPipe, InstagramLink],
 })
 export class BusinessProfileComponent implements OnInit {
   profile = signal<BusinessProfile | null>(null);

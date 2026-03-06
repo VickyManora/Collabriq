@@ -23,13 +23,27 @@
   animation: toast-slide-in 0.25s ease-out;
 
   &--success {
-    background: var(--color-success-alpha);
-    color: var(--color-success-dark);
+    background: #ecfdf5;
+    border: 1px solid #86efac;
+    color: #166534;
+
+    [data-theme="dark"] & {
+      background: #14532d;
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
   }
 
   &--error {
-    background: var(--color-danger-alpha-faint);
-    color: var(--color-danger);
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+
+    [data-theme="dark"] & {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fecaca;
+    }
   }
 
   &__message {

@@ -170,12 +170,8 @@
 
   &__opp-card {
     @include card;
+    @include card-hover;
     cursor: pointer;
-    transition: box-shadow 0.15s;
-
-    &:hover {
-      box-shadow: var(--shadow-md);
-    }
   }
 
   &__opp-top {

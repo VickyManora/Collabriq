@@ -17,15 +17,8 @@
   }
 
   &__back-btn {
-    @include btn-base;
-    background: none;
-    color: var(--color-text-muted);
-    padding: 0.375rem 0;
+    @include btn-outline;
     margin-bottom: 1rem;
-
-    &:hover:not(:disabled) {
-      color: var(--color-primary);
-    }
   }
 
   &__card {
@@ -199,6 +192,7 @@
 
 .app-card {
   @include card;
+  @include card-hover;
 
   &--accepted {
     border-left: 3px solid var(--color-success-dark);

@@ -13,9 +13,9 @@
     </div>
   } @else if (error() && !profile()) {
     <p class="biz-profile__error">{{ error() }}</p>
-    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back</button>
   } @else if (profile(); as biz) {
-    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back</button>
 
     <div class="biz-profile__card">
       <div class="biz-profile__identity">
@@ -94,11 +94,11 @@
                 <div class="biz-profile__opp-top">
                   <h3>{{ req.title }}</h3>
                   @if (req.category) {
-                    <span class="biz-profile__opp-category">{{ req.category }}</span>
+                    <span [class]="req.category | categoryClass">{{ req.category }}</span>
                   }
                 </div>
                 @if (req.compensation_details) {
-                  <p class="biz-profile__opp-comp">{{ req.compensation_details }}</p>
+                  <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
                 }
                 <div class="biz-profile__opp-meta">
                   <span>{{ spotsLeft(req) }}</span>

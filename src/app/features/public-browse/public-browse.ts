@@ -5,6 +5,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ClosesInPipe } from '../../shared/pipes/closes-in.pipe';
 import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
+import { CategoryClassPipe } from '../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../shared/pipes/comp-class.pipe';
 
 interface PublicRequirement {
   id: string;
@@ -23,7 +25,7 @@ interface PublicRequirement {
   selector: 'app-public-browse',
   templateUrl: './public-browse.html',
   styleUrl: './public-browse.scss',
-  imports: [RouterLink, ClosesInPipe, TimeAgoPipe],
+  imports: [RouterLink, ClosesInPipe, TimeAgoPipe, CategoryClassPipe, CompClassPipe],
 })
 export class PublicBrowse implements OnInit {
   requirements = signal<PublicRequirement[]>([]);

@@ -48,13 +48,13 @@
 
           <div class="req-card__meta">
             @if (req.category) {
-              <span class="req-card__category">{{ req.category }}</span>
+              <span [class]="req.category | categoryClass">{{ req.category }}</span>
             }
             <span class="req-card__slots">{{ req.creator_slots }} slot{{ req.creator_slots !== 1 ? 's' : '' }}</span>
           </div>
 
           @if (req.compensation_details) {
-            <p class="req-card__compensation">{{ req.compensation_details }}</p>
+            <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
           }
 
           <p class="req-card__date">Submitted {{ req.created_at | date: 'mediumDate' }}</p>

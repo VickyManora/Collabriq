@@ -6,6 +6,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { RequirementStatus } from '../../../core/models/requirement.model';
 import { RejectModal } from '../../../shared/reject-modal/reject-modal';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../../shared/pipes/comp-class.pipe';
 
 type FilterTab = 'pending' | 'all';
 
@@ -13,7 +15,7 @@ type FilterTab = 'pending' | 'all';
   selector: 'app-requirement-approvals',
   templateUrl: './requirement-approvals.html',
   styleUrl: './requirement-approvals.scss',
-  imports: [DatePipe, FormsModule, RejectModal, Pagination],
+  imports: [DatePipe, FormsModule, RejectModal, Pagination, CategoryClassPipe, CompClassPipe],
 })
 export class RequirementApprovals implements OnInit {
   requirements = signal<RequirementWithBusiness[]>([]);

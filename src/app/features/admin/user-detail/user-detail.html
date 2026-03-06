@@ -3,7 +3,7 @@
     <p class="user-detail__loading">Loading...</p>
   } @else if (error() && !user()) {
     <p class="user-detail__error">{{ error() }}</p>
-    <button class="user-detail__back-btn" (click)="goBack()">Back to Users</button>
+    <button class="user-detail__back-btn" (click)="goBack()">&larr; Back</button>
   } @else if (user(); as u) {
     <button class="user-detail__back-btn" (click)="goBack()">&larr; Back</button>
 

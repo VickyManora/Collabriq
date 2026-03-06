@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
+import { CategoryClassPipe } from '../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../shared/pipes/comp-class.pipe';
 
 interface FeaturedRequirement {
   id: string;
@@ -20,7 +22,7 @@ interface FeaturedRequirement {
   selector: 'app-landing',
   templateUrl: './landing.html',
   styleUrl: './landing.scss',
-  imports: [RouterLink, TimeAgoPipe],
+  imports: [RouterLink, TimeAgoPipe, CategoryClassPipe, CompClassPipe],
 })
 export class Landing implements OnInit {
   constructor(

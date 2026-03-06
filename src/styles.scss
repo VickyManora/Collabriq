@@ -1,6 +1,75 @@
 @use 'styles/reset';
 @use 'styles/typography';
 
+// ─── Global capsule badges (category + compensation) ───
+
+.capsule {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  width: fit-content;
+  margin : 0.25rem 0px;
+
+  // ── Content type categories ──
+  &--reel {
+    background: #ede9fe; color: #6d28d9;
+  }
+  &--reel-stories {
+    background: #f3e8ff; color: #7c3aed;
+  }
+  &--photoshoot {
+    background: #fce7f3; color: #be185d;
+  }
+  &--social {
+    background: #dbeafe; color: #1d4ed8;
+  }
+  &--food-review {
+    background: #fef3c7; color: #b45309;
+  }
+  &--blog {
+    background: #d1fae5; color: #047857;
+  }
+  &--other {
+    background: #f3f4f6; color: #4b5563;
+  }
+
+  // ── Compensation types ──
+  &--paid {
+    background: #dcfce7; color: #15803d;
+  }
+  &--barter {
+    background: #fff7ed; color: #c2410c;
+  }
+  &--free-product {
+    background: #e0f2fe; color: #0369a1;
+  }
+  &--comp-default {
+    background: #f3f4f6; color: #4b5563;
+  }
+}
+
+// Dark theme capsule overrides
+[data-theme="dark"] .capsule {
+  &--reel { background: rgba(109, 40, 217, 0.2); color: #c4b5fd; }
+  &--reel-stories { background: rgba(124, 58, 237, 0.2); color: #ddd6fe; }
+  &--photoshoot { background: rgba(190, 24, 93, 0.2); color: #f9a8d4; }
+  &--social { background: rgba(29, 78, 216, 0.2); color: #93c5fd; }
+  &--food-review { background: rgba(180, 83, 9, 0.2); color: #fcd34d; }
+  &--blog { background: rgba(4, 120, 87, 0.2); color: #6ee7b7; }
+  &--other { background: rgba(75, 85, 99, 0.2); color: #d1d5db; }
+
+  &--paid { background: rgba(21, 128, 61, 0.2); color: #86efac; }
+  &--barter { background: rgba(194, 65, 12, 0.2); color: #fdba74; }
+  &--free-product { background: rgba(3, 105, 161, 0.2); color: #7dd3fc; }
+  &--comp-default { background: rgba(75, 85, 99, 0.2); color: #d1d5db; }
+}
+
 // ─── Light Theme (default) ───
 :root {
   // Brand

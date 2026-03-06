@@ -52,14 +52,14 @@
               <p class="pub-card__business">{{ businessName(req) }}</p>
             </div>
             @if (req.category) {
-              <span class="pub-card__category">{{ req.category }}</span>
+              <span [class]="req.category | categoryClass">{{ req.category }}</span>
             }
           </div>
 
           <h3 class="pub-card__title">{{ req.title }}</h3>
 
           @if (req.compensation_details) {
-            <p class="pub-card__compensation">{{ req.compensation_details }}</p>
+            <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
           }
 
           @if (req.description && req.description !== req.title) {

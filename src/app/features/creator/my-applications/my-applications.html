@@ -65,7 +65,7 @@
           <h3 class="app-card__title">{{ app.requirement?.title ?? 'Untitled' }}</h3>
 
           @if (app.requirement?.category) {
-            <span class="app-card__category">{{ app.requirement.category }}</span>
+            <span [class]="app.requirement.category | categoryClass">{{ app.requirement.category }}</span>
           }
 
           <p class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</p>

@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
 import { RequirementStatus } from '../../../core/models/requirement.model';
 
 type FilterTab = 'all' | RequirementStatus;
@@ -14,7 +15,7 @@ type FilterTab = 'all' | RequirementStatus;
   selector: 'app-requirement-list',
   templateUrl: './requirement-list.html',
   styleUrl: './requirement-list.scss',
-  imports: [DatePipe, ClosesInPipe, PendingBanner],
+  imports: [DatePipe, ClosesInPipe, CategoryClassPipe, PendingBanner],
 })
 export class RequirementList implements OnInit {
   requirements = signal<RequirementWithApps[]>([]);

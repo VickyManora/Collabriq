@@ -259,15 +259,11 @@
 
 .stat-card {
   @include card;
+  @include card-hover;
   display: block;
   padding: 1rem 1.25rem;
   text-decoration: none;
   cursor: pointer;
-  transition: box-shadow 0.15s;
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-  }
 
   &__header {
     display: flex;
@@ -314,15 +310,11 @@
 
 .opp-card {
   @include card;
+  @include card-hover;
   position: relative;
   cursor: pointer;
-  transition: box-shadow 0.15s;
   display: flex;
   flex-direction: column;
-
-  &:hover {
-    box-shadow: var(--shadow-md);
-  }
 
   &__new-badge {
     position: absolute;

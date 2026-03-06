@@ -8,6 +8,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
 import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
+import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../../shared/pipes/comp-class.pipe';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { Pagination } from '../../../shared/pagination/pagination';
 import { Requirement, RequirementStatus } from '../../../core/models/requirement.model';
@@ -30,7 +32,7 @@ type ApplicationWithCreator = Application & {
   selector: 'app-requirement-detail',
   templateUrl: './requirement-detail.html',
   styleUrl: './requirement-detail.scss',
-  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination, PendingBanner, InstagramLink],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, ClosesInPipe, CategoryClassPipe, CompClassPipe, ConfirmDialog, Pagination, PendingBanner, InstagramLink],
 })
 export class RequirementDetail implements OnInit {
   requirement = signal<Requirement | null>(null);

@@ -152,12 +152,12 @@
               </div>
             </div>
             @if (req.category) {
-              <span class="browse-card__category">{{ req.category }}</span>
+              <span [class]="req.category | categoryClass">{{ req.category }}</span>
             }
           </div>
 
           @if (req.compensation_details) {
-            <p class="browse-card__compensation">{{ req.compensation_details }}</p>
+            <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
           }
 
           <h3 class="browse-card__title">{{ req.title }}</h3>

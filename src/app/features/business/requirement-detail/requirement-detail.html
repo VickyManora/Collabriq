@@ -39,7 +39,7 @@
     </div>
   } @else if (error() && !requirement()) {
     <p class="req-detail__error">{{ error() }}</p>
-    <button class="req-detail__back-btn" (click)="goBack()">Back to Requirements</button>
+    <button class="req-detail__back-btn" (click)="goBack()">&larr; Back</button>
   } @else if (requirement(); as req) {
     <button class="req-detail__back-btn" (click)="goBack()">&larr; Back</button>
 
@@ -67,7 +67,7 @@
       }
 
       @if (req.category) {
-        <p class="req-detail__category">{{ req.category }}</p>
+        <span [class]="req.category | categoryClass">{{ req.category }}</span>
       }
 
       <p class="req-detail__desc">{{ req.description }}</p>
@@ -83,7 +83,7 @@
         @if (req.compensation_details) {
           <div class="req-detail__info-item">
             <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span>{{ req.compensation_details }}</span>
+            <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
           </div>
         }
         <div class="req-detail__info-item">

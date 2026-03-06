@@ -59,7 +59,7 @@
           </div>
 
           @if (req.category) {
-            <span class="req-card__category">{{ req.category }}</span>
+            <span [class]="req.category | categoryClass">{{ req.category }}</span>
           }
 
           <div class="req-card__stats">

@@ -7,6 +7,7 @@ import { CreatorService, RequirementWithBusiness } from '../../core/services/cre
 import { AdminService } from '../../core/services/admin.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ClosesInPipe } from '../../shared/pipes/closes-in.pipe';
+import { CategoryClassPipe } from '../../shared/pipes/category-class.pipe';
 import { PendingBanner } from '../../shared/pending-banner/pending-banner';
 import { InstagramLink } from '../../shared/instagram-link/instagram-link';
 
@@ -32,7 +33,7 @@ interface RecentApplication {
   selector: 'app-dashboard',
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
-  imports: [TitleCasePipe, RouterLink, ClosesInPipe, PendingBanner, InstagramLink],
+  imports: [TitleCasePipe, RouterLink, ClosesInPipe, CategoryClassPipe, PendingBanner, InstagramLink],
 })
 export class Dashboard implements OnInit {
   loading = signal(true);

@@ -17,9 +17,9 @@
     </div>
   } @else if (error() && !requirement()) {
     <p class="req-view__error">{{ error() }}</p>
-    <button class="req-view__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+    <button class="req-view__back-btn" (click)="goBack()">&larr; Back</button>
   } @else if (requirement(); as req) {
-    <button class="req-view__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+    <button class="req-view__back-btn" (click)="goBack()">&larr; Back</button>
 
     @if (error()) {
       <p class="req-view__error">{{ error() }}</p>
@@ -29,12 +29,12 @@
       <div class="req-view__top">
         <h1>{{ req.title }}</h1>
         @if (req.category) {
-          <span class="req-view__category">{{ req.category }}</span>
+          <span [class]="req.category | categoryClass">{{ req.category }}</span>
         }
       </div>
 
       @if (req.compensation_details) {
-        <p class="req-view__compensation">{{ req.compensation_details }}</p>
+        <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
       }
 
       <div class="req-view__business-row req-view__business-row--clickable" (click)="viewBusiness()">

@@ -6,6 +6,8 @@ import { CreatorService, RequirementWithBusiness } from '../../../core/services/
 import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
+import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
+import { CompClassPipe } from '../../../shared/pipes/comp-class.pipe';
 import { Pagination } from '../../../shared/pagination/pagination';
 import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
@@ -23,7 +25,7 @@ interface AppliedInfo {
   selector: 'app-browse-requirements',
   templateUrl: './browse-requirements.html',
   styleUrl: './browse-requirements.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, Pagination, InstagramLink],
+  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, CategoryClassPipe, CompClassPipe, Pagination, InstagramLink],
 })
 export class BrowseRequirements implements OnInit {
   requirements = signal<RequirementWithBusiness[]>([]);

@@ -76,6 +76,8 @@
 
 .user-card {
   @include card;
+  @include card-hover;
+  cursor: pointer;
 
   &__top {
     display: flex;

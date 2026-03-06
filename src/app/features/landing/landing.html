@@ -174,12 +174,12 @@
                 }
               </div>
               @if (req.category) {
-                <span class="ex-card__category">{{ req.category }}</span>
+                <span [class]="req.category | categoryClass">{{ req.category }}</span>
               }
             </div>
             <h3 class="ex-card__title">{{ req.title }}</h3>
             @if (req.compensation_details) {
-              <p class="ex-card__compensation">{{ req.compensation_details }}</p>
+              <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
             }
             <p class="ex-card__location">📍 {{ featuredCity(req) }} &bull; Posted {{ req.created_at | timeAgo }}</p>
             <div class="ex-card__footer">
@@ -213,10 +213,10 @@
                 <p class="ex-card__business">{{ opp.business }}</p>
                 <p class="ex-card__handle">{{ opp.handle }}</p>
               </div>
-              <span class="ex-card__category">{{ opp.category }}</span>
+              <span [class]="opp.category | categoryClass">{{ opp.category }}</span>
             </div>
             <h3 class="ex-card__title">{{ opp.title }}</h3>
-            <p class="ex-card__compensation">{{ opp.compensation }}</p>
+            <span [class]="opp.compensation | compClass">{{ opp.compensation }}</span>
             <p class="ex-card__location">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
             <div class="ex-card__footer">
               <span class="ex-card__spots">{{ opp.spots }}</span>

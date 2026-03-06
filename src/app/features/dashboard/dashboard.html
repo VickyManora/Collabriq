@@ -151,7 +151,7 @@
                   </div>
                 </div>
                 @if (req.category) {
-                  <span class="opp-card__category">{{ req.category }}</span>
+                  <span [class]="req.category | categoryClass">{{ req.category }}</span>
                 }
               </div>
 
