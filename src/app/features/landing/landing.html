@@ -7,13 +7,32 @@
         alt="Collabriq"
       />
     </a>
+
+    <!-- Hamburger (mobile only) -->
+    <button class="land-nav__hamburger" (click)="toggleMobileMenu()" [class.land-nav__hamburger--open]="mobileMenuOpen()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Desktop links -->
     <div class="land-nav__links">
-      <a routerLink="/browse" class="land-nav__link">Browse</a>
-      <a href="#how-it-works" class="land-nav__link land-nav__link--hide-mobile">How it Works</a>
+      <a routerLink="/browse" class="land-nav__link">Browse Opportunities</a>
+      <a href="#how-it-works" class="land-nav__link">How It Works</a>
       <a routerLink="/auth/login" class="land-nav__link">Login</a>
       <a routerLink="/auth/signup" class="land-nav__cta">Sign Up</a>
     </div>
   </div>
+
+  <!-- Mobile menu -->
+  @if (mobileMenuOpen()) {
+    <div class="land-nav__mobile">
+      <a routerLink="/browse" class="land-nav__mobile-link" (click)="closeMobileMenu()">Browse Opportunities</a>
+      <a href="#how-it-works" class="land-nav__mobile-link" (click)="closeMobileMenu()">How It Works</a>
+      <a routerLink="/auth/login" class="land-nav__mobile-link" (click)="closeMobileMenu()">Login</a>
+      <a routerLink="/auth/signup" class="land-nav__mobile-cta" (click)="closeMobileMenu()">Sign Up</a>
+    </div>
+  }
 </nav>
 
 <!-- Hero -->
@@ -28,7 +47,7 @@
       <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--accent">Join as Creator</a>
       <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--outline">Join as Business</a>
     </div>
-    <p class="hero__trust">Trusted by creators and businesses in Pune</p>
+    <p class="hero__trust">✨ Built for creators and businesses in Pune</p>
   </div>
 </section>
 
@@ -36,19 +55,34 @@
 <section class="preview">
   <div class="preview__inner">
     <h2 class="section-title">See the Platform in Action</h2>
-    <div class="preview__grid">
-      <div class="preview__item">
-        <p class="preview__label">Creator View — Browse Opportunities</p>
-        <div class="preview__frame">
-          <img src="assets/screenshots/creator-browse.png" alt="Creator browse requirements view" loading="lazy" />
+    <div class="preview__tabs">
+      <button
+        class="preview__tab"
+        [class.preview__tab--active]="activePreview() === 'creator'"
+        (click)="activePreview.set('creator')"
+      >Creator View</button>
+      <button
+        class="preview__tab"
+        [class.preview__tab--active]="activePreview() === 'business'"
+        (click)="activePreview.set('business')"
+      >Business View</button>
+    </div>
+    <div class="preview__display">
+      @if (activePreview() === 'creator') {
+        <div class="preview__item preview__item--fade">
+          <p class="preview__label">Browse Opportunities</p>
+          <div class="preview__frame">
+            <img src="assets/screenshots/creator-browse.png" alt="Creator browse requirements view" loading="lazy" />
+          </div>
         </div>
-      </div>
-      <div class="preview__item">
-        <p class="preview__label">Business View — Dashboard</p>
-        <div class="preview__frame">
-          <img src="assets/screenshots/business-dashboard.png" alt="Business dashboard view" loading="lazy" />
+      } @else {
+        <div class="preview__item preview__item--fade">
+          <p class="preview__label">Business Dashboard</p>
+          <div class="preview__frame">
+            <img src="assets/screenshots/business-dashboard.png" alt="Business dashboard view" loading="lazy" />
+          </div>
         </div>
-      </div>
+      }
     </div>
   </div>
 </section>
@@ -127,14 +161,16 @@
             <span class="ex-card__avatar">{{ opp.initial }}</span>
             <div class="ex-card__header-text">
               <p class="ex-card__business">{{ opp.business }}</p>
+              <p class="ex-card__handle">{{ opp.handle }}</p>
             </div>
             <span class="ex-card__category">{{ opp.category }}</span>
           </div>
           <h3 class="ex-card__title">{{ opp.title }}</h3>
           <p class="ex-card__compensation">{{ opp.compensation }}</p>
+          <p class="ex-card__location">📍 {{ opp.location }}</p>
           <div class="ex-card__footer">
             <span class="ex-card__spots">{{ opp.spots }}</span>
-            <span class="ex-card__applicants">{{ opp.applicants }} applied</span>
+            <span class="ex-card__applicants">👥 {{ opp.applicants }} creators applied</span>
           </div>
         </div>
       }
@@ -148,7 +184,7 @@
 <!-- Final CTA -->
 <section class="cta">
   <div class="cta__inner">
-    <h2 class="cta__title">Start your first collaboration today.</h2>
+    <h2 class="cta__title">Start your first creator collaboration today.</h2>
     <div class="cta__actions">
       <a routerLink="/auth/signup" class="cta__btn cta__btn--accent">Sign Up</a>
       <a routerLink="/auth/login" class="cta__btn cta__btn--outline">Login</a>
@@ -159,5 +195,13 @@
 
 <!-- Footer -->
 <footer class="land-footer">
-  <p>&copy; 2026 Collabriq. All rights reserved.</p>
+  <div class="land-footer__inner">
+    <div class="land-footer__links">
+      <a href="#" class="land-footer__link">About</a>
+      <a href="#" class="land-footer__link">Contact</a>
+      <a href="#" class="land-footer__link">Privacy Policy</a>
+      <a href="#" class="land-footer__link">Terms of Service</a>
+    </div>
+    <p class="land-footer__copy">&copy; 2026 Collabriq. All rights reserved.</p>
+  </div>
 </footer>
