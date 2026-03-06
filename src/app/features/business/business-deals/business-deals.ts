@@ -3,10 +3,12 @@ import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RequirementService, BusinessDealWithDetails } from '../../../core/services/requirement.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DealStatus } from '../../../core/models/deal.model';
 import { Rating } from '../../../core/models/rating.model';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
 
@@ -14,7 +16,7 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   selector: 'app-business-deals',
   templateUrl: './business-deals.html',
   styleUrl: './business-deals.scss',
-  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination, InstagramLink],
 })
 export class BusinessDeals implements OnInit {
   deals = signal<BusinessDealWithDetails[]>([]);
@@ -65,9 +67,14 @@ export class BusinessDeals implements OnInit {
 
   constructor(
     private reqService: RequirementService,
+    private auth: AuthService,
     private toast: ToastService,
     private route: ActivatedRoute,
   ) {}
+
+  get isPending(): boolean {
+    return this.auth.isPending();
+  }
 
   ngOnInit() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as FilterTab | null;
@@ -147,6 +154,10 @@ export class BusinessDeals implements OnInit {
   }
 
   async markDone(dealId: string) {
+    if (this.isPending) {
+      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      return;
+    }
     this.actionLoading.set(true);
     const { error } = await this.reqService.markDealDone(dealId);
     if (error) {

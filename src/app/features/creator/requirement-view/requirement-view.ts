@@ -3,16 +3,20 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
+import { ProfileGateModal } from '../../../shared/profile-gate-modal/profile-gate-modal';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 import { Application } from '../../../core/models/application.model';
 
 @Component({
   selector: 'app-requirement-view',
   templateUrl: './requirement-view.html',
   styleUrl: './requirement-view.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog, RouterLink],
+  imports: [FormsModule, DatePipe, ClosesInPipe, ConfirmDialog, RouterLink, PendingBanner, ProfileGateModal, InstagramLink],
 })
 export class RequirementView implements OnInit {
   requirement = signal<RequirementWithBusiness | null>(null);
@@ -22,6 +26,7 @@ export class RequirementView implements OnInit {
   withdrawing = signal(false);
   error = signal('');
   confirmAction = signal<string | null>(null);
+  showProfileGate = signal(false);
 
   pitch = '';
 
@@ -29,8 +34,18 @@ export class RequirementView implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private creatorService: CreatorService,
+    private auth: AuthService,
     private toast: ToastService,
   ) {}
+
+  get isPending(): boolean {
+    return this.auth.isPending();
+  }
+
+  get isProfileComplete(): boolean {
+    const p = this.auth.profile();
+    return !!p?.instagram_handle?.trim() && !!p?.phone?.trim();
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -87,6 +102,26 @@ export class RequirementView implements OnInit {
 
   get canWithdraw(): boolean {
     return this.existingApplication()?.status === 'applied';
+  }
+
+  attemptApply() {
+    if (this.isPending) {
+      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      return;
+    }
+    if (!this.isProfileComplete) {
+      this.showProfileGate.set(true);
+      return;
+    }
+    this.apply();
+  }
+
+  onProfileGateClose() {
+    this.showProfileGate.set(false);
+  }
+
+  onGoToProfile() {
+    this.router.navigate(['/profile']);
   }
 
   async apply() {

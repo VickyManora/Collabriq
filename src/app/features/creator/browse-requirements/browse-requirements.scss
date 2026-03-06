@@ -266,8 +266,17 @@
   &__header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.625rem;
     margin-bottom: 0.5rem;
+  }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    flex: 1;
     cursor: pointer;
     border-radius: $radius-sm;
 
@@ -321,8 +330,7 @@
     white-space: nowrap;
     background: var(--color-secondary-alpha);
     color: var(--color-secondary-dark);
-    align-self: flex-start;
-    margin-bottom: 0.25rem;
+    flex-shrink: 0;
   }
 
   &__compensation {

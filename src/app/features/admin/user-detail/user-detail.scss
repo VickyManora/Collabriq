@@ -135,6 +135,29 @@
     font-weight: 500;
   }
 
+  &__rejection {
+    margin-top: 1rem;
+    padding: 0.875rem 1rem;
+    background: var(--color-danger-alpha-faint, rgba(239, 68, 68, 0.06));
+    border: 1px solid var(--color-danger-alpha, rgba(239, 68, 68, 0.15));
+    border-radius: $radius-sm;
+  }
+
+  &__rejection-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-danger);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  &__rejection-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0.375rem 0 0;
+    line-height: 1.5;
+  }
+
   &__actions {
     display: flex;
     gap: 0.75rem;
@@ -159,6 +182,7 @@
 
     &:hover:not(:disabled) {
       background: var(--color-text);
+      color: var(--color-bg);
     }
   }
 

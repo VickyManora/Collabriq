@@ -1,0 +1,98 @@
+<!-- Navbar -->
+<nav class="land-nav">
+  <div class="land-nav__inner">
+    <a routerLink="/" class="land-nav__logo">
+      <img
+        [src]="theme.isDark() ? 'assets/logo/collabriq_logo_darkmode.svg' : 'assets/logo/collabriq_logo.svg'"
+        alt="Collabriq"
+      />
+    </a>
+    <div class="land-nav__links">
+      @if (isLoggedIn()) {
+        <a routerLink="/dashboard" class="land-nav__link">Dashboard</a>
+      } @else {
+        <a routerLink="/auth/login" class="land-nav__link">Login</a>
+        <a routerLink="/auth/signup" class="land-nav__cta">Sign Up</a>
+      }
+    </div>
+  </div>
+</nav>
+
+<div class="pub-browse">
+  <h1>Browse Opportunities</h1>
+  <p class="pub-browse__sub">Explore current collaborations from businesses in Pune.</p>
+
+  @if (loading()) {
+    <div class="pub-browse__grid">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:40%"></div></div>
+          <div class="skeleton skeleton--line-lg"></div>
+          <div class="skeleton skeleton--line" style="width:90%"></div>
+          <div class="skeleton skeleton--line-sm" style="margin-top:auto"></div>
+        </div>
+      }
+    </div>
+  } @else if (requirements().length === 0) {
+    <div class="pub-browse__empty">
+      <p>No open opportunities right now. Check back soon!</p>
+    </div>
+  } @else {
+    <div class="pub-browse__grid">
+      @for (req of requirements(); track req.id) {
+        <div class="pub-card">
+          @if (isNew(req)) {
+            <span class="pub-card__new">NEW</span>
+          }
+
+          <div class="pub-card__header">
+            <span class="pub-card__avatar">{{ businessInitial(req) }}</span>
+            <div class="pub-card__header-text">
+              <p class="pub-card__business">{{ businessName(req) }}</p>
+            </div>
+            @if (req.category) {
+              <span class="pub-card__category">{{ req.category }}</span>
+            }
+          </div>
+
+          <h3 class="pub-card__title">{{ req.title }}</h3>
+
+          @if (req.compensation_details) {
+            <p class="pub-card__compensation">{{ req.compensation_details }}</p>
+          }
+
+          @if (req.description && req.description !== req.title) {
+            <p class="pub-card__desc">{{ req.description }}</p>
+          }
+
+          <div class="pub-card__footer">
+            <div class="pub-card__meta">
+              <span class="pub-card__spots">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
+                {{ spotsLeft(req) }}
+              </span>
+              @if (req.closes_at) {
+                <span class="pub-card__time" [class.pub-card__time--urgent]="isClosingSoon(req)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  {{ req.closes_at | closesIn }}
+                </span>
+              }
+            </div>
+            @if (isLoggedIn()) {
+              <a class="pub-card__apply" routerLink="/creator/browse/{{ req.id }}">View</a>
+            } @else {
+              <a class="pub-card__login" routerLink="/auth/login">Login to apply</a>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!isLoggedIn() && !loading() && requirements().length > 0) {
+    <div class="pub-browse__cta">
+      <p>Want to apply? Create a free account to get started.</p>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="pub-browse__signup-btn">Sign Up as Creator</a>
+    </div>
+  }
+</div>

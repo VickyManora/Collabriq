@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 })
 export class ProfileEdit implements OnInit {
   saving = signal(false);
+  reapplying = signal(false);
   error = signal('');
   showDeactivateConfirm = signal(false);
   deactivating = signal(false);
@@ -93,6 +94,17 @@ export class ProfileEdit implements OnInit {
       this.toast.success('Profile updated.');
     }
     this.saving.set(false);
+  }
+
+  async reapply() {
+    this.reapplying.set(true);
+    const { error } = await this.auth.reapplyForApproval();
+    if (error) {
+      this.toast.error('Failed to reapply. Please try again.');
+    } else {
+      this.toast.success('Your profile has been resubmitted for approval.');
+    }
+    this.reapplying.set(false);
   }
 
   cancel() {

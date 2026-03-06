@@ -6,6 +6,34 @@
 }
 
 <main class="main-content">
+  @if (showRejectedBanner()) {
+    <div class="rejected-strip">
+      <div class="rejected-strip__content">
+        <div class="rejected-strip__header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>
+          </svg>
+          <strong>Your account requires updates before approval.</strong>
+        </div>
+        @if (auth.rejectionReason()) {
+          <p class="rejected-strip__reason">
+            <span class="rejected-strip__reason-label">Admin feedback:</span>
+            {{ auth.rejectionReason() }}
+          </p>
+        }
+      </div>
+      <div class="rejected-strip__actions">
+        <button class="rejected-strip__update-btn" (click)="goToProfile()">Update Profile</button>
+        <button
+          class="rejected-strip__reapply-btn"
+          (click)="reapply()"
+          [disabled]="reapplying()"
+        >
+          {{ reapplying() ? 'Reapplying...' : 'Reapply for Approval' }}
+        </button>
+      </div>
+    </div>
+  }
   <router-outlet />
 </main>
 

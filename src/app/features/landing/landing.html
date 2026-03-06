@@ -1,0 +1,163 @@
+<!-- Navbar -->
+<nav class="land-nav">
+  <div class="land-nav__inner">
+    <a routerLink="/" class="land-nav__logo">
+      <img
+        [src]="theme.isDark() ? 'assets/logo/collabriq_logo_darkmode.svg' : 'assets/logo/collabriq_logo.svg'"
+        alt="Collabriq"
+      />
+    </a>
+    <div class="land-nav__links">
+      <a routerLink="/browse" class="land-nav__link">Browse</a>
+      <a href="#how-it-works" class="land-nav__link land-nav__link--hide-mobile">How it Works</a>
+      <a routerLink="/auth/login" class="land-nav__link">Login</a>
+      <a routerLink="/auth/signup" class="land-nav__cta">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero__glow"></div>
+  <div class="hero__inner">
+    <h1 class="hero__title">Connect Local Businesses with Creators Who Tell Their Story</h1>
+    <p class="hero__sub">
+      Post collaborations, discover creators, and manage brand partnerships — all in one place.
+    </p>
+    <div class="hero__actions">
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--accent">Join as Creator</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--outline">Join as Business</a>
+    </div>
+    <p class="hero__trust">Trusted by creators and businesses in Pune</p>
+  </div>
+</section>
+
+<!-- Platform Preview -->
+<section class="preview">
+  <div class="preview__inner">
+    <h2 class="section-title">See the Platform in Action</h2>
+    <div class="preview__grid">
+      <div class="preview__item">
+        <p class="preview__label">Creator View — Browse Opportunities</p>
+        <div class="preview__frame">
+          <img src="assets/screenshots/creator-browse.png" alt="Creator browse requirements view" loading="lazy" />
+        </div>
+      </div>
+      <div class="preview__item">
+        <p class="preview__label">Business View — Dashboard</p>
+        <div class="preview__frame">
+          <img src="assets/screenshots/business-dashboard.png" alt="Business dashboard view" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how" id="how-it-works">
+  <div class="how__inner">
+    <h2 class="section-title">How It Works</h2>
+
+    <div class="how__grid">
+      <div class="how__col">
+        <h3 class="how__role">For Creators</h3>
+        <div class="how__steps">
+          <div class="how__step">
+            <span class="how__step-num">1</span>
+            <div>
+              <h4>Browse collaborations</h4>
+              <p>Discover opportunities from local businesses looking for creators like you.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <span class="how__step-num">2</span>
+            <div>
+              <h4>Apply to opportunities</h4>
+              <p>Send your pitch and showcase why you're the perfect fit.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <span class="how__step-num">3</span>
+            <div>
+              <h4>Collaborate with brands</h4>
+              <p>Work directly with businesses and grow your portfolio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="how__col">
+        <h3 class="how__role">For Businesses</h3>
+        <div class="how__steps">
+          <div class="how__step">
+            <span class="how__step-num">1</span>
+            <div>
+              <h4>Post a collaboration</h4>
+              <p>Describe what you need and the type of creators you're looking for.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <span class="how__step-num">2</span>
+            <div>
+              <h4>Review creator applications</h4>
+              <p>Browse pitches and pick the creators that match your brand.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <span class="how__step-num">3</span>
+            <div>
+              <h4>Start collaborations</h4>
+              <p>Kick off deals and track progress all in one place.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Example Opportunities -->
+<section class="examples">
+  <div class="examples__inner">
+    <h2 class="section-title">Example Opportunities</h2>
+    <div class="examples__grid">
+      @for (opp of opportunities; track opp.title) {
+        <div class="ex-card">
+          <div class="ex-card__header">
+            <span class="ex-card__avatar">{{ opp.initial }}</span>
+            <div class="ex-card__header-text">
+              <p class="ex-card__business">{{ opp.business }}</p>
+            </div>
+            <span class="ex-card__category">{{ opp.category }}</span>
+          </div>
+          <h3 class="ex-card__title">{{ opp.title }}</h3>
+          <p class="ex-card__compensation">{{ opp.compensation }}</p>
+          <div class="ex-card__footer">
+            <span class="ex-card__spots">{{ opp.spots }}</span>
+            <span class="ex-card__applicants">{{ opp.applicants }} applied</span>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="examples__cta">
+      <a routerLink="/browse" class="examples__browse-btn">Browse All Opportunities</a>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="cta">
+  <div class="cta__inner">
+    <h2 class="cta__title">Start your first collaboration today.</h2>
+    <div class="cta__actions">
+      <a routerLink="/auth/signup" class="cta__btn cta__btn--accent">Sign Up</a>
+      <a routerLink="/auth/login" class="cta__btn cta__btn--outline">Login</a>
+    </div>
+    <p class="cta__trust">Free to join &bull; No subscription required</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="land-footer">
+  <p>&copy; 2026 Collabriq. All rights reserved.</p>
+</footer>

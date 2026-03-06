@@ -1,0 +1,11 @@
+@if (visible) {
+  <div class="profile-gate__overlay" (click)="onBackdropClick()">
+    <div class="profile-gate__card" (click)="$event.stopPropagation()">
+      <p class="profile-gate__message">{{ message }}</p>
+      <div class="profile-gate__actions">
+        <button class="profile-gate__close-btn" (click)="onClose()">Close</button>
+        <button class="profile-gate__profile-btn" (click)="onGoToProfile()">Go to Profile</button>
+      </div>
+    </div>
+  </div>
+}

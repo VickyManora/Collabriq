@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, RequirementWithBusiness } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { RequirementStatus } from '../../../core/models/requirement.model';
-import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { RejectModal } from '../../../shared/reject-modal/reject-modal';
 import { Pagination } from '../../../shared/pagination/pagination';
 
 type FilterTab = 'pending' | 'all';
@@ -13,7 +13,7 @@ type FilterTab = 'pending' | 'all';
   selector: 'app-requirement-approvals',
   templateUrl: './requirement-approvals.html',
   styleUrl: './requirement-approvals.scss',
-  imports: [DatePipe, FormsModule, ConfirmDialog, Pagination],
+  imports: [DatePipe, FormsModule, RejectModal, Pagination],
 })
 export class RequirementApprovals implements OnInit {
   requirements = signal<RequirementWithBusiness[]>([]);
@@ -22,7 +22,7 @@ export class RequirementApprovals implements OnInit {
   currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal<string | null>(null);
-  confirmAction = signal<string | null>(null);
+  rejectingReqId = signal<string | null>(null);
 
   readonly pageSize = 10;
 
@@ -104,26 +104,26 @@ export class RequirementApprovals implements OnInit {
   }
 
   promptReject(id: string) {
-    this.confirmAction.set(id);
+    this.rejectingReqId.set(id);
   }
 
-  async onConfirmReject() {
-    const id = this.confirmAction();
-    this.confirmAction.set(null);
+  async onConfirmReject(reason: string) {
+    const id = this.rejectingReqId();
+    this.rejectingReqId.set(null);
     if (!id) return;
     this.actionLoading.set(id);
-    const { error } = await this.adminService.rejectRequirement(id);
+    const { error } = await this.adminService.rejectRequirement(id, reason);
     if (error) {
       this.toast.error('Failed to reject requirement.');
     } else {
-      this.toast.success('Requirement rejected.');
+      this.toast.success('Requirement rejected with feedback.');
       await this.loadRequirements();
     }
     this.actionLoading.set(null);
   }
 
   onCancelReject() {
-    this.confirmAction.set(null);
+    this.rejectingReqId.set(null);
   }
 
   statusLabel(status: RequirementStatus): string {

@@ -6,6 +6,7 @@ import { CreatorService, ApplicationWithRequirement } from '../../../core/servic
 import { ToastService } from '../../../core/services/toast.service';
 import { ApplicationStatus } from '../../../core/models/application.model';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type FilterTab = 'all' | ApplicationStatus;
 
@@ -13,7 +14,7 @@ type FilterTab = 'all' | ApplicationStatus;
   selector: 'app-my-applications',
   templateUrl: './my-applications.html',
   styleUrl: './my-applications.scss',
-  imports: [DatePipe, FormsModule, Pagination, RouterLink],
+  imports: [DatePipe, FormsModule, Pagination, RouterLink, InstagramLink],
 })
 export class MyApplications implements OnInit {
   applications = signal<ApplicationWithRequirement[]>([]);

@@ -2,8 +2,25 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { approvalGuard } from './core/guards/approval.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { landingGuard } from './core/guards/landing.guard';
 
 export const routes: Routes = [
+  // Public landing page
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [landingGuard],
+    loadComponent: () =>
+      import('./features/landing/landing').then((m) => m.Landing),
+  },
+
+  // Public browse (no auth required)
+  {
+    path: 'browse',
+    loadComponent: () =>
+      import('./features/public-browse/public-browse').then((m) => m.PublicBrowse),
+  },
+
   // Public auth routes
   {
     path: 'auth',
@@ -25,10 +42,9 @@ export const routes: Routes = [
           ),
       },
 
-      // Dashboard (requires approval)
+      // Dashboard
       {
         path: 'dashboard',
-        canActivate: [approvalGuard],
         loadComponent: () =>
           import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
@@ -36,7 +52,6 @@ export const routes: Routes = [
       // Profile editing
       {
         path: 'profile',
-        canActivate: [approvalGuard],
         loadComponent: () =>
           import('./features/profile-edit/profile-edit').then((m) => m.ProfileEdit),
       },
@@ -44,7 +59,7 @@ export const routes: Routes = [
       // Business routes (Phase 2)
       {
         path: 'business',
-        canActivate: [approvalGuard, roleGuard],
+        canActivate: [roleGuard],
         data: { role: 'business' },
         loadChildren: () =>
           import('./features/business/business.routes').then((m) => m.BUSINESS_ROUTES),
@@ -53,7 +68,7 @@ export const routes: Routes = [
       // Creator routes (Phase 3)
       {
         path: 'creator',
-        canActivate: [approvalGuard, roleGuard],
+        canActivate: [roleGuard],
         data: { role: 'creator' },
         loadChildren: () =>
           import('./features/creator/creator.routes').then((m) => m.CREATOR_ROUTES),
@@ -67,8 +82,6 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
-
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 

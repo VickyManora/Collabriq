@@ -29,7 +29,7 @@
       </div>
 
       <div class="form-group">
-        <label for="fullName">Full Name</label>
+        <label for="fullName">Full Name <span class="form-group__required">*</span></label>
         <input
           id="fullName"
           type="text"
@@ -41,7 +41,7 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Email <span class="form-group__required">*</span></label>
         <input
           id="email"
           type="email"
@@ -53,7 +53,7 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">Password <span class="form-group__required">*</span></label>
         <input
           id="password"
           type="password"
@@ -67,7 +67,7 @@
 
       @if (role === 'business') {
         <div class="form-group">
-          <label for="businessName">Business Name</label>
+          <label for="businessName">Business Name <span class="form-group__required">*</span></label>
           <input
             id="businessName"
             type="text"
@@ -77,9 +77,33 @@
             required
           />
         </div>
-      } @else {
+
         <div class="form-group">
-          <label for="instagram">Instagram Handle</label>
+          <label for="city">City <span class="form-group__required">*</span></label>
+          <input
+            id="city"
+            type="text"
+            [(ngModel)]="city"
+            name="city"
+            placeholder="e.g. Pune"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone <span class="form-group__required">*</span></label>
+          <input
+            id="phone"
+            type="tel"
+            [(ngModel)]="phone"
+            name="phone"
+            placeholder="Your phone number"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="instagram">Instagram Handle <span class="form-group__optional">(optional)</span></label>
           <input
             id="instagram"
             type="text"
@@ -87,10 +111,23 @@
             name="instagram"
             placeholder="@yourhandle"
           />
+          <span class="form-group__hint">Optional – helps creators learn more about your brand.</span>
+        </div>
+      } @else {
+        <div class="form-group">
+          <label for="instagram">Instagram Handle <span class="form-group__required">*</span></label>
+          <input
+            id="instagram"
+            type="text"
+            [(ngModel)]="instagramHandle"
+            name="instagram"
+            placeholder="@yourhandle"
+            required
+          />
         </div>
       }
 
-      <button type="submit" class="btn-primary" [disabled]="loading()">
+      <button type="submit" class="btn-primary" [disabled]="loading() || !isValid">
         {{ loading() ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>

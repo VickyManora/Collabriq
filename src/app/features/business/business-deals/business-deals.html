@@ -72,7 +72,7 @@
               <p class="deal-card__contact">{{ deal.creator.phone }}</p>
             }
             @if (deal.creator?.instagram_handle) {
-              <p class="deal-card__contact">@{{ deal.creator.instagram_handle }}</p>
+              <p class="deal-card__contact"><app-ig-link [handle]="deal.creator.instagram_handle" /></p>
             }
             @if (deal.creator.portfolio_url) {
               <p class="deal-card__contact">{{ deal.creator.portfolio_url }}</p>

@@ -3,7 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RequirementService } from '../../../core/services/requirement.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { Pagination } from '../../../shared/pagination/pagination';
@@ -25,7 +28,7 @@ type ApplicationWithCreator = Application & {
   selector: 'app-requirement-detail',
   templateUrl: './requirement-detail.html',
   styleUrl: './requirement-detail.scss',
-  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, ClosesInPipe, ConfirmDialog, Pagination, PendingBanner, InstagramLink],
 })
 export class RequirementDetail implements OnInit {
   requirement = signal<Requirement | null>(null);
@@ -60,8 +63,13 @@ export class RequirementDetail implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private reqService: RequirementService,
+    private auth: AuthService,
     private toast: ToastService,
   ) {}
+
+  get isPending(): boolean {
+    return this.auth.isPending();
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -129,6 +137,10 @@ export class RequirementDetail implements OnInit {
   }
 
   async submitForApproval() {
+    if (this.isPending) {
+      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      return;
+    }
     this.actionLoading.set(true);
     this.error.set('');
     const { error } = await this.reqService.submitForApproval(this.requirement()!.id);
@@ -166,6 +178,10 @@ export class RequirementDetail implements OnInit {
   }
 
   async acceptApplication(appId: string) {
+    if (this.isPending) {
+      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      return;
+    }
     this.actionLoading.set(true);
     this.error.set('');
     const { error } = await this.reqService.acceptApplication(appId);
@@ -212,6 +228,14 @@ export class RequirementDetail implements OnInit {
       cancelled: 'Cancelled',
     };
     return labels[status];
+  }
+
+  spotsRemaining(req: Requirement): number {
+    return req.creator_slots - req.filled_slots;
+  }
+
+  creatorInitial(app: ApplicationWithCreator): string {
+    return app.creator.full_name.replace(/^@/, '').charAt(0).toUpperCase();
   }
 
   appStatusLabel(status: string): string {

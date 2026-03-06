@@ -16,6 +16,7 @@ export interface Requirement {
   filled_slots: number;
   status: RequirementStatus;
   compensation_details: string | null;
+  rejection_reason: string | null;
   opened_at: string | null;
   closes_at: string | null;
   created_at: string;

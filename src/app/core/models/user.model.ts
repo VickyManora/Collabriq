@@ -5,6 +5,7 @@ export interface Profile {
   id: string;
   role: UserRole;
   approval_status: ApprovalStatus;
+  rejection_reason: string | null;
   email: string;
   full_name: string;
   phone: string | null;

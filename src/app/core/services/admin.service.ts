@@ -61,10 +61,10 @@ export class AdminService {
       .single<Profile>();
   }
 
-  async rejectUser(id: string) {
+  async rejectUser(id: string, rejectionReason: string) {
     return this.supabase
       .from('profiles')
-      .update({ approval_status: 'rejected' })
+      .update({ approval_status: 'rejected', rejection_reason: rejectionReason })
       .eq('id', id)
       .select()
       .single<Profile>();
@@ -96,10 +96,10 @@ export class AdminService {
       .single<Requirement>();
   }
 
-  async rejectRequirement(id: string) {
+  async rejectRequirement(id: string, rejectionReason: string) {
     return this.supabase
       .from('requirements')
-      .update({ status: 'cancelled' })
+      .update({ status: 'cancelled', rejection_reason: rejectionReason })
       .eq('id', id)
       .select()
       .single<Requirement>();

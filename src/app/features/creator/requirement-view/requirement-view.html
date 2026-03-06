@@ -42,7 +42,7 @@
         <div class="req-view__business-info">
           <span class="req-view__business-name">{{ businessDisplayName() }}</span>
           @if (businessHandle()) {
-            <span class="req-view__handle">@{{ businessHandle() }}</span>
+            <span class="req-view__handle"><app-ig-link [handle]="businessHandle()" /></span>
           }
         </div>
       </div>
@@ -89,6 +89,10 @@
 
     <!-- Application Section -->
     <div class="req-view__apply">
+      @if (isPending) {
+        <app-pending-banner />
+      }
+
       @if (canApply) {
         <h2>Apply to this Requirement</h2>
         <div class="req-view__apply-form">
@@ -100,12 +104,13 @@
               name="pitch"
               rows="4"
               placeholder="Tell the business why you're a great fit..."
+              [disabled]="isPending"
             ></textarea>
           </div>
           <button
             class="req-view__apply-btn"
-            (click)="apply()"
-            [disabled]="applying()"
+            (click)="attemptApply()"
+            [disabled]="applying() || isPending"
           >
             {{ applying() ? 'Applying...' : 'Apply' }}
           </button>
@@ -151,4 +156,11 @@
   [visible]="confirmAction() !== null"
   (confirmed)="onConfirmWithdraw()"
   (cancelled)="onCancelWithdraw()"
+/>
+
+<app-profile-gate-modal
+  message="Complete your profile before applying."
+  [visible]="showProfileGate()"
+  (closed)="onProfileGateClose()"
+  (goToProfile)="onGoToProfile()"
 />

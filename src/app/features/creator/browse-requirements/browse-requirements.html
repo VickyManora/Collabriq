@@ -139,19 +139,20 @@
             <span class="browse-card__closing-soon">Closing Soon</span>
           }
 
-          <div class="browse-card__header" (click)="viewBusiness($event, req.business_id)">
-            <span class="browse-card__avatar">{{ businessInitial(req) }}</span>
-            <div class="browse-card__header-text">
-              <p class="browse-card__business">{{ businessDisplayName(req) }}</p>
-              @if (businessHandle(req)) {
-                <p class="browse-card__handle">@{{ businessHandle(req) }}</p>
-              }
+          <div class="browse-card__header">
+            <div class="browse-card__identity" (click)="viewBusiness($event, req.business_id)">
+              <span class="browse-card__avatar">{{ businessInitial(req) }}</span>
+              <div class="browse-card__header-text">
+                <p class="browse-card__business">{{ businessDisplayName(req) }}</p>
+                @if (businessHandle(req)) {
+                  <p class="browse-card__handle"><app-ig-link [handle]="businessHandle(req)" /></p>
+                }
+              </div>
             </div>
+            @if (req.category) {
+              <span class="browse-card__category">{{ req.category }}</span>
+            }
           </div>
-
-          @if (req.category) {
-            <span class="browse-card__category">{{ req.category }}</span>
-          }
 
           @if (req.compensation_details) {
             <p class="browse-card__compensation">{{ req.compensation_details }}</p>

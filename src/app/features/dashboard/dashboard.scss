@@ -92,6 +92,34 @@
     color: var(--color-text-muted);
   }
 
+  &__section {
+    margin-top: 2rem;
+  }
+
+  &__section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    a {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--color-primary);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
   &__activity {
     margin-top: 2rem;
 
@@ -101,6 +129,62 @@
       color: var(--color-text);
       margin-bottom: 1rem;
     }
+  }
+}
+
+// ─── Recent applications ───
+
+.recent-apps {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+}
+
+.recent-app {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+
+  & + & {
+    border-top: 1px solid var(--color-border);
+  }
+
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--color-accent-alpha);
+    color: var(--color-accent-dark);
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__detail {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0.125rem 0 0;
+    line-height: 1.4;
+  }
+
+  &__time {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
   }
 }
 
@@ -454,5 +538,67 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+// ─── Rejected banner ───
+
+.rejected-banner {
+  background: var(--color-danger-alpha-faint, rgba(239, 68, 68, 0.06));
+  border: 1px solid var(--color-danger-alpha, rgba(239, 68, 68, 0.2));
+  border-radius: $radius;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  &__feedback {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-sm;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__feedback-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  &__feedback-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0.25rem 0 0;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  &__update-btn {
+    @include btn-outline;
+    font-size: 0.8125rem;
+  }
+
+  &__reapply-btn {
+    @include btn-primary;
+    font-size: 0.8125rem;
   }
 }

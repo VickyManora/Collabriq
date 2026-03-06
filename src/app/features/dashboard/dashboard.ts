@@ -5,7 +5,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { RequirementService } from '../../core/services/requirement.service';
 import { CreatorService, RequirementWithBusiness } from '../../core/services/creator.service';
 import { AdminService } from '../../core/services/admin.service';
+import { ToastService } from '../../core/services/toast.service';
 import { ClosesInPipe } from '../../shared/pipes/closes-in.pipe';
+import { PendingBanner } from '../../shared/pending-banner/pending-banner';
+import { InstagramLink } from '../../shared/instagram-link/instagram-link';
 
 interface AppliedInfo {
   status: string;
@@ -18,16 +21,26 @@ interface ActivityItem {
   icon: string;
 }
 
+interface RecentApplication {
+  id: string;
+  created_at: string;
+  creator: { full_name: string };
+  requirement: { title: string };
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
-  imports: [TitleCasePipe, RouterLink, ClosesInPipe],
+  imports: [TitleCasePipe, RouterLink, ClosesInPipe, PendingBanner, InstagramLink],
 })
 export class Dashboard implements OnInit {
   loading = signal(true);
   activeRequirements = signal(0);
   activeDeals = signal(0);
+  businessPendingApps = signal(0);
+  businessRecentApps = signal<RecentApplication[]>([]);
+  businessActivity = signal<ActivityItem[]>([]);
 
   // Creator counts
   openRequirements = signal(0);
@@ -47,6 +60,7 @@ export class Dashboard implements OnInit {
     private reqService: RequirementService,
     private creatorService: CreatorService,
     private adminService: AdminService,
+    private toast: ToastService,
     private router: Router,
   ) {}
 
@@ -61,12 +75,18 @@ export class Dashboard implements OnInit {
   }
 
   private async loadBusinessData() {
-    const [counts, dealCount] = await Promise.all([
+    const [counts, dealCount, pendingApps, recentApps, activity] = await Promise.all([
       this.reqService.getMyRequirementCounts(),
       this.reqService.getMyDealCount(),
+      this.reqService.getPendingApplicationCount(),
+      this.reqService.getRecentApplications(5),
+      this.reqService.getBusinessRecentActivity(5),
     ]);
     this.activeRequirements.set(counts.active);
     this.activeDeals.set(dealCount);
+    this.businessPendingApps.set(pendingApps);
+    this.businessRecentApps.set(recentApps);
+    this.businessActivity.set(activity);
     this.loading.set(false);
   }
 

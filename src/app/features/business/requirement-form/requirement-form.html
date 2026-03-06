@@ -1,6 +1,10 @@
 <div class="req-form">
   <h1>{{ isEdit ? 'Edit Requirement' : 'New Requirement' }}</h1>
 
+  @if (isPending) {
+    <app-pending-banner />
+  }
+
   @if (loading()) {
     <p class="req-form__loading">Loading...</p>
   } @else {
@@ -9,6 +13,13 @@
     }
 
     <form (ngSubmit)="saveDraft()" class="req-form__body">
+      @if (!isEdit) {
+        <button type="button" class="req-form__generate-btn" (click)="openGenerator()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          Generate Suggestions
+        </button>
+      }
+
       <div class="req-form__field">
         <label for="title">Title *</label>
         <input
@@ -35,13 +46,29 @@
 
       <div class="req-form__row">
         <div class="req-form__field">
-          <label for="category">Category</label>
-          <select id="category" [(ngModel)]="category" name="category">
-            <option [ngValue]="null">Select category</option>
-            @for (cat of categories; track cat) {
-              <option [ngValue]="cat">{{ cat }}</option>
+          <label>Category</label>
+          <div class="req-form__dropdown" [class.req-form__dropdown--open]="categoryOpen()">
+            <button type="button" class="req-form__dropdown-trigger" (click)="toggleCategory()">
+              <span [class.req-form__dropdown-placeholder]="!category">{{ categoryLabel }}</span>
+              <svg class="req-form__chevron" width="12" height="12" viewBox="0 0 12 12"><path fill="currentColor" d="M6 8L1 3h10z"/></svg>
+            </button>
+            @if (categoryOpen()) {
+              <ul class="req-form__dropdown-menu">
+                <li
+                  class="req-form__dropdown-item"
+                  [class.req-form__dropdown-item--active]="category === null"
+                  (click)="selectCategory(null)"
+                >Select category</li>
+                @for (cat of categories; track cat) {
+                  <li
+                    class="req-form__dropdown-item"
+                    [class.req-form__dropdown-item--active]="category === cat"
+                    (click)="selectCategory(cat)"
+                  >{{ cat }}</li>
+                }
+              </ul>
             }
-          </select>
+          </div>
         </div>
 
         <div class="req-form__field">
@@ -59,14 +86,18 @@
       </div>
 
       <div class="req-form__field">
-        <label for="compensation">Compensation Details</label>
+        <label for="compensation">Compensation Details @if (paidSelected()) { * }</label>
         <textarea
           id="compensation"
           [(ngModel)]="compensationDetails"
           name="compensationDetails"
           rows="2"
           placeholder="e.g. Free meal + ₹2000 per reel"
+          [required]="paidSelected()"
         ></textarea>
+        @if (paidSelected() && !compensationDetails.trim()) {
+          <span class="req-form__hint">Please specify compensation details for paid collaborations.</span>
+        }
       </div>
 
       <div class="req-form__actions">
@@ -81,8 +112,8 @@
         <button
           type="button"
           class="req-form__submit-btn"
-          [disabled]="!isValid || saving()"
-          (click)="submitForApproval()"
+          [disabled]="!isValid || saving() || isPending"
+          (click)="attemptSubmitForApproval()"
         >
           Submit for Approval
         </button>
@@ -90,3 +121,107 @@
     </form>
   }
 </div>
+
+<!-- Generator Modal -->
+@if (showGenerator()) {
+  <div class="gen-overlay" (click)="closeGenerator()">
+    <div class="gen-modal" (click)="$event.stopPropagation()">
+      <div class="gen-modal__header">
+        <h2>
+          @if (generatorStep() === 'options') {
+            Generate Suggestions
+          } @else {
+            Choose a Suggestion
+          }
+        </h2>
+        <button class="gen-modal__close" (click)="closeGenerator()" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      @if (generatorStep() === 'options') {
+        <div class="gen-modal__body">
+          <div class="gen-field">
+            <label class="gen-field__label">Content Type</label>
+            <div class="gen-field__options">
+              @for (opt of contentTypes; track opt) {
+                <button
+                  type="button"
+                  class="gen-chip"
+                  [class.gen-chip--active]="genContentType === opt"
+                  (click)="genContentType = opt"
+                >{{ opt }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="gen-field">
+            <label class="gen-field__label">Compensation Type</label>
+            <div class="gen-field__options">
+              @for (opt of compensationTypes; track opt) {
+                <button
+                  type="button"
+                  class="gen-chip"
+                  [class.gen-chip--active]="genCompensationType === opt"
+                  (click)="genCompensationType = opt"
+                >{{ opt }}</button>
+              }
+            </div>
+          </div>
+
+          <div class="gen-field">
+            <label class="gen-field__label">Goal</label>
+            <div class="gen-field__options">
+              @for (opt of goals; track opt) {
+                <button
+                  type="button"
+                  class="gen-chip"
+                  [class.gen-chip--active]="genGoal === opt"
+                  (click)="genGoal = opt"
+                >{{ opt }}</button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="gen-modal__footer">
+          <button type="button" class="gen-modal__cancel" (click)="closeGenerator()">Cancel</button>
+          <button
+            type="button"
+            class="gen-modal__generate"
+            [disabled]="!canGenerate"
+            (click)="generateSuggestions()"
+          >
+            Generate
+          </button>
+        </div>
+      } @else {
+        <div class="gen-modal__body">
+          @for (s of suggestions(); track s.title; let i = $index) {
+            <div class="gen-suggestion">
+              <span class="gen-suggestion__number">{{ i + 1 }}</span>
+              <div class="gen-suggestion__content">
+                <h4 class="gen-suggestion__title">{{ s.title }}</h4>
+                <p class="gen-suggestion__desc">{{ s.description }}</p>
+              </div>
+              <button type="button" class="gen-suggestion__use" (click)="useSuggestion(s)">Use This</button>
+            </div>
+          }
+        </div>
+
+        <div class="gen-modal__footer">
+          <button type="button" class="gen-modal__cancel" (click)="generatorStep.set('options')">
+            &larr; Back
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<app-profile-gate-modal
+  message="Complete your business profile before posting a requirement."
+  [visible]="showProfileGate()"
+  (closed)="onProfileGateClose()"
+  (goToProfile)="onGoToProfile()"
+/>

@@ -12,7 +12,7 @@
 .pending-card {
   @include card;
   text-align: center;
-  max-width: 420px;
+  max-width: 460px;
   padding: 2.5rem 2rem;
 
   &__icon {
@@ -25,12 +25,20 @@
   }
 
   h1 {
+    font-size: 1.25rem;
     margin-bottom: 0.75rem;
   }
 
   &__message {
     color: var(--color-text-muted);
     font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+
+  &__submessage {
+    color: var(--color-text-faint);
+    font-size: 0.8125rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
   }

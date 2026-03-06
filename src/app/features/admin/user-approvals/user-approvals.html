@@ -56,7 +56,7 @@
             <p class="user-card__detail">{{ user.business_name }}</p>
           }
           @if (user.role === 'creator' && user.instagram_handle) {
-            <p class="user-card__detail">@{{ user.instagram_handle }}</p>
+            <p class="user-card__detail"><app-ig-link [handle]="user.instagram_handle" /></p>
           }
 
           <p class="user-card__date">Registered {{ user.created_at | date: 'mediumDate' }}</p>
@@ -92,9 +92,9 @@
   }
 </div>
 
-<app-confirm-dialog
-  message="Are you sure you want to reject this user?"
-  [visible]="confirmAction() !== null"
-  (confirmed)="onConfirmReject()"
+<app-reject-modal
+  title="Reject User"
+  [visible]="rejectingUserId() !== null"
+  (confirmed)="onConfirmReject($event)"
   (cancelled)="onCancelReject()"
 />

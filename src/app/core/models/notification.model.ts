@@ -1,9 +1,14 @@
 export type NotificationType =
   | 'user_approved'
+  | 'user_rejected'
   | 'requirement_approved'
   | 'application_received'
   | 'application_accepted'
   | 'application_rejected'
+  | 'application_withdrawn'
+  | 'deal_created'
+  | 'creator_marked_done'
+  | 'business_marked_done'
   | 'deal_completed';
 
 export interface Notification {

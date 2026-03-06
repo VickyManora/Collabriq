@@ -6,6 +6,10 @@ import { Application } from '../models/application.model';
 import { Deal } from '../models/deal.model';
 import { Rating } from '../models/rating.model';
 
+export type RequirementWithApps = Requirement & {
+  applications: { count: number }[];
+};
+
 export type BusinessDealWithDetails = Deal & {
   requirement: { title: string };
   creator: { full_name: string; email: string; phone: string | null; instagram_handle: string | null; portfolio_url: string | null };
@@ -26,10 +30,10 @@ export class RequirementService {
     const userId = this.auth.profile()?.id;
     return this.supabase
       .from('requirements')
-      .select('*')
+      .select('*, applications(count)')
       .eq('business_id', userId!)
       .order('created_at', { ascending: false })
-      .returns<Requirement[]>();
+      .returns<RequirementWithApps[]>();
   }
 
   async getRequirement(id: string) {
@@ -186,6 +190,114 @@ export class RequirementService {
       })
       .select()
       .single<Rating>();
+  }
+
+  async getPendingApplicationCount(): Promise<number> {
+    const userId = this.auth.profile()?.id;
+    const { data: reqs } = await this.supabase
+      .from('requirements')
+      .select('id')
+      .eq('business_id', userId!);
+
+    if (!reqs || reqs.length === 0) return 0;
+
+    const reqIds = reqs.map((r: { id: string }) => r.id);
+    const { count, error } = await this.supabase
+      .from('applications')
+      .select('*', { count: 'exact', head: true })
+      .in('requirement_id', reqIds)
+      .eq('status', 'applied');
+
+    return error ? 0 : (count ?? 0);
+  }
+
+  async getRecentApplications(limit: number) {
+    const userId = this.auth.profile()?.id;
+    const { data: reqs } = await this.supabase
+      .from('requirements')
+      .select('id')
+      .eq('business_id', userId!);
+
+    if (!reqs || reqs.length === 0) return [];
+
+    const reqIds = reqs.map((r: { id: string }) => r.id);
+    const { data, error } = await this.supabase
+      .from('applications')
+      .select('id, created_at, status, creator:profiles!creator_id(full_name), requirement:requirements!requirement_id(title)')
+      .in('requirement_id', reqIds)
+      .eq('status', 'applied')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+      .returns<{
+        id: string; created_at: string; status: string;
+        creator: { full_name: string };
+        requirement: { title: string };
+      }[]>();
+
+    return error ? [] : (data ?? []);
+  }
+
+  async getBusinessRecentActivity(limit: number) {
+    const userId = this.auth.profile()?.id;
+
+    const { data: reqs } = await this.supabase
+      .from('requirements')
+      .select('id')
+      .eq('business_id', userId!);
+
+    const reqIds = reqs?.map((r: { id: string }) => r.id) ?? [];
+
+    const [appsResult, dealsResult, ratingsResult] = await Promise.all([
+      reqIds.length > 0
+        ? this.supabase
+            .from('applications')
+            .select('id, status, created_at, creator:profiles!creator_id(full_name), requirement:requirements!requirement_id(title)')
+            .in('requirement_id', reqIds)
+            .order('created_at', { ascending: false })
+            .limit(limit * 2)
+            .returns<{ id: string; status: string; created_at: string; creator: { full_name: string }; requirement: { title: string } }[]>()
+        : Promise.resolve({ data: [] as any[], error: null }),
+      this.supabase
+        .from('deals')
+        .select('id, status, created_at, creator:profiles!creator_id(full_name), requirement:requirements!requirement_id(title)')
+        .eq('business_id', userId!)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+        .returns<{ id: string; status: string; created_at: string; creator: { full_name: string }; requirement: { title: string } }[]>(),
+      this.supabase
+        .from('ratings')
+        .select('id, stars, created_at, rater:profiles!rater_id(full_name)')
+        .eq('ratee_id', userId!)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+        .returns<{ id: string; stars: number; created_at: string; rater: { full_name: string } }[]>(),
+    ]);
+
+    const activities: { message: string; timestamp: string; icon: string }[] = [];
+
+    if (appsResult.data) {
+      for (const app of appsResult.data) {
+        const name = app.creator?.full_name || 'A creator';
+        activities.push({ message: `${name} applied to "${app.requirement?.title}"`, timestamp: app.created_at, icon: 'applied' });
+      }
+    }
+
+    if (dealsResult.data) {
+      for (const deal of dealsResult.data) {
+        const name = deal.creator?.full_name || 'A creator';
+        activities.push({ message: `Deal started with ${name}`, timestamp: deal.created_at, icon: 'deal' });
+      }
+    }
+
+    if (ratingsResult.data) {
+      for (const rating of ratingsResult.data) {
+        const name = rating.rater?.full_name || 'A creator';
+        activities.push({ message: `You received a ${rating.stars}-star rating from ${name}`, timestamp: rating.created_at, icon: 'rating' });
+      }
+    }
+
+    activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return activities.slice(0, limit);
   }
 
   async getCreatorAverageRating(creatorId: string): Promise<{ avg: number; count: number }> {

@@ -51,7 +51,7 @@
               <div class="app-card__header-text">
                 <span class="app-card__business">{{ businessDisplayName(app) }}</span>
                 @if (businessHandle(app)) {
-                  <span class="app-card__handle">@{{ businessHandle(app) }}</span>
+                  <span class="app-card__handle"><app-ig-link [handle]="businessHandle(app)" /></span>
                 }
               </div>
             </div>

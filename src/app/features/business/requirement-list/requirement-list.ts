@@ -1,10 +1,12 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { RequirementService } from '../../../core/services/requirement.service';
+import { RequirementService, RequirementWithApps } from '../../../core/services/requirement.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
-import { Requirement, RequirementStatus } from '../../../core/models/requirement.model';
+import { RequirementStatus } from '../../../core/models/requirement.model';
 
 type FilterTab = 'all' | RequirementStatus;
 
@@ -12,10 +14,10 @@ type FilterTab = 'all' | RequirementStatus;
   selector: 'app-requirement-list',
   templateUrl: './requirement-list.html',
   styleUrl: './requirement-list.scss',
-  imports: [DatePipe, ClosesInPipe],
+  imports: [DatePipe, ClosesInPipe, PendingBanner],
 })
 export class RequirementList implements OnInit {
-  requirements = signal<Requirement[]>([]);
+  requirements = signal<RequirementWithApps[]>([]);
   activeFilter = signal<FilterTab>('all');
   loading = signal(true);
 
@@ -36,9 +38,14 @@ export class RequirementList implements OnInit {
 
   constructor(
     private reqService: RequirementService,
+    private auth: AuthService,
     private router: Router,
     private toast: ToastService,
   ) {}
+
+  get isPending(): boolean {
+    return this.auth.isPending();
+  }
 
   ngOnInit() {
     this.loadRequirements();
@@ -65,6 +72,15 @@ export class RequirementList implements OnInit {
 
   createNew() {
     this.router.navigate(['/business/requirements/new']);
+  }
+
+  applicationsCount(req: RequirementWithApps): number {
+    return req.applications?.[0]?.count ?? 0;
+  }
+
+  isClosingSoon(req: RequirementWithApps): boolean {
+    if (!req.closes_at) return false;
+    return new Date(req.closes_at).getTime() - Date.now() < 48 * 60 * 60 * 1000;
   }
 
   statusLabel(status: RequirementStatus): string {

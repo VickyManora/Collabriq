@@ -40,7 +40,7 @@
         @if (u.instagram_handle) {
           <div class="user-detail__info-item">
             <span class="user-detail__info-label">Instagram</span>
-            <span>@{{ u.instagram_handle }}</span>
+            <app-ig-link [handle]="u.instagram_handle" />
           </div>
         }
         @if (u.business_name) {
@@ -72,6 +72,13 @@
           <span>{{ u.created_at | date: 'mediumDate' }}</span>
         </div>
       </div>
+
+      @if (u.approval_status === 'rejected' && u.rejection_reason) {
+        <div class="user-detail__rejection">
+          <span class="user-detail__rejection-label">Rejection Reason</span>
+          <p class="user-detail__rejection-text">{{ u.rejection_reason }}</p>
+        </div>
+      }
 
       <!-- Actions -->
       <div class="user-detail__actions">
@@ -168,8 +175,15 @@
 </div>
 
 <app-confirm-dialog
-  [message]="confirmMessage"
-  [visible]="confirmAction() !== null"
-  (confirmed)="onConfirm()"
-  (cancelled)="onCancelConfirm()"
+  message="Are you sure you want to deactivate this user? This will soft-delete their account."
+  [visible]="showDeactivateConfirm()"
+  (confirmed)="onConfirmDeactivate()"
+  (cancelled)="onCancelDeactivate()"
+/>
+
+<app-reject-modal
+  title="Reject User"
+  [visible]="showRejectModal()"
+  (confirmed)="onConfirmReject($event)"
+  (cancelled)="onCancelReject()"
 />

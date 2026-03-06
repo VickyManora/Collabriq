@@ -1,0 +1,119 @@
+<div class="biz-profile">
+  @if (loading()) {
+    <div class="skeleton-back"><div class="skeleton skeleton--line" style="width:8rem"></div></div>
+    <div class="skeleton-card">
+      <div class="skeleton-row"><div class="skeleton skeleton--avatar-lg"></div><div class="skeleton skeleton--line-lg" style="width:50%"></div></div>
+      <div class="skeleton skeleton--line" style="width:30%"></div>
+      <div class="skeleton skeleton--line" style="width:40%"></div>
+      <div class="skeleton skeleton--block"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton skeleton--line" style="width:45%"></div>
+      <div class="skeleton skeleton--line" style="width:55%"></div>
+    </div>
+  } @else if (error() && !profile()) {
+    <p class="biz-profile__error">{{ error() }}</p>
+    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+  } @else if (profile(); as biz) {
+    <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back to Browse</button>
+
+    <div class="biz-profile__card">
+      <div class="biz-profile__identity">
+        <span class="biz-profile__avatar">{{ initial() }}</span>
+        <div class="biz-profile__identity-text">
+          <h1>{{ displayName() }}</h1>
+          @if (biz.business_category) {
+            <span class="biz-profile__category">{{ biz.business_category }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="biz-profile__details">
+        @if (handle()) {
+          <div class="biz-profile__detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+            <app-ig-link [handle]="handle()" />
+          </div>
+        }
+        @if (biz.city) {
+          <div class="biz-profile__detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>{{ biz.city }}</span>
+          </div>
+        }
+        @if (biz.portfolio_url) {
+          <div class="biz-profile__detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <a [href]="biz.portfolio_url" target="_blank" rel="noopener">{{ biz.portfolio_url }}</a>
+          </div>
+        }
+        <div class="biz-profile__detail">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>Member since {{ memberSince() }}</span>
+        </div>
+      </div>
+
+      @if (biz.bio) {
+        <div class="biz-profile__bio">
+          <h3>About</h3>
+          <p>{{ biz.bio }}</p>
+        </div>
+      }
+    </div>
+
+    @if (stats(); as s) {
+      <div class="biz-profile__stats">
+        <div class="biz-profile__stat">
+          <span class="biz-profile__stat-value">{{ s.completedDeals }}</span>
+          <span class="biz-profile__stat-label">Collaborations completed</span>
+        </div>
+        <div class="biz-profile__stat">
+          @if (s.totalRatings > 0) {
+            <span class="biz-profile__stat-value">
+              <span class="biz-profile__rating-stars">
+                @for (filled of ratingStars(); track $index) {
+                  <span class="biz-profile__star" [class.biz-profile__star--filled]="filled === 1">&#9733;</span>
+                }
+              </span>
+              {{ s.avgRating }}
+            </span>
+            <span class="biz-profile__stat-label">Average rating ({{ s.totalRatings }} reviews)</span>
+          } @else {
+            <span class="biz-profile__stat-value">--</span>
+            <span class="biz-profile__stat-label">No ratings yet</span>
+          }
+        </div>
+      </div>
+
+      @if (s.openRequirements.length > 0) {
+        <div class="biz-profile__opportunities">
+          <h2>Open Opportunities</h2>
+          <div class="biz-profile__opp-grid">
+            @for (req of s.openRequirements; track req.id) {
+              <div class="biz-profile__opp-card" (click)="viewRequirement(req.id)">
+                <div class="biz-profile__opp-top">
+                  <h3>{{ req.title }}</h3>
+                  @if (req.category) {
+                    <span class="biz-profile__opp-category">{{ req.category }}</span>
+                  }
+                </div>
+                @if (req.compensation_details) {
+                  <p class="biz-profile__opp-comp">{{ req.compensation_details }}</p>
+                }
+                <div class="biz-profile__opp-meta">
+                  <span>{{ spotsLeft(req) }}</span>
+                  @if (applicationsCount(req) > 0) {
+                    <span>{{ applicationsCount(req) }} applied</span>
+                  }
+                  @if (req.closes_at) {
+                    <span>{{ req.closes_at | closesIn }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

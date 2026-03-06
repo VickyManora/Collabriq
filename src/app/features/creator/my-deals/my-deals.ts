@@ -3,7 +3,10 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 import { DealStatus } from '../../../core/models/deal.model';
 import { Rating } from '../../../core/models/rating.model';
 import { Pagination } from '../../../shared/pagination/pagination';
@@ -14,7 +17,7 @@ type FilterTab = 'all' | DealStatus;
   selector: 'app-my-deals',
   templateUrl: './my-deals.html',
   styleUrl: './my-deals.scss',
-  imports: [DatePipe, FormsModule, Pagination],
+  imports: [DatePipe, FormsModule, Pagination, PendingBanner, InstagramLink],
 })
 export class MyDeals implements OnInit {
   deals = signal<DealWithDetails[]>([]);
@@ -66,10 +69,15 @@ export class MyDeals implements OnInit {
 
   constructor(
     private creatorService: CreatorService,
+    private auth: AuthService,
     private toast: ToastService,
     private route: ActivatedRoute,
     private router: Router,
   ) {}
+
+  get isPending(): boolean {
+    return this.auth.isPending();
+  }
 
   ngOnInit() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as FilterTab | null;
@@ -156,6 +164,10 @@ export class MyDeals implements OnInit {
   }
 
   async markDone(dealId: string) {
+    if (this.isPending) {
+      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      return;
+    }
     this.actionLoading.set(true);
     const { error } = await this.creatorService.markDealDone(dealId);
     if (error) {

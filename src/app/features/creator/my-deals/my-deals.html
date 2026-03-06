@@ -1,6 +1,10 @@
 <div class="my-deals">
   <h1>My Deals</h1>
 
+  @if (isPending) {
+    <app-pending-banner />
+  }
+
   <input
     class="my-deals__search"
     type="text"
@@ -49,7 +53,7 @@
               <div class="deal-card__header-text">
                 <span class="deal-card__business-name">{{ businessDisplayName(deal) }}</span>
                 @if (businessHandle(deal)) {
-                  <span class="deal-card__handle">@{{ businessHandle(deal) }}</span>
+                  <span class="deal-card__handle"><app-ig-link [handle]="businessHandle(deal)" /></span>
                 }
                 @if (deal.business?.email) {
                   <span class="deal-card__contact">{{ deal.business?.email }}</span>
@@ -69,7 +73,7 @@
             <button
               class="deal-card__done-btn"
               (click)="markDone(deal.id); $event.stopPropagation()"
-              [disabled]="actionLoading()"
+              [disabled]="actionLoading() || isPending"
             >
               Mark as Done
             </button>

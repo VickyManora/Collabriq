@@ -1,0 +1,28 @@
+@if (visible) {
+  <div class="reject-modal__overlay" (click)="onBackdropClick()">
+    <div class="reject-modal__card" (click)="$event.stopPropagation()">
+      <h3 class="reject-modal__title">{{ title }}</h3>
+
+      <label class="reject-modal__label" for="reject-reason">Reason for rejection</label>
+      <textarea
+        class="reject-modal__textarea"
+        id="reject-reason"
+        [ngModel]="reason()"
+        (ngModelChange)="reason.set($event)"
+        rows="4"
+        [placeholder]="'e.g. ' + placeholders.join(', ')"
+      ></textarea>
+
+      <div class="reject-modal__actions">
+        <button class="reject-modal__cancel-btn" (click)="onCancel()">Cancel</button>
+        <button
+          class="reject-modal__confirm-btn"
+          (click)="onConfirm()"
+          [disabled]="!reason().trim()"
+        >
+          Reject &amp; Send Feedback
+        </button>
+      </div>
+    </div>
+  </div>
+}

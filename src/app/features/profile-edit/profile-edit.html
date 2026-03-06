@@ -1,6 +1,24 @@
 <div class="profile-edit">
   <h1>Edit Profile</h1>
 
+  @if (auth.isRejected()) {
+    <div class="profile-edit__rejection-banner">
+      <div class="profile-edit__rejection-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>
+        </svg>
+        <strong>Your profile needs updates before approval.</strong>
+      </div>
+      @if (auth.rejectionReason()) {
+        <div class="profile-edit__rejection-feedback">
+          <span class="profile-edit__rejection-label">Admin feedback:</span>
+          <p class="profile-edit__rejection-text">{{ auth.rejectionReason() }}</p>
+        </div>
+      }
+      <p class="profile-edit__rejection-hint">Update your profile below, then click "Reapply for Approval" to resubmit.</p>
+    </div>
+  }
+
   @if (error()) {
     <p class="profile-edit__error">{{ error() }}</p>
   }
@@ -128,6 +146,16 @@
       >
         {{ saving() ? 'Saving...' : 'Save Changes' }}
       </button>
+      @if (auth.isRejected()) {
+        <button
+          type="button"
+          class="profile-edit__reapply-btn"
+          (click)="reapply()"
+          [disabled]="reapplying()"
+        >
+          {{ reapplying() ? 'Reapplying...' : 'Reapply for Approval' }}
+        </button>
+      }
     </div>
   </form>
 

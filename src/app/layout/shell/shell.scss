@@ -25,3 +25,66 @@
     display: none;
   }
 }
+
+// ─── Global rejected banner ───
+
+.rejected-strip {
+  background: var(--color-danger-alpha-faint, rgba(239, 68, 68, 0.06));
+  border: 1px solid var(--color-danger-alpha, rgba(239, 68, 68, 0.2));
+  border-radius: $radius;
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  &__content {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  &__reason {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    margin: 0.5rem 0 0;
+    line-height: 1.5;
+  }
+
+  &__reason-label {
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    align-self: center;
+    flex-wrap: wrap;
+  }
+
+  &__update-btn {
+    @include btn-outline;
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+  }
+
+  &__reapply-btn {
+    @include btn-primary;
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+  }
+}

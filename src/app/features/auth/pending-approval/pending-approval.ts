@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -10,21 +10,13 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [TitleCasePipe],
 })
 export class PendingApproval {
-  checking = signal(false);
-
   constructor(
     protected auth: AuthService,
     private router: Router,
   ) {}
 
-  async checkStatus() {
-    this.checking.set(true);
-    await this.auth.refreshProfile();
-    this.checking.set(false);
-
-    if (this.auth.isApproved()) {
-      this.router.navigate(['/dashboard']);
-    }
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
   onLogout() {

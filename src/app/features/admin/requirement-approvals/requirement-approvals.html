@@ -87,9 +87,9 @@
   }
 </div>
 
-<app-confirm-dialog
-  message="Are you sure you want to reject this requirement?"
-  [visible]="confirmAction() !== null"
-  (confirmed)="onConfirmReject()"
+<app-reject-modal
+  title="Reject Requirement"
+  [visible]="rejectingReqId() !== null"
+  (confirmed)="onConfirmReject($event)"
   (cancelled)="onCancelReject()"
 />

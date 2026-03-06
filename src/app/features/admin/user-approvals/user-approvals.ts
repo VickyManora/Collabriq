@@ -5,8 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Profile, ApprovalStatus } from '../../../core/models/user.model';
-import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { RejectModal } from '../../../shared/reject-modal/reject-modal';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type FilterTab = 'pending' | 'all' | 'deactivated';
 
@@ -14,7 +15,7 @@ type FilterTab = 'pending' | 'all' | 'deactivated';
   selector: 'app-user-approvals',
   templateUrl: './user-approvals.html',
   styleUrl: './user-approvals.scss',
-  imports: [DatePipe, TitleCasePipe, FormsModule, ConfirmDialog, Pagination],
+  imports: [DatePipe, TitleCasePipe, FormsModule, RejectModal, Pagination, InstagramLink],
 })
 export class UserApprovals implements OnInit {
   users = signal<Profile[]>([]);
@@ -23,7 +24,7 @@ export class UserApprovals implements OnInit {
   currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal<string | null>(null);
-  confirmAction = signal<string | null>(null);
+  rejectingUserId = signal<string | null>(null);
 
   readonly pageSize = 10;
 
@@ -112,26 +113,26 @@ export class UserApprovals implements OnInit {
   }
 
   promptReject(userId: string) {
-    this.confirmAction.set(userId);
+    this.rejectingUserId.set(userId);
   }
 
-  async onConfirmReject() {
-    const userId = this.confirmAction();
-    this.confirmAction.set(null);
+  async onConfirmReject(reason: string) {
+    const userId = this.rejectingUserId();
+    this.rejectingUserId.set(null);
     if (!userId) return;
     this.actionLoading.set(userId);
-    const { error } = await this.adminService.rejectUser(userId);
+    const { error } = await this.adminService.rejectUser(userId, reason);
     if (error) {
       this.toast.error('Failed to reject user.');
     } else {
-      this.toast.success('User rejected.');
+      this.toast.success('User rejected with feedback.');
       await this.loadUsers();
     }
     this.actionLoading.set(null);
   }
 
   onCancelReject() {
-    this.confirmAction.set(null);
+    this.rejectingUserId.set(null);
   }
 
   statusLabel(status: ApprovalStatus): string {

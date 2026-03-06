@@ -6,6 +6,7 @@ import { CreatorService, RequirementWithBusiness } from '../../../core/services/
 import { ToastService } from '../../../core/services/toast.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type CategoryFilter = 'all' | string;
 type CompensationFilter = 'all' | 'paid' | 'barter';
@@ -21,7 +22,7 @@ interface AppliedInfo {
   selector: 'app-browse-requirements',
   templateUrl: './browse-requirements.html',
   styleUrl: './browse-requirements.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, Pagination],
+  imports: [FormsModule, DatePipe, ClosesInPipe, Pagination, InstagramLink],
 })
 export class BrowseRequirements implements OnInit {
   requirements = signal<RequirementWithBusiness[]>([]);

@@ -80,6 +80,29 @@
     }
   }
 
+  &__rejection {
+    padding: 0.75rem 1rem;
+    background: var(--color-danger-alpha-faint, rgba(239, 68, 68, 0.06));
+    border: 1px solid var(--color-danger-alpha, rgba(239, 68, 68, 0.15));
+    border-radius: $radius-sm;
+    margin-bottom: 1rem;
+  }
+
+  &__rejection-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-danger);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  &__rejection-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0.25rem 0 0;
+    line-height: 1.5;
+  }
+
   &__category {
     font-size: 0.875rem;
     color: var(--color-text-muted);
@@ -102,14 +125,28 @@
 
   &__info-item {
     display: flex;
-    gap: 0.75rem;
+    align-items: flex-start;
+    gap: 0.5rem;
     font-size: 0.875rem;
+    color: var(--color-text);
   }
 
-  &__info-label {
-    color: var(--color-text-muted);
-    min-width: 120px;
+  &__info-icon {
     flex-shrink: 0;
+    color: var(--color-text-muted);
+    margin-top: 0.125rem;
+  }
+
+  &__slots-filled {
+    display: block;
+    font-weight: 500;
+  }
+
+  &__slots-remaining {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--color-accent);
+    font-weight: 600;
   }
 
   &__actions {
@@ -163,12 +200,49 @@
 .app-card {
   @include card;
 
+  &--accepted {
+    border-left: 3px solid var(--color-success-dark);
+  }
+
+  &__accepted-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-success-dark);
+    margin-bottom: 0.625rem;
+  }
+
   &__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
+  }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    line-height: 1;
   }
 
   &__name-row {
@@ -191,16 +265,19 @@
 
   &__handle {
     font-size: 0.8125rem;
-    color: var(--color-secondary-dark);
+    color: var(--color-text-faint);
     margin-top: 0.125rem;
   }
 
   &__status {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.6875rem;
+    font-weight: 600;
     padding: 0.25rem 0.625rem;
     border-radius: 999px;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
 
     &--applied {
       background: var(--color-secondary-alpha);
@@ -220,11 +297,28 @@
     }
   }
 
-  &__pitch {
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-    line-height: 1.5;
+  &__pitch-section {
     margin-bottom: 0.5rem;
+  }
+
+  &__pitch-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  &__pitch {
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg);
+    border-radius: $radius-sm;
+    border-left: 2px solid var(--color-primary);
   }
 
   &__date {

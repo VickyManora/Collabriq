@@ -7,13 +7,15 @@ import { Profile, ApprovalStatus } from '../../../core/models/user.model';
 import { RequirementStatus } from '../../../core/models/requirement.model';
 import { DealStatus } from '../../../core/models/deal.model';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { RejectModal } from '../../../shared/reject-modal/reject-modal';
 import { Pagination } from '../../../shared/pagination/pagination';
+import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 @Component({
   selector: 'app-user-detail',
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.scss',
-  imports: [DatePipe, TitleCasePipe, ConfirmDialog, Pagination],
+  imports: [DatePipe, TitleCasePipe, ConfirmDialog, RejectModal, Pagination, InstagramLink],
 })
 export class UserDetail implements OnInit {
   user = signal<Profile | null>(null);
@@ -22,7 +24,8 @@ export class UserDetail implements OnInit {
   loading = signal(true);
   actionLoading = signal(false);
   error = signal('');
-  confirmAction = signal<string | null>(null);
+  showDeactivateConfirm = signal(false);
+  showRejectModal = signal(false);
 
   dealsPage = signal(1);
   reqsPage = signal(1);
@@ -63,7 +66,8 @@ export class UserDetail implements OnInit {
   }
 
   get canApprove(): boolean {
-    return this.user()?.approval_status === 'pending';
+    const u = this.user();
+    return u?.approval_status === 'pending' || u?.approval_status === 'rejected';
   }
 
   get canReject(): boolean {
@@ -90,30 +94,34 @@ export class UserDetail implements OnInit {
   }
 
   promptReject() {
-    this.confirmAction.set('reject');
+    this.showRejectModal.set(true);
   }
 
-  async onConfirmReject() {
-    this.confirmAction.set(null);
+  async onConfirmReject(reason: string) {
+    this.showRejectModal.set(false);
     const u = this.user();
     if (!u) return;
     this.actionLoading.set(true);
-    const { data, error } = await this.adminService.rejectUser(u.id);
+    const { data, error } = await this.adminService.rejectUser(u.id, reason);
     if (error) {
       this.toast.error('Failed to reject user.');
     } else if (data) {
-      this.toast.success('User rejected.');
+      this.toast.success('User rejected with feedback.');
       this.user.set(data);
     }
     this.actionLoading.set(false);
   }
 
+  onCancelReject() {
+    this.showRejectModal.set(false);
+  }
+
   promptDeactivate() {
-    this.confirmAction.set('deactivate');
+    this.showDeactivateConfirm.set(true);
   }
 
   async onConfirmDeactivate() {
-    this.confirmAction.set(null);
+    this.showDeactivateConfirm.set(false);
     const u = this.user();
     if (!u) return;
     this.actionLoading.set(true);
@@ -127,23 +135,8 @@ export class UserDetail implements OnInit {
     this.actionLoading.set(false);
   }
 
-  onCancelConfirm() {
-    this.confirmAction.set(null);
-  }
-
-  get confirmMessage(): string {
-    if (this.confirmAction() === 'deactivate') {
-      return 'Are you sure you want to deactivate this user? This will soft-delete their account.';
-    }
-    return 'Are you sure you want to reject this user?';
-  }
-
-  onConfirm() {
-    if (this.confirmAction() === 'deactivate') {
-      this.onConfirmDeactivate();
-    } else {
-      this.onConfirmReject();
-    }
+  onCancelDeactivate() {
+    this.showDeactivateConfirm.set(false);
   }
 
   pagedDeals(): UserDeal[] {
