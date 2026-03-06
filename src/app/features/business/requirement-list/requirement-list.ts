@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { RequirementService, RequirementWithApps } from '../../../core/services/requirement.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,8 +18,13 @@ type FilterTab = 'all' | RequirementStatus;
   styleUrl: './requirement-list.scss',
   imports: [DatePipe, ClosesInPipe, CategoryClassPipe, PendingBanner],
 })
-export class RequirementList implements OnInit {
+export class RequirementList implements OnInit, OnDestroy {
   requirements = signal<RequirementWithApps[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadRequirements();
+  };
   activeFilter = signal<FilterTab>('all');
   loading = signal(true);
 
@@ -50,15 +56,32 @@ export class RequirementList implements OnInit {
 
   ngOnInit() {
     this.loadRequirements();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadRequirements());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadRequirements() {
     this.loading.set(true);
-    const { data, error } = await this.reqService.getMyRequirements();
-    if (data && !error) {
-      this.requirements.set(data);
-    } else if (error) {
-      this.toast.error('Failed to load requirements.');
+    try {
+      const { data, error } = await Promise.race([
+        this.reqService.getMyRequirements(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.requirements.set(data);
+      } else if (error) {
+        this.toast.error('Failed to load requirements.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { AdminService, DealWithDetails } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DealStatus } from '../../../core/models/deal.model';
@@ -16,8 +17,13 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   styleUrl: './deal-monitor.scss',
   imports: [DatePipe, TitleCasePipe, FormsModule, ConfirmDialog, Pagination],
 })
-export class DealMonitor implements OnInit {
+export class DealMonitor implements OnInit, OnDestroy {
   deals = signal<DealWithDetails[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadDeals();
+  };
   activeFilter = signal<FilterTab>('all');
   searchQuery = signal('');
   currentPage = signal(1);
@@ -65,6 +71,7 @@ export class DealMonitor implements OnInit {
     private adminService: AdminService,
     private toast: ToastService,
     private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -73,15 +80,32 @@ export class DealMonitor implements OnInit {
       this.activeFilter.set(tab);
     }
     this.loadDeals();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadDeals());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadDeals() {
     this.loading.set(true);
-    const { data, error } = await this.adminService.getAllDeals();
-    if (data && !error) {
-      this.deals.set(data);
-    } else if (error) {
-      this.toast.error('Failed to load deals.');
+    try {
+      const { data, error } = await Promise.race([
+        this.adminService.getAllDeals(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.deals.set(data);
+      } else if (error) {
+        this.toast.error('Failed to load deals.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

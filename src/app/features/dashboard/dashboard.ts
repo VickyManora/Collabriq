@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { RequirementService } from '../../core/services/requirement.service';
 import { CreatorService, RequirementWithBusiness } from '../../core/services/creator.service';
@@ -35,8 +36,13 @@ interface RecentApplication {
   styleUrl: './dashboard.scss',
   imports: [TitleCasePipe, RouterLink, ClosesInPipe, CategoryClassPipe, PendingBanner, InstagramLink],
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   loading = signal(true);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadData();
+  };
   activeRequirements = signal(0);
   activeDeals = signal(0);
   businessPendingApps = signal(0);
@@ -66,6 +72,20 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadData();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadData());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  loadData() {
     if (this.auth.userRole() === 'business') {
       this.loadBusinessData();
     } else if (this.auth.userRole() === 'creator') {
@@ -76,55 +96,78 @@ export class Dashboard implements OnInit {
   }
 
   private async loadBusinessData() {
-    const [counts, dealCount, pendingApps, recentApps, activity] = await Promise.all([
-      this.reqService.getMyRequirementCounts(),
-      this.reqService.getMyDealCount(),
-      this.reqService.getPendingApplicationCount(),
-      this.reqService.getRecentApplications(5),
-      this.reqService.getBusinessRecentActivity(5),
-    ]);
-    this.activeRequirements.set(counts.active);
-    this.activeDeals.set(dealCount);
-    this.businessPendingApps.set(pendingApps);
-    this.businessRecentApps.set(recentApps);
-    this.businessActivity.set(activity);
+    this.loading.set(true);
+    try {
+      const [counts, dealCount, pendingApps, recentApps, activity] = await Promise.race([
+        Promise.all([
+          this.reqService.getMyRequirementCounts(),
+          this.reqService.getMyDealCount(),
+          this.reqService.getPendingApplicationCount(),
+          this.reqService.getRecentApplications(5),
+          this.reqService.getBusinessRecentActivity(5),
+        ]),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      this.activeRequirements.set(counts.active);
+      this.activeDeals.set(dealCount);
+      this.businessPendingApps.set(pendingApps);
+      this.businessRecentApps.set(recentApps);
+      this.businessActivity.set(activity);
+    } catch {
+      // timeout or network error
+    }
     this.loading.set(false);
   }
 
   private async loadCreatorData() {
-    const [counts, recentResult, appResult, activity] = await Promise.all([
-      this.creatorService.getCreatorDashboardCounts(),
-      this.creatorService.getRecentRequirements(3),
-      this.creatorService.getMyApplicationsBrief(),
-      this.creatorService.getRecentActivity(5),
-    ]);
+    this.loading.set(true);
+    try {
+      const [counts, recentResult, appResult, activity] = await Promise.race([
+        Promise.all([
+          this.creatorService.getCreatorDashboardCounts(),
+          this.creatorService.getRecentRequirements(3),
+          this.creatorService.getMyApplicationsBrief(),
+          this.creatorService.getRecentActivity(5),
+        ]),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
 
-    this.openRequirements.set(counts.openRequirements);
-    this.pendingApplications.set(counts.pendingApplications);
-    this.creatorActiveDeals.set(counts.activeDeals);
+      this.openRequirements.set(counts.openRequirements);
+      this.pendingApplications.set(counts.pendingApplications);
+      this.creatorActiveDeals.set(counts.activeDeals);
 
-    if (recentResult.data && !recentResult.error) {
-      this.latestOpportunities.set(recentResult.data);
-    }
-
-    if (appResult.data && !appResult.error) {
-      const map = new Map<string, AppliedInfo>();
-      for (const app of appResult.data) {
-        map.set(app.requirement_id, { status: app.status, created_at: app.created_at });
+      if (recentResult.data && !recentResult.error) {
+        this.latestOpportunities.set(recentResult.data);
       }
-      this.appliedMap.set(map);
+
+      if (appResult.data && !appResult.error) {
+        const map = new Map<string, AppliedInfo>();
+        for (const app of appResult.data) {
+          map.set(app.requirement_id, { status: app.status, created_at: app.created_at });
+        }
+        this.appliedMap.set(map);
+      }
+
+      this.recentActivity.set(activity);
+    } catch {
+      // timeout or network error
     }
-
-    this.recentActivity.set(activity);
-
     this.loading.set(false);
   }
 
   private async loadAdminData() {
-    const counts = await this.adminService.getDashboardCounts();
-    this.pendingUsers.set(counts.pendingUsers);
-    this.pendingRequirements.set(counts.pendingRequirements);
-    this.adminActiveDeals.set(counts.activeDeals);
+    this.loading.set(true);
+    try {
+      const counts = await Promise.race([
+        this.adminService.getDashboardCounts(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      this.pendingUsers.set(counts.pendingUsers);
+      this.pendingRequirements.set(counts.pendingRequirements);
+      this.adminActiveDeals.set(counts.activeDeals);
+    } catch {
+      // timeout or network error
+    }
     this.loading.set(false);
   }
 

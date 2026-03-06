@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -19,8 +20,13 @@ type FilterTab = 'all' | DealStatus;
   styleUrl: './my-deals.scss',
   imports: [DatePipe, FormsModule, Pagination, PendingBanner, InstagramLink],
 })
-export class MyDeals implements OnInit {
+export class MyDeals implements OnInit, OnDestroy {
   deals = signal<DealWithDetails[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadDeals();
+  };
   ratings = signal<Map<string, Rating>>(new Map());
   activeFilter = signal<FilterTab>('all');
   searchQuery = signal('');
@@ -85,16 +91,33 @@ export class MyDeals implements OnInit {
       this.activeFilter.set(tab);
     }
     this.loadDeals();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadDeals());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadDeals() {
     this.loading.set(true);
-    const { data, error } = await this.creatorService.getMyDeals();
-    if (data && !error) {
-      this.deals.set(data);
-      await this.loadRatings(data);
-    } else if (error) {
-      this.toast.error('Failed to load deals.');
+    try {
+      const { data, error } = await Promise.race([
+        this.creatorService.getMyDeals(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.deals.set(data);
+        await this.loadRatings(data);
+      } else if (error) {
+        this.toast.error('Failed to load deals.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed, ElementRef, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, signal, computed, ElementRef, HostListener } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
@@ -27,8 +28,13 @@ interface AppliedInfo {
   styleUrl: './browse-requirements.scss',
   imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, CategoryClassPipe, CompClassPipe, Pagination, InstagramLink],
 })
-export class BrowseRequirements implements OnInit {
+export class BrowseRequirements implements OnInit, OnDestroy {
   requirements = signal<RequirementWithBusiness[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadData();
+  };
   appliedMap = signal<Map<string, AppliedInfo>>(new Map());
   searchQuery = signal('');
   categoryFilter = signal<CategoryFilter>('all');
@@ -179,30 +185,45 @@ export class BrowseRequirements implements OnInit {
 
   ngOnInit() {
     this.loadData();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadData());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadData() {
     this.loading.set(true);
+    try {
+      const [reqResult, appResult] = await Promise.race([
+        Promise.all([
+          this.creatorService.getOpenRequirements(),
+          this.creatorService.getMyApplicationsBrief(),
+        ]),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
 
-    const [reqResult, appResult] = await Promise.all([
-      this.creatorService.getOpenRequirements(),
-      this.creatorService.getMyApplicationsBrief(),
-    ]);
-
-    if (reqResult.data && !reqResult.error) {
-      this.requirements.set(reqResult.data);
-    } else if (reqResult.error) {
-      this.toast.error('Failed to load requirements.');
-    }
-
-    if (appResult.data && !appResult.error) {
-      const map = new Map<string, AppliedInfo>();
-      for (const app of appResult.data) {
-        map.set(app.requirement_id, { status: app.status, created_at: app.created_at });
+      if (reqResult.data && !reqResult.error) {
+        this.requirements.set(reqResult.data);
+      } else if (reqResult.error) {
+        this.toast.error('Failed to load requirements.');
       }
-      this.appliedMap.set(map);
-    }
 
+      if (appResult.data && !appResult.error) {
+        const map = new Map<string, AppliedInfo>();
+        for (const app of appResult.data) {
+          map.set(app.requirement_id, { status: app.status, created_at: app.created_at });
+        }
+        this.appliedMap.set(map);
+      }
+    } catch {
+      // timeout or network error
+    }
     this.loading.set(false);
   }
 

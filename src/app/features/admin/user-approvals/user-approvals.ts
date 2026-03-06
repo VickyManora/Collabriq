@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
@@ -17,8 +18,13 @@ type FilterTab = 'pending' | 'all' | 'deactivated';
   styleUrl: './user-approvals.scss',
   imports: [DatePipe, TitleCasePipe, FormsModule, RejectModal, Pagination, InstagramLink],
 })
-export class UserApprovals implements OnInit {
+export class UserApprovals implements OnInit, OnDestroy {
   users = signal<Profile[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadUsers();
+  };
   activeFilter = signal<FilterTab>('pending');
   searchQuery = signal('');
   currentPage = signal(1);
@@ -69,15 +75,32 @@ export class UserApprovals implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadUsers());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadUsers() {
     this.loading.set(true);
-    const { data, error } = await this.adminService.getAllUsers();
-    if (data && !error) {
-      this.users.set(data);
-    } else if (error) {
-      this.toast.error('Failed to load users.');
+    try {
+      const { data, error } = await Promise.race([
+        this.adminService.getAllUsers(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.users.set(data);
+      } else if (error) {
+        this.toast.error('Failed to load users.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

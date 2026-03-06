@@ -1,6 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { AdminService, RequirementWithBusiness } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { RequirementStatus } from '../../../core/models/requirement.model';
@@ -17,8 +19,13 @@ type FilterTab = 'pending' | 'all';
   styleUrl: './requirement-approvals.scss',
   imports: [DatePipe, FormsModule, RejectModal, Pagination, CategoryClassPipe, CompClassPipe],
 })
-export class RequirementApprovals implements OnInit {
+export class RequirementApprovals implements OnInit, OnDestroy {
   requirements = signal<RequirementWithBusiness[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadRequirements();
+  };
   activeFilter = signal<FilterTab>('pending');
   searchQuery = signal('');
   currentPage = signal(1);
@@ -58,19 +65,37 @@ export class RequirementApprovals implements OnInit {
   constructor(
     private adminService: AdminService,
     private toast: ToastService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
     this.loadRequirements();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadRequirements());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadRequirements() {
     this.loading.set(true);
-    const { data, error } = await this.adminService.getAllRequirements();
-    if (data && !error) {
-      this.requirements.set(data);
-    } else if (error) {
-      this.toast.error('Failed to load requirements.');
+    try {
+      const { data, error } = await Promise.race([
+        this.adminService.getAllRequirements(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.requirements.set(data);
+      } else if (error) {
+        this.toast.error('Failed to load requirements.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

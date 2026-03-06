@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { RequirementService, BusinessDealWithDetails } from '../../../core/services/requirement.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -18,8 +19,13 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   styleUrl: './business-deals.scss',
   imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination, InstagramLink],
 })
-export class BusinessDeals implements OnInit {
+export class BusinessDeals implements OnInit, OnDestroy {
   deals = signal<BusinessDealWithDetails[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadDeals();
+  };
   ratings = signal<Map<string, Rating>>(new Map());
   avgRatings = signal<Map<string, { avg: number; count: number }>>(new Map());
   activeFilter = signal<FilterTab>('all');
@@ -70,6 +76,7 @@ export class BusinessDeals implements OnInit {
     private auth: AuthService,
     private toast: ToastService,
     private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   get isPending(): boolean {
@@ -82,17 +89,34 @@ export class BusinessDeals implements OnInit {
       this.activeFilter.set(tab);
     }
     this.loadDeals();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadDeals());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadDeals() {
     this.loading.set(true);
-    const { data, error } = await this.reqService.getMyDeals();
-    if (data && !error) {
-      this.deals.set(data);
-      await this.loadRatings(data);
-      await this.loadAverageRatings(data);
-    } else if (error) {
-      this.toast.error('Failed to load deals.');
+    try {
+      const { data, error } = await Promise.race([
+        this.reqService.getMyDeals(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.deals.set(data);
+        await this.loadRatings(data);
+        await this.loadAverageRatings(data);
+      } else if (error) {
+        this.toast.error('Failed to load deals.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }

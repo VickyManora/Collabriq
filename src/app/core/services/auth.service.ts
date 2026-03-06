@@ -30,6 +30,13 @@ export class AuthService {
   ) {
     this.supabase = this.supabaseService.client;
     this.initAuthListener();
+
+    // Refresh session when tab becomes visible to prevent stale connections
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.sessionSignal()) {
+        this.supabase.auth.getSession();
+      }
+    });
   }
 
   private async initAuthListener() {
@@ -83,15 +90,22 @@ export class AuthService {
   }
 
   private async loadProfile(userId: string) {
-    const { data, error } = await this.supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .eq('is_deleted', false)
-      .single();
+    try {
+      const { data, error } = await Promise.race([
+        this.supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .eq('is_deleted', false)
+          .single(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+      ]);
 
-    if (data && !error) {
-      this.profileSignal.set(data as Profile);
+      if (data && !error) {
+        this.profileSignal.set(data as Profile);
+      }
+    } catch {
+      // timeout — profile will be refreshed on next attempt
     }
   }
 

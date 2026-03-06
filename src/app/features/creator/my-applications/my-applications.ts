@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreatorService, ApplicationWithRequirement } from '../../../core/services/creator.service';
@@ -17,8 +18,13 @@ type FilterTab = 'all' | ApplicationStatus;
   styleUrl: './my-applications.scss',
   imports: [DatePipe, FormsModule, Pagination, RouterLink, InstagramLink, CategoryClassPipe],
 })
-export class MyApplications implements OnInit {
+export class MyApplications implements OnInit, OnDestroy {
   applications = signal<ApplicationWithRequirement[]>([]);
+
+  private routerSub?: Subscription;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible') this.loadApplications();
+  };
   activeFilter = signal<FilterTab>('all');
   searchQuery = signal('');
   currentPage = signal(1);
@@ -65,15 +71,32 @@ export class MyApplications implements OnInit {
 
   ngOnInit() {
     this.loadApplications();
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadApplications());
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.routerSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
   }
 
   async loadApplications() {
     this.loading.set(true);
-    const { data, error } = await this.creatorService.getMyApplications();
-    if (data && !error) {
-      this.applications.set(data);
-    } else if (error) {
-      this.toast.error('Failed to load applications.');
+    try {
+      const { data, error } = await Promise.race([
+        this.creatorService.getMyApplications(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      if (data && !error) {
+        this.applications.set(data);
+      } else if (error) {
+        this.toast.error('Failed to load applications.');
+      }
+    } catch {
+      // timeout or network error
     }
     this.loading.set(false);
   }
