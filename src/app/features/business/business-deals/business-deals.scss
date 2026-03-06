@@ -59,6 +59,10 @@
     }
   }
 
+  &__empty-sub {
+    font-size: 0.875rem;
+  }
+
   &__grid {
     display: grid;
     gap: 1rem;

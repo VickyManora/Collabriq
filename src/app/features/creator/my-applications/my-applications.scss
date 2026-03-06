@@ -56,11 +56,16 @@
     align-items: center;
     gap: 0.75rem;
 
-    p {
+    p:first-child {
       margin: 0;
       font-weight: 500;
       color: var(--color-label);
     }
+  }
+
+  &__empty-sub {
+    font-size: 0.875rem;
+    font-weight: 400;
   }
 
   &__browse-btn {
