@@ -29,8 +29,11 @@ export class RequirementForm implements OnInit {
   title = '';
   description = '';
   category: string | null = null;
+  location: string | null = 'Pune';
   creatorSlots = 3;
   compensationDetails = '';
+
+  readonly locations = ['Pune', 'Mumbai', 'Remote'];
 
   // Generator state
   showGenerator = signal(false);
@@ -133,6 +136,7 @@ export class RequirementForm implements OnInit {
       this.title = data.title;
       this.description = data.description;
       this.category = data.category;
+      this.location = data.location ?? 'Pune';
       this.creatorSlots = data.creator_slots;
       this.compensationDetails = data.compensation_details ?? '';
     } else {
@@ -163,6 +167,7 @@ export class RequirementForm implements OnInit {
       title: this.title.trim(),
       description: this.description.trim(),
       category: this.category,
+      location: this.location,
       creator_slots: this.creatorSlots,
       compensation_details: this.compensationDetails.trim() || null,
     };
@@ -193,6 +198,7 @@ export class RequirementForm implements OnInit {
         title: this.title.trim(),
         description: this.description.trim(),
         category: this.category,
+        location: this.location,
         creator_slots: this.creatorSlots,
         compensation_details: this.compensationDetails.trim() || null,
       };
@@ -208,6 +214,7 @@ export class RequirementForm implements OnInit {
         title: this.title.trim(),
         description: this.description.trim(),
         category: this.category,
+        location: this.location,
         creator_slots: this.creatorSlots,
         compensation_details: this.compensationDetails.trim() || null,
       };

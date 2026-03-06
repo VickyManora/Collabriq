@@ -13,9 +13,10 @@ import { Pagination } from '../../../shared/pagination/pagination';
 import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type CategoryFilter = 'all' | string;
-type CompensationFilter = 'all' | 'paid' | 'barter';
+type CompensationFilter = 'all' | 'paid' | 'barter' | 'under_2000' | '2000_5000' | '5000_plus';
 type SortBy = 'newest' | 'closing_soon' | 'slots_available';
-type DropdownId = 'category' | 'compensation' | 'slots' | 'sort' | null;
+type LocationFilter = 'all' | 'Pune' | 'Mumbai' | 'Remote';
+type DropdownId = 'category' | 'compensation' | 'location' | 'slots' | 'sort' | null;
 
 interface AppliedInfo {
   status: string;
@@ -39,6 +40,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
   searchQuery = signal('');
   categoryFilter = signal<CategoryFilter>('all');
   compensationFilter = signal<CompensationFilter>('all');
+  locationFilter = signal<LocationFilter>('all');
   slotsFilter = signal<number>(0);
   sortBy = signal<SortBy>('newest');
   currentPage = signal(1);
@@ -59,8 +61,18 @@ export class BrowseRequirements implements OnInit, OnDestroy {
 
   readonly compensationOptions: { label: string; value: CompensationFilter }[] = [
     { label: 'Any Compensation', value: 'all' },
-    { label: 'Paid', value: 'paid' },
-    { label: 'Barter', value: 'barter' },
+    { label: 'Paid Only', value: 'paid' },
+    { label: 'Barter Only', value: 'barter' },
+    { label: 'Under ₹2,000', value: 'under_2000' },
+    { label: '₹2,000 – ₹5,000', value: '2000_5000' },
+    { label: '₹5,000+', value: '5000_plus' },
+  ];
+
+  readonly locationOptions: { label: string; value: LocationFilter }[] = [
+    { label: 'All Locations', value: 'all' },
+    { label: 'Pune', value: 'Pune' },
+    { label: 'Mumbai', value: 'Mumbai' },
+    { label: 'Remote', value: 'Remote' },
   ];
 
   readonly slotsOptions: { label: string; value: number }[] = [
@@ -78,12 +90,14 @@ export class BrowseRequirements implements OnInit, OnDestroy {
 
   categoryLabel = computed(() => this.categories.find((c) => c.value === this.categoryFilter())?.label ?? 'All Categories');
   compensationLabel = computed(() => this.compensationOptions.find((o) => o.value === this.compensationFilter())?.label ?? 'Any Compensation');
+  locationLabel = computed(() => this.locationOptions.find((o) => o.value === this.locationFilter())?.label ?? 'All Locations');
   slotsLabel = computed(() => this.slotsOptions.find((o) => o.value === this.slotsFilter())?.label ?? 'Any Slots');
   sortLabel = computed(() => this.sortOptions.find((o) => o.value === this.sortBy())?.label ?? 'Newest');
 
   hasActiveFilters = computed(() =>
     this.categoryFilter() !== 'all' ||
     this.compensationFilter() !== 'all' ||
+    this.locationFilter() !== 'all' ||
     this.slotsFilter() !== 0 ||
     this.searchQuery().trim() !== '',
   );
@@ -100,6 +114,9 @@ export class BrowseRequirements implements OnInit, OnDestroy {
       const label = this.compensationOptions.find(o => o.value === this.compensationFilter())?.label ?? this.compensationFilter();
       chips.push({ label, key: 'compensation' });
     }
+    if (this.locationFilter() !== 'all') {
+      chips.push({ label: this.locationFilter(), key: 'location' });
+    }
     if (this.slotsFilter() !== 0) {
       const label = this.slotsOptions.find(o => o.value === this.slotsFilter())?.label ?? `${this.slotsFilter()}+`;
       chips.push({ label, key: 'slots' });
@@ -112,6 +129,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     const category = this.categoryFilter();
     const query = this.searchQuery().toLowerCase().trim();
     const compensation = this.compensationFilter();
+    const location = this.locationFilter();
     const slots = this.slotsFilter();
     const sort = this.sortBy();
 
@@ -131,13 +149,25 @@ export class BrowseRequirements implements OnInit, OnDestroy {
 
     if (compensation !== 'all') {
       reqs = reqs.filter((r) => {
-        const details = (r.compensation_details ?? '').toLowerCase();
+        const details = r.compensation_details ?? '';
         if (compensation === 'paid') {
-          return /\d|₹|\$|rs\.?|inr|paid|payment|amount/i.test(details);
+          return this.isPaid(r);
         }
-        // barter
-        return /free|barter|exchange|complimentary/i.test(details);
+        if (compensation === 'barter') {
+          return !this.isPaid(r);
+        }
+        // Range filters — extract numeric value
+        const amount = this.extractAmount(details);
+        if (amount === null) return false;
+        if (compensation === 'under_2000') return amount < 2000;
+        if (compensation === '2000_5000') return amount >= 2000 && amount <= 5000;
+        if (compensation === '5000_plus') return amount > 5000;
+        return true;
       });
+    }
+
+    if (location !== 'all') {
+      reqs = reqs.filter((r) => (r.location ?? 'Pune') === location);
     }
 
     if (slots > 0) {
@@ -253,6 +283,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
       case 'search': this.searchQuery.set(''); break;
       case 'category': this.categoryFilter.set('all'); break;
       case 'compensation': this.compensationFilter.set('all'); break;
+      case 'location': this.locationFilter.set('all'); break;
       case 'slots': this.slotsFilter.set(0); break;
     }
     this.currentPage.set(1);
@@ -262,6 +293,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     this.searchQuery.set('');
     this.categoryFilter.set('all');
     this.compensationFilter.set('all');
+    this.locationFilter.set('all');
     this.slotsFilter.set(0);
     this.sortBy.set('newest');
     this.currentPage.set(1);
@@ -310,10 +342,29 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     return req.applications?.[0]?.count ?? 0;
   }
 
-  spotsUrgencyClass(req: RequirementWithBusiness): string {
-    const remaining = this.slotsAvailable(req);
-    if (remaining <= 1) return 'browse-card__spots--urgent';
-    if (remaining <= 3) return 'browse-card__spots--warning';
-    return '';
+  isPaid(req: RequirementWithBusiness): boolean {
+    const d = req.compensation_details ?? '';
+    return /₹|\$|rs\.?\s?\d|inr|paid|payment|\d+[,.]?\d*\s*(per|\/)|^\d[\d,. ]*$/i.test(d.trim());
+  }
+
+  extractAmount(details: string): number | null {
+    const cleaned = details.replace(/,/g, '');
+    const match = cleaned.match(/(\d+(?:\.\d+)?)/);
+    return match ? parseFloat(match[1]) : null;
+  }
+
+  formatCompensation(details: string): string {
+    const trimmed = details.trim();
+    if (/^\d[\d,. ]*$/.test(trimmed)) return `₹${trimmed}`;
+    if (/^rs\.?\s*\d/i.test(trimmed)) return trimmed.replace(/^rs\.?\s*/i, '₹');
+    return trimmed;
+  }
+
+  formatBarter(details: string): string {
+    const d = details.toLowerCase().trim();
+    if (/free\s*meal|complimentary\s*meal|dinner|lunch|breakfast/i.test(d)) return 'Free meal';
+    if (/free\s*product|sample|hamper|goodies|gift/i.test(d)) return 'Free product';
+    if (/exchange|barter/i.test(d)) return 'Barter exchange';
+    return details.trim();
   }
 }

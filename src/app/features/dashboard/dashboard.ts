@@ -214,6 +214,26 @@ export class Dashboard implements OnInit, OnDestroy {
     this.router.navigate(['/creator/business', businessId]);
   }
 
+  isPaid(req: RequirementWithBusiness): boolean {
+    const d = req.compensation_details ?? '';
+    return /₹|\$|rs\.?\s?\d|inr|paid|payment|\d+[,.]?\d*\s*(per|\/)|^\d[\d,. ]*$/i.test(d.trim());
+  }
+
+  formatCompensation(details: string): string {
+    const trimmed = details.trim();
+    if (/^\d[\d,. ]*$/.test(trimmed)) return `₹${trimmed}`;
+    if (/^rs\.?\s*\d/i.test(trimmed)) return trimmed.replace(/^rs\.?\s*/i, '₹');
+    return trimmed;
+  }
+
+  formatBarter(details: string): string {
+    const d = details.toLowerCase().trim();
+    if (/free\s*meal|complimentary\s*meal|dinner|lunch|breakfast/i.test(d)) return 'Free meal';
+    if (/free\s*product|sample|hamper|goodies|gift/i.test(d)) return 'Free product';
+    if (/exchange|barter/i.test(d)) return 'Barter exchange';
+    return details.trim();
+  }
+
   timeAgo(timestamp: string): string {
     const diff = Date.now() - new Date(timestamp).getTime();
     const mins = Math.floor(diff / 60000);

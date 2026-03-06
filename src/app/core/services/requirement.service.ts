@@ -50,6 +50,7 @@ export class RequirementService {
     category: string | null;
     creator_slots: number;
     compensation_details: string | null;
+    location: string | null;
   }) {
     const userId = this.auth.profile()?.id;
     return this.supabase
@@ -67,6 +68,7 @@ export class RequirementService {
       category?: string | null;
       creator_slots?: number;
       compensation_details?: string | null;
+      location?: string | null;
     },
   ) {
     return this.supabase

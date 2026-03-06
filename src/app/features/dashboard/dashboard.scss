@@ -310,16 +310,29 @@
 
 .opp-card {
   @include card;
-  @include card-hover;
   position: relative;
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+
+    [data-theme="dark"] & {
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
 
   &__new-badge {
-    position: absolute;
-    top: 0.625rem;
-    left: 0.625rem;
     background: #ff6a3d;
     color: #fff;
     font-size: 0.6875rem;
@@ -328,6 +341,38 @@
     border-radius: 6px;
     line-height: 1;
     letter-spacing: 0.025em;
+  }
+
+  &__closing-soon {
+    background: var(--color-warning-alpha, #fff3cd);
+    color: var(--color-warning-dark, #856404);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    line-height: 1;
+    letter-spacing: 0.025em;
+  }
+
+  &__spots-badge {
+    margin-left: auto;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    white-space: nowrap;
+
+    &--urgent {
+      color: var(--color-danger);
+    }
+
+    &--warning {
+      color: var(--color-accent);
+    }
+  }
+
+  &__posted {
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
   }
 
   &__top {
@@ -403,13 +448,59 @@
     font-weight: 600;
     line-height: 1.4;
     color: var(--color-text);
-    margin: 0;
+    margin: 0 0 0.375rem;
+  }
+
+  // ── Paid compensation badge ──
+  &__comp-paid {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: rgba(255, 176, 32, 0.15);
+    color: #FFB020;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 8px;
+    margin-bottom: 0.375rem;
+    width: fit-content;
+
+    [data-theme="dark"] & {
+      background: rgba(255, 176, 32, 0.18);
+      color: #ffc04d;
+    }
+  }
+
+  // ── Barter compensation badge ──
+  &__comp-barter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: rgba(127, 177, 182, 0.12);
+    color: var(--color-secondary-dark);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 8px;
+    margin-bottom: 0.375rem;
+    width: fit-content;
+
+    [data-theme="dark"] & {
+      background: rgba(127, 177, 182, 0.15);
+      color: var(--color-secondary);
+    }
+  }
+
+  &__location {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.375rem;
   }
 
   &__footer {
     margin-top: auto;
-    padding-top: 10px;
-    margin-top: 10px;
+    padding-top: 0.625rem;
+    margin-top: 0.625rem;
     border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
@@ -424,37 +515,18 @@
     color: var(--color-text-faint);
   }
 
-  &__spots {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 600;
-    color: var(--color-accent);
-
-    svg {
-      flex-shrink: 0;
-    }
-  }
-
   &__applicants {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-
-    svg {
-      flex-shrink: 0;
-      color: var(--color-primary);
-    }
+    font-weight: 500;
+    color: var(--color-text-muted);
   }
 
   &__time {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-
-    svg {
-      flex-shrink: 0;
-    }
 
     &--urgent {
       font-weight: 600;

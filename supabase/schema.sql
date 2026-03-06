@@ -68,6 +68,7 @@ CREATE TABLE public.requirements (
   filled_slots          INTEGER NOT NULL DEFAULT 0,
   status                public.requirement_status NOT NULL DEFAULT 'draft',
   compensation_details  TEXT,
+  location              TEXT DEFAULT 'Pune',
   opened_at             TIMESTAMPTZ,
   closes_at             TIMESTAMPTZ,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
