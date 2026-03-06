@@ -28,71 +28,136 @@
     <div class="req-view__card">
       <div class="req-view__top">
         <h1>{{ req.title }}</h1>
-        @if (req.category) {
-          <span [class]="req.category | categoryClass">{{ req.category }}</span>
-        }
-      </div>
-
-      @if (req.compensation_details) {
-        <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
-      }
-
-      <div class="req-view__business-row req-view__business-row--clickable" (click)="viewBusiness()">
-        <span class="req-view__avatar">{{ businessInitial() }}</span>
-        <div class="req-view__business-info">
-          <span class="req-view__business-name">{{ businessDisplayName() }}</span>
-          @if (businessHandle()) {
-            <span class="req-view__handle"><app-ig-link [handle]="businessHandle()" /></span>
+        <div class="req-view__top-actions">
+          @if (req.category) {
+            <span [class]="req.category | categoryClass">{{ req.category }}</span>
           }
+          <button class="req-view__save-btn" [class.req-view__save-btn--saved]="isSaved()" (click)="toggleSave($event)" title="Save opportunity">
+            <svg width="18" height="18" viewBox="0 0 24 24" [attr.fill]="isSaved() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
         </div>
       </div>
 
-      <p class="req-view__desc">{{ req.description }}</p>
+      <!-- Chip-style stats -->
+      <div class="req-view__chips">
+        @if (isPaid(req)) {
+          <span class="req-view__chip req-view__chip--paid">&#x1F4B0; {{ formatCompensation(req.compensation_details!) }}</span>
+        } @else {
+          <span class="req-view__chip req-view__chip--barter">&#x1F381; {{ req.compensation_details ? formatBarter(req.compensation_details) : 'Barter' }}</span>
+        }
+        @if (req.location) {
+          <span class="req-view__chip req-view__chip--location">&#x1F4CD; {{ req.location }}</span>
+        }
+        <span class="req-view__chip req-view__chip--spots">&#x1F525; {{ spotsRemaining() }} of {{ req.creator_slots }} spots left</span>
+        <span class="req-view__chip req-view__chip--applicants">&#x1F465; {{ displayApplicants() }} applied</span>
+        @if (req.closes_at) {
+          <span class="req-view__chip" [class.req-view__chip--urgent]="isClosingSoon(req)">&#x23F3; {{ req.closes_at | closesIn }}</span>
+        }
+      </div>
 
+      <!-- Business info -->
+      <div class="req-view__business-card">
+        <div class="req-view__business-row" (click)="viewBusiness()">
+          <span class="req-view__avatar">{{ businessInitial() }}</span>
+          <div class="req-view__business-info">
+            <span class="req-view__business-name">{{ businessDisplayName() }}</span>
+            @if (businessHandle()) {
+              <span class="req-view__ig-row">
+                <svg class="req-view__ig-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                <app-ig-link [handle]="businessHandle()" />
+              </span>
+            }
+            <span class="req-view__response-rate">&#x26A1; Usually responds within 24 hours</span>
+            @if (req.location) {
+              <span class="req-view__business-location">&#x1F4CD; {{ req.location }}</span>
+            }
+          </div>
+        </div>
+        @if (businessHandle()) {
+          <a class="req-view__ig-btn" [href]="'https://instagram.com/' + businessHandle()" target="_blank" rel="noopener" (click)="$event.stopPropagation()">
+            View Instagram
+          </a>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="req-view__desc-sections">
+        @if (parsedSections().doItems.length > 0 || parsedSections().getItems.length > 0) {
+          @if (parsedSections().doItems.length > 0) {
+            <div class="req-view__desc-section">
+              <h3>What you'll do</h3>
+              <ul>
+                @for (item of parsedSections().doItems; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+          }
+          @if (parsedSections().getItems.length > 0) {
+            <div class="req-view__desc-section">
+              <h3>What you'll get</h3>
+              <ul>
+                @for (item of parsedSections().getItems; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+          }
+        } @else {
+          <p class="req-view__desc">{{ req.description }}</p>
+        }
+      </div>
+
+      <!-- Details -->
       <div class="req-view__info">
         <div class="req-view__info-item">
-          <span class="req-view__info-label">
-            <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
-            Spots
-          </span>
-          <span class="req-view__spots">{{ spotsRemaining() }} of {{ req.creator_slots }} remaining</span>
-        </div>
-        @if (applicationsCount() > 0) {
-          <div class="req-view__info-item">
-            <span class="req-view__info-label">
-              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-              Applied
-            </span>
-            <span class="req-view__applicants">{{ applicationsCount() }} creators applied</span>
-          </div>
-        }
-        <div class="req-view__info-item">
-          <span class="req-view__info-label">
-            <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Posted
-          </span>
+          <span class="req-view__info-label">&#x1F552; Posted</span>
           <span>{{ req.created_at | timeAgo }}</span>
         </div>
-        @if (req.closes_at) {
-          <div class="req-view__info-item">
-            <span class="req-view__info-label">
-              <svg class="req-view__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              Closes
-            </span>
-            <span>{{ req.closes_at | closesIn }}</span>
-          </div>
-        }
       </div>
     </div>
 
+    <!-- Urgency banner -->
+    @if (req.closes_at && isClosingSoon(req)) {
+      <div class="req-view__urgency req-view__urgency--critical">
+        &#x23F3; Applications close {{ req.closes_at | closesIn }} &mdash; Apply soon!
+      </div>
+    }
+
     <!-- Application Section -->
-    <div class="req-view__apply">
+    <div class="req-view__apply" id="apply-section">
       @if (isPending) {
         <app-pending-banner />
       }
 
       @if (canApply) {
         <h2>Apply to this Requirement</h2>
+
+        <!-- Trust message -->
+        <div class="req-view__trust">
+          &#x2B50; Businesses typically review applications within 48 hours
+        </div>
+
+        <!-- Creator profile preview -->
+        <div class="req-view__profile-preview">
+          <span class="req-view__profile-preview-label">Applying as</span>
+          <div class="req-view__profile-preview-row">
+            <span class="req-view__profile-preview-avatar">{{ creatorInitial() }}</span>
+            <div class="req-view__profile-preview-info">
+              <span class="req-view__profile-preview-name">{{ auth.profile()?.full_name }}</span>
+              @if (creatorHandle()) {
+                <span class="req-view__profile-preview-handle">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                  &#64;{{ creatorHandle() }}
+                </span>
+              }
+              @if (creatorRating()) {
+                <span class="req-view__profile-preview-rating">&#x2B50; {{ creatorRating() }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
         <div class="req-view__apply-form">
           <div class="req-view__field">
             <label for="pitch">Your Pitch</label>
@@ -100,17 +165,22 @@
               id="pitch"
               [(ngModel)]="pitch"
               name="pitch"
-              rows="4"
-              placeholder="Tell the business why you're a great fit..."
+              rows="6"
+              maxlength="500"
+              placeholder="Hi! I'm a Pune food creator with 12k followers.&#10;I specialize in cafe reels and aesthetic product shoots.&#10;&#10;Here are examples of my work:&#10;&#8226; instagram.com/reel1&#10;&#8226; instagram.com/reel2"
               [disabled]="isPending"
             ></textarea>
+            <div class="req-view__field-footer">
+              <span class="req-view__tip">&#x1F4A1; Tip: Businesses prefer creators who include examples of past work.</span>
+              <span class="req-view__char-count" [class.req-view__char-count--warn]="pitch.length >= 450">{{ pitch.length }} / 500</span>
+            </div>
           </div>
           <button
             class="req-view__apply-btn"
             (click)="attemptApply()"
             [disabled]="applying() || isPending"
           >
-            {{ applying() ? 'Applying...' : 'Apply' }}
+            {{ applying() ? 'Applying...' : 'Apply Now' }}
           </button>
         </div>
       } @else if (existingApplication(); as app) {
@@ -148,6 +218,22 @@
     </div>
   }
 </div>
+
+<!-- Sticky mobile apply bar -->
+@if (!loading() && requirement() && canApply) {
+  <div class="req-view__sticky-bar">
+    <div class="req-view__sticky-inner">
+      @if (isPaid(requirement()!)) {
+        <span class="req-view__sticky-comp">&#x1F4B0; {{ formatCompensation(requirement()!.compensation_details!) }}</span>
+      } @else {
+        <span class="req-view__sticky-comp">&#x1F381; {{ requirement()!.compensation_details ? formatBarter(requirement()!.compensation_details!) : 'Barter' }}</span>
+      }
+      <button class="req-view__sticky-apply-btn" (click)="scrollToApply()" [disabled]="applying() || isPending">
+        {{ applying() ? 'Applying...' : 'Apply Now' }}
+      </button>
+    </div>
+  </div>
+}
 
 <app-confirm-dialog
   message="Are you sure you want to withdraw your application?"

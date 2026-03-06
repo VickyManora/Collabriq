@@ -242,6 +242,36 @@ export class RequirementDetail implements OnInit {
     return app.creator.full_name.replace(/^@/, '').charAt(0).toUpperCase();
   }
 
+  parsedSections(): { doItems: string[]; getItems: string[]; remaining: string } {
+    const desc = this.requirement()?.description ?? '';
+    const doItems: string[] = [];
+    const getItems: string[] = [];
+    let remaining = '';
+
+    const doMatch = desc.match(/What you['']ll do\s*\n([\s\S]*?)(?=What you['']ll get|$)/i);
+    const getMatch = desc.match(/What you['']ll get\s*\n([\s\S]*?)$/i);
+
+    if (doMatch) {
+      doItems.push(...this.extractBullets(doMatch[1]));
+    }
+    if (getMatch) {
+      getItems.push(...this.extractBullets(getMatch[1]));
+    }
+
+    if (doItems.length === 0 && getItems.length === 0) {
+      remaining = desc;
+    }
+
+    return { doItems, getItems, remaining };
+  }
+
+  private extractBullets(text: string): string[] {
+    return text
+      .split('\n')
+      .map(line => line.replace(/^[\s•\-\*]+/, '').trim())
+      .filter(line => line.length > 0);
+  }
+
   appStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       applied: 'Applied',

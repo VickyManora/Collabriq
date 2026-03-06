@@ -218,6 +218,20 @@
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 10%;
+    right: 10%;
+    height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, var(--color-card-glow, rgba(0, 0, 0, 0.06)) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
@@ -226,6 +240,10 @@
     [data-theme="dark"] & {
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &::after {
+      opacity: 1;
     }
 
     .browse-card__comp-paid,

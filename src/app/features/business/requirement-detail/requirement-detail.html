@@ -70,7 +70,32 @@
         <span [class]="req.category | categoryClass">{{ req.category }}</span>
       }
 
-      <p class="req-detail__desc">{{ req.description }}</p>
+      @if (parsedSections().doItems.length > 0 || parsedSections().getItems.length > 0) {
+        <div class="req-detail__desc-sections">
+          @if (parsedSections().doItems.length > 0) {
+            <div class="req-detail__desc-section">
+              <h3>What you'll do</h3>
+              <ul>
+                @for (item of parsedSections().doItems; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+          }
+          @if (parsedSections().getItems.length > 0) {
+            <div class="req-detail__desc-section">
+              <h3>What you'll get</h3>
+              <ul>
+                @for (item of parsedSections().getItems; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="req-detail__desc">{{ req.description }}</p>
+      }
 
       <div class="req-detail__info">
         <div class="req-detail__info-item">

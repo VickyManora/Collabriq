@@ -86,12 +86,24 @@
       </div>
 
       <div class="req-form__field">
-        <label for="location">Location</label>
-        <select id="location" [(ngModel)]="location" name="location">
-          @for (loc of locations; track loc) {
-            <option [value]="loc">{{ loc }}</option>
+        <label>Location</label>
+        <div class="req-form__dropdown" [class.req-form__dropdown--open]="locationOpen()">
+          <button type="button" class="req-form__dropdown-trigger" (click)="toggleLocation()">
+            <span>{{ location ?? 'Select location' }}</span>
+            <svg class="req-form__chevron" width="12" height="12" viewBox="0 0 12 12"><path fill="currentColor" d="M6 8L1 3h10z"/></svg>
+          </button>
+          @if (locationOpen()) {
+            <ul class="req-form__dropdown-menu">
+              @for (loc of locations; track loc) {
+                <li
+                  class="req-form__dropdown-item"
+                  [class.req-form__dropdown-item--active]="location === loc"
+                  (click)="selectLocation(loc)"
+                >{{ loc }}</li>
+              }
+            </ul>
           }
-        </select>
+        </div>
       </div>
 
       <div class="req-form__field">

@@ -38,6 +38,7 @@ export class Sidebar {
         return [
           { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
           { label: 'Browse Requirements', path: '/creator/browse', icon: 'browse' },
+          { label: 'Saved', path: '/creator/saved', icon: 'saved' },
           { label: 'My Applications', path: '/creator/applications', icon: 'applications' },
           { label: 'My Deals', path: '/creator/deals', icon: 'deals' },
         ];

@@ -12,6 +12,11 @@ export const CREATOR_ROUTES: Routes = [
       import('./requirement-view/requirement-view').then((m) => m.RequirementView),
   },
   {
+    path: 'saved',
+    loadComponent: () =>
+      import('./saved-opportunities/saved-opportunities').then((m) => m.SavedOpportunities),
+  },
+  {
     path: 'applications',
     loadComponent: () =>
       import('./my-applications/my-applications').then((m) => m.MyApplications),

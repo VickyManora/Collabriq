@@ -44,6 +44,7 @@ export class RequirementForm implements OnInit {
   suggestions = signal<Suggestion[]>([]);
   paidSelected = signal(false);
   categoryOpen = signal(false);
+  locationOpen = signal(false);
   showProfileGate = signal(false);
 
   readonly contentTypes = ['Reel', 'Reel + Stories', 'Photoshoot', 'Social Media Post'];
@@ -70,13 +71,17 @@ export class RequirementForm implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    if (this.categoryOpen() && !this.elRef.nativeElement.querySelector('.req-form__dropdown')?.contains(event.target as Node)) {
+    const dropdowns = this.elRef.nativeElement.querySelectorAll('.req-form__dropdown');
+    const clickedInside = Array.from(dropdowns).some((el: any) => el.contains(event.target as Node));
+    if (!clickedInside) {
       this.categoryOpen.set(false);
+      this.locationOpen.set(false);
     }
   }
 
   toggleCategory() {
     this.categoryOpen.set(!this.categoryOpen());
+    this.locationOpen.set(false);
   }
 
   selectCategory(cat: string | null) {
@@ -86,6 +91,16 @@ export class RequirementForm implements OnInit {
 
   get categoryLabel(): string {
     return this.category ?? 'Select category';
+  }
+
+  toggleLocation() {
+    this.locationOpen.set(!this.locationOpen());
+    this.categoryOpen.set(false);
+  }
+
+  selectLocation(loc: string) {
+    this.location = loc;
+    this.locationOpen.set(false);
   }
 
   get isPending(): boolean {
@@ -271,18 +286,85 @@ export class RequirementForm implements OnInit {
     };
     const goalPhrase = goalMap[goal] || 'creating great content';
 
+    const contentLower = content.toLowerCase();
+
+    const tasksByContent: Record<string, string[]> = {
+      'Reel': [
+        `Create 1 Instagram reel featuring ${biz}`,
+        `Post the reel as a collab post with ${biz} on Instagram`,
+        `Tag ${biz} and use provided hashtags`,
+        'Post within the agreed timeline',
+      ],
+      'Reel + Stories': [
+        `Create 1 Instagram reel and 2-3 stories featuring ${biz}`,
+        `Post the reel as a collab post with ${biz} on Instagram`,
+        `Tag ${biz} in all stories and use provided hashtags`,
+        'Share a behind-the-scenes story during the visit',
+      ],
+      'Photoshoot': [
+        `Create a photoshoot featuring ${biz}'s products/space`,
+        'Deliver 5-8 high-quality edited photos',
+        `Post 1 carousel as a collab post with ${biz} on Instagram`,
+        `Tag ${biz} and use provided hashtags`,
+      ],
+      'Social Media Post': [
+        `Create 1 Instagram post about ${biz}`,
+        `Post it as a collab post with ${biz} on Instagram`,
+        'Write an engaging caption with brand mentions',
+        `Tag ${biz} and use provided hashtags`,
+      ],
+    };
+
+    const tasks = tasksByContent[content] || [
+      `Create ${contentLower} content for ${biz}`,
+      `Post the content as a collab with ${biz} on Instagram`,
+      `Tag ${biz} in the published content`,
+      'Deliver within the agreed timeline',
+    ];
+
+    const compItems: string[] = [];
+    if (comp === 'Paid') {
+      compItems.push('Paid compensation (amount discussed on acceptance)');
+    } else if (comp === 'Free Product') {
+      compItems.push('Complimentary product/service from ' + biz);
+    } else {
+      compItems.push('Product/service exchange (barter)');
+    }
+    compItems.push('Exposure to ' + biz + "'s audience");
+    if (goal === 'Product launch') compItems.push('Early access to new products');
+
+    const buildDesc = (taskList: string[], getList: string[]): string => {
+      return `What you'll do\n${taskList.map(t => '• ' + t).join('\n')}\n\nWhat you'll get\n${getList.map(g => '• ' + g).join('\n')}`;
+    };
+
     const suggestions: Suggestion[] = [
       {
         title: `${content} Collaboration for ${biz}`,
-        description: `We're looking for talented creators to produce a ${content.toLowerCase()} focused on ${goalPhrase}.\n\nThis is ${compDesc} collaboration. ${compBrief}.\n\nIdeal for creators with a strong local following who can deliver high-quality content.`,
+        description: buildDesc(tasks, compItems),
       },
       {
         title: `Creators Wanted: ${content} - ${goal}`,
-        description: `${biz} is seeking creative collaborators for a ${content.toLowerCase()} project.\n\nOur goal: ${goalPhrase}.\n\nCompensation: ${compBrief}.\n\nWe value authentic content that resonates with local audiences. Apply if you're passionate about creating engaging ${content.toLowerCase()} content!`,
+        description: buildDesc(
+          [
+            `Produce a ${contentLower} focused on ${goalPhrase}`,
+            `Highlight ${biz}'s unique offerings authentically`,
+            `Post as a collab with ${biz} on Instagram`,
+            `Use our branded hashtags in the caption`,
+          ],
+          compItems,
+        ),
       },
       {
         title: `${goal} - ${content} with ${biz}`,
-        description: `Join us at ${biz} for an exciting ${content.toLowerCase()} collaboration!\n\nWhat we need: Creative ${content.toLowerCase()} content aimed at ${goalPhrase}.\n\nWhat you get: ${compBrief}.\n\nLooking for creators who can bring fresh ideas and authentic storytelling to the table.`,
+        description: buildDesc(
+          [
+            `Visit ${biz} and create ${contentLower} content`,
+            `Capture the experience with authentic storytelling`,
+            `Publish as a collab post with ${biz} within 48 hours`,
+            `Tag ${biz} and use provided hashtags`,
+          ],
+          [...compItems, 'Potential for ongoing collaboration'],
+        ),
       },
     ];
 

@@ -46,6 +46,17 @@ export class CreatorService {
       .returns<RequirementWithBusiness[]>();
   }
 
+  async getRequirementsByIds(ids: string[]) {
+    if (ids.length === 0) return { data: [] as RequirementWithBusiness[], error: null };
+    return this.supabase
+      .from('requirements')
+      .select('*, business:profiles!business_id(business_name, full_name, instagram_handle), applications(count)')
+      .in('id', ids)
+      .in('status', ['open', 'partially_filled'])
+      .order('created_at', { ascending: false })
+      .returns<RequirementWithBusiness[]>();
+  }
+
   async getRequirement(id: string) {
     return this.supabase
       .from('requirements')
