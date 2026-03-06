@@ -1,0 +1,74 @@
+<div class="saved">
+  <h1>Saved Opportunities</h1>
+
+  @if (loading()) {
+    <div class="saved__grid">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:40%"></div></div>
+          <div class="skeleton skeleton--line-lg"></div>
+          <div class="skeleton skeleton--line" style="width:50%"></div>
+          <div class="skeleton-row"><div class="skeleton skeleton--line-sm" style="width:35%"></div><div class="skeleton skeleton--badge"></div></div>
+        </div>
+      }
+    </div>
+  } @else if (requirements().length === 0) {
+    <div class="saved__empty">
+      <p>No saved opportunities yet.</p>
+      <p class="saved__empty-sub">Bookmark opportunities while browsing to find them here later.</p>
+      <button class="saved__browse-btn" (click)="browsePage()">Browse Opportunities</button>
+    </div>
+  } @else {
+    <p class="saved__count">{{ requirements().length }} saved</p>
+
+    <div class="saved__grid">
+      @for (req of requirements(); track req.id) {
+        <div class="saved-card" (click)="viewRequirement(req.id)">
+          <div class="saved-card__header">
+            <div class="saved-card__identity" (click)="viewBusiness($event, req.business_id)">
+              <span class="saved-card__avatar">{{ businessInitial(req) }}</span>
+              <div class="saved-card__header-text">
+                <span class="saved-card__business">{{ businessDisplayName(req) }}</span>
+                @if (businessHandle(req)) {
+                  <span class="saved-card__handle"><app-ig-link [handle]="businessHandle(req)" /></span>
+                }
+              </div>
+            </div>
+            <button class="saved-card__unsave" (click)="unsave($event, req.id)" title="Remove from saved">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+
+          <h3 class="saved-card__title">{{ req.title }}</h3>
+
+          @if (req.category) {
+            <span [class]="req.category | categoryClass">{{ req.category }}</span>
+          }
+
+          <div class="saved-card__meta-row">
+            @if (isPaid(req)) {
+              <span class="saved-card__comp saved-card__comp--paid">&#x1F4B0; {{ formatCompensation(req.compensation_details!) }}</span>
+            } @else {
+              <span class="saved-card__comp saved-card__comp--barter">&#x1F381; {{ req.compensation_details ? formatBarter(req.compensation_details) : 'Barter' }}</span>
+            }
+            @if (req.location) {
+              <span class="saved-card__location">&#x1F4CD; {{ req.location }}</span>
+            }
+          </div>
+
+          <div class="saved-card__footer">
+            <div class="saved-card__meta">
+              <span>&#x1F525; {{ spotsRemaining(req) }} spots left</span>
+              <span class="saved-card__posted">{{ req.created_at | timeAgo }}</span>
+            </div>
+            @if (req.closes_at) {
+              <span class="saved-card__time" [class.saved-card__time--urgent]="isClosingSoon(req)">
+                &#x23F3; {{ req.closes_at | closesIn }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
