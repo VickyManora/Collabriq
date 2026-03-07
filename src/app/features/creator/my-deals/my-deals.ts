@@ -123,10 +123,10 @@ export class MyDeals implements OnInit, OnDestroy {
   }
 
   private async loadRatings(deals: DealWithDetails[]) {
-    const completedDeals = deals.filter((d) => d.status === 'completed');
+    const ratedDeals = deals.filter((d) => d.status !== 'active' && d.status !== 'cancelled');
     const ratingsMap = new Map<string, Rating>();
 
-    for (const deal of completedDeals) {
+    for (const deal of ratedDeals) {
       const { data } = await this.creatorService.getMyRatingForDeal(deal.id);
       if (data) {
         ratingsMap.set(deal.id, data);
@@ -159,23 +159,19 @@ export class MyDeals implements OnInit, OnDestroy {
 
   viewRequirement(deal: DealWithDetails) {
     if (deal.requirement_id) {
-      this.router.navigate(['/creator/browse', deal.requirement_id]);
+      this.router.navigate(['/creator/browse', deal.requirement_id], { queryParams: { from: 'deals' } });
     }
   }
 
   viewBusiness(event: MouseEvent, deal: DealWithDetails) {
     event.stopPropagation();
     if (deal.business_id) {
-      this.router.navigate(['/creator/business', deal.business_id]);
+      this.router.navigate(['/creator/business', deal.business_id], { queryParams: { from: 'deals' } });
     }
   }
 
   canMarkDone(deal: DealWithDetails): boolean {
     return deal.status === 'active' && !deal.creator_marked_done;
-  }
-
-  canRate(deal: DealWithDetails): boolean {
-    return deal.status === 'completed' && !this.ratings().has(deal.id);
   }
 
   hasRated(dealId: string): boolean {
@@ -186,23 +182,12 @@ export class MyDeals implements OnInit, OnDestroy {
     return this.ratings().get(dealId)?.stars ?? 0;
   }
 
-  async markDone(dealId: string) {
+  // Click "Mark as Done" → open rating popup
+  startMarkDone(dealId: string) {
     if (this.isPending) {
       this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
       return;
     }
-    this.actionLoading.set(true);
-    const { error } = await this.creatorService.markDealDone(dealId);
-    if (error) {
-      this.toast.error('Failed to mark deal as done.');
-    } else {
-      this.toast.success('Deal marked as done.');
-      await this.loadDeals();
-    }
-    this.actionLoading.set(false);
-  }
-
-  startRating(dealId: string) {
     this.ratingDealId.set(dealId);
     this.ratingStars = 0;
   }
@@ -212,24 +197,41 @@ export class MyDeals implements OnInit, OnDestroy {
     this.ratingStars = 0;
   }
 
-  async submitRating(deal: DealWithDetails) {
+  // Submit rating + mark done together
+  async submitRatingAndComplete(deal: DealWithDetails) {
     if (this.ratingStars < 1 || this.ratingStars > 5) return;
     this.actionLoading.set(true);
-    const { data, error } = await this.creatorService.rateBusiness(
+
+    // 1. Submit rating first
+    const { data: ratingData, error: ratingError } = await this.creatorService.rateBusiness(
       deal.id,
       deal.business_id,
       this.ratingStars,
     );
-    if (error) {
+    if (ratingError) {
       this.toast.error('Failed to submit rating.');
-    } else if (data) {
-      this.toast.success('Rating submitted!');
-      const updated = new Map(this.ratings());
-      updated.set(deal.id, data);
-      this.ratings.set(updated);
-      this.ratingDealId.set(null);
-      this.ratingStars = 0;
+      this.actionLoading.set(false);
+      return;
     }
+
+    // 2. Then mark deal as done
+    const { error: doneError } = await this.creatorService.markDealDone(deal.id);
+    if (doneError) {
+      this.toast.error('Failed to mark deal as done.');
+      this.actionLoading.set(false);
+      return;
+    }
+
+    // 3. Update local state
+    if (ratingData) {
+      const updated = new Map(this.ratings());
+      updated.set(deal.id, ratingData);
+      this.ratings.set(updated);
+    }
+    this.ratingDealId.set(null);
+    this.ratingStars = 0;
+    this.toast.success('Rating submitted & deal marked as done!');
+    await this.loadDeals();
     this.actionLoading.set(false);
   }
 

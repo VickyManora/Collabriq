@@ -93,19 +93,10 @@
           }
 
           @if (canMarkDone(deal)) {
-            <button
-              class="deal-card__done-btn"
-              (click)="markDone(deal.id)"
-              [disabled]="actionLoading()"
-            >
-              Mark Deal Completed
-            </button>
-          }
-
-          @if (canRate(deal)) {
             @if (ratingDealId() === deal.id) {
+              <!-- Rating popup before marking done -->
               <div class="deal-card__rating-form">
-                <p class="deal-card__rating-label">Rate this creator:</p>
+                <p class="deal-card__rating-label">Rate this creator to complete the deal:</p>
                 <div class="deal-card__stars">
                   @for (star of starOptions; track star) {
                     <button
@@ -120,10 +111,10 @@
                 <div class="deal-card__rating-actions">
                   <button
                     class="deal-card__rate-submit"
-                    (click)="submitRating(deal)"
+                    (click)="submitRatingAndComplete(deal)"
                     [disabled]="ratingStars < 1 || actionLoading()"
                   >
-                    Submit Rating
+                    Submit Rating & Mark Done
                   </button>
                   <button class="deal-card__rate-cancel" (click)="cancelRating()">
                     Cancel
@@ -131,8 +122,12 @@
                 </div>
               </div>
             } @else {
-              <button class="deal-card__rate-btn" (click)="startRating(deal.id)">
-                Rate Creator
+              <button
+                class="deal-card__done-btn"
+                (click)="startMarkDone(deal.id)"
+                [disabled]="actionLoading()"
+              >
+                Mark Deal Completed
               </button>
             }
           }

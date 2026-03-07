@@ -1,13 +1,20 @@
 <div class="my-apps">
   <h1>My Applications</h1>
 
-  <input
-    class="my-apps__search"
-    type="text"
-    placeholder="Search by title or category..."
-    [ngModel]="searchQuery()"
-    (ngModelChange)="onSearch($event)"
-  />
+  <div class="my-apps__toolbar">
+    <input
+      class="my-apps__search"
+      type="text"
+      placeholder="Search collaborations..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearch($event)"
+    />
+    <select class="my-apps__sort" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+      @for (opt of sortOptions; track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+      }
+    </select>
+  </div>
 
   <div class="my-apps__tabs">
     @for (tab of tabs; track tab.value) {
@@ -35,8 +42,8 @@
   } @else if (filtered().length === 0) {
     <div class="my-apps__empty">
       @if (activeFilter() === 'all' && !searchQuery()) {
-        <p>You haven't applied to any opportunities yet.</p>
-        <p class="my-apps__empty-sub">Explore collaborations and apply to start working with brands.</p>
+        <p>You haven't applied to any collaborations yet.</p>
+        <p class="my-apps__empty-sub">Browse opportunities and apply in seconds.</p>
         <a class="my-apps__browse-btn" routerLink="/creator/browse">Browse Opportunities</a>
       } @else {
         <p>No applications match your filters.</p>
@@ -47,6 +54,7 @@
     <div class="my-apps__grid">
       @for (app of paged(); track app.id) {
         <div class="app-card" (click)="viewRequirement(app.requirement_id)">
+          <!-- Header: business + status badge -->
           <div class="app-card__header">
             <div class="app-card__biz-link" (click)="viewBusiness($event, app)">
               <span class="app-card__avatar">{{ businessInitial(app) }}</span>
@@ -58,35 +66,130 @@
               </div>
             </div>
             <span class="app-card__badge app-card__badge--{{ app.status }}">
-              {{ statusLabel(app.status) }}@if (app.status === 'accepted') { &#10003;}
+              {{ statusIcon(app.status) }} {{ statusDetail(app.status) }}
             </span>
           </div>
 
+          <!-- Title -->
           <h3 class="app-card__title">{{ app.requirement?.title ?? 'Untitled' }}</h3>
 
-          @if (app.requirement?.category) {
-            <span [class]="app.requirement.category | categoryClass">{{ app.requirement.category }}</span>
-          }
+          <!-- Chips row: compensation + category -->
+          <div class="app-card__chips">
+            @if (isPaid(app)) {
+              <span class="app-card__chip app-card__chip--paid">&#x1F4B0; {{ formatComp(app) }}</span>
+            } @else {
+              <span class="app-card__chip app-card__chip--barter">&#x1F381; {{ formatComp(app) }}</span>
+            }
+            @if (app.requirement?.category) {
+              <span class="app-card__chip-sep">&middot;</span>
+              <span class="app-card__chip">{{ app.requirement.category }}</span>
+            }
+          </div>
 
-          <p class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</p>
+          <!-- Meta row: location, applicants, closing -->
+          <div class="app-card__meta">
+            @if (app.requirement?.location) {
+              <span>&#x1F4CD; {{ app.requirement.location }}</span>
+            }
+            <span class="app-card__meta-sep">&middot;</span>
+            <span>&#x1F465; {{ applicantsCount(app) }} applicant{{ applicantsCount(app) !== 1 ? 's' : '' }}</span>
+            @if (app.requirement?.closes_at) {
+              <span class="app-card__meta-sep">&middot;</span>
+              <span [class.app-card__meta--urgent]="isClosingSoon(app)">&#x23F3; {{ closingLabel(app.requirement.closes_at!) }}</span>
+            }
+          </div>
 
+          <!-- Response hint + date -->
+          <div class="app-card__date-row">
+            @if (app.status === 'applied') {
+              <span class="app-card__response-hint">&#x26A1; Typical response: 24-48 hrs</span>
+            }
+            <span class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</span>
+          </div>
+
+          <!-- Accepted: success banner + earnings -->
           @if (app.status === 'accepted') {
-            <a
-              class="app-card__deal-btn"
-              routerLink="/creator/deals"
-              (click)="$event.stopPropagation()"
-            >View Deal</a>
+            <div class="app-card__success">
+              <span class="app-card__success-heading">&#x1F389; You're selected!</span>
+              <span class="app-card__success-text">This brand accepted your application.</span>
+              @if (isPaid(app)) {
+                <span class="app-card__earnings">&#x1F4B0; {{ earningsLabel(app) }}</span>
+              } @else {
+                <span class="app-card__earnings">&#x1F381; {{ earningsLabel(app) }}</span>
+              }
+            </div>
           }
 
-          @if (app.status === 'applied') {
-            <button
-              class="app-card__withdraw-btn"
-              (click)="withdraw(app.id); $event.stopPropagation()"
-              [disabled]="actionLoading()"
-            >
-              Withdraw
-            </button>
+          <!-- Status timeline -->
+          @if (app.status !== 'rejected' && app.status !== 'withdrawn') {
+            <div class="app-card__timeline">
+              <div class="app-card__step app-card__step--done">
+                <span class="app-card__dot"></span>
+                <span>Applied</span>
+              </div>
+              <div class="app-card__step-line" [class.app-card__step-line--done]="app.status === 'accepted'"></div>
+              <div class="app-card__step" [class.app-card__step--active]="app.status === 'applied'" [class.app-card__step--done]="app.status === 'accepted'">
+                <span class="app-card__dot"></span>
+                <span>Under Review</span>
+              </div>
+              <div class="app-card__step-line" [class.app-card__step-line--done]="app.status === 'accepted'"></div>
+              <div class="app-card__step" [class.app-card__step--done]="app.status === 'accepted'">
+                <span class="app-card__dot"></span>
+                <span>Accepted</span>
+              </div>
+              <div class="app-card__step-line"></div>
+              <div class="app-card__step">
+                <span class="app-card__dot"></span>
+                <span>Deal Started</span>
+              </div>
+            </div>
+          } @else {
+            <div class="app-card__timeline">
+              <div class="app-card__step app-card__step--done">
+                <span class="app-card__dot"></span>
+                <span>Applied</span>
+              </div>
+              <div class="app-card__step-line"></div>
+              @if (app.status === 'rejected') {
+                <div class="app-card__step app-card__step--rejected">
+                  <span class="app-card__dot"></span>
+                  <span>Not Selected</span>
+                </div>
+              }
+              @if (app.status === 'withdrawn') {
+                <div class="app-card__step app-card__step--withdrawn">
+                  <span class="app-card__dot"></span>
+                  <span>Withdrawn</span>
+                </div>
+              }
+            </div>
           }
+
+          <!-- Actions -->
+          <div class="app-card__actions">
+            @if (app.status === 'accepted') {
+              <a
+                class="app-card__deal-btn"
+                routerLink="/creator/deals"
+                (click)="$event.stopPropagation()"
+              >View Deal</a>
+            }
+            <button
+              [class]="app.status === 'accepted' ? 'app-card__view-req-btn' : 'app-card__view-req-btn app-card__view-req-btn--primary'"
+              (click)="viewRequirement(app.requirement_id); $event.stopPropagation()"
+            >
+              View Requirement
+            </button>
+            @if (app.status === 'applied') {
+              <button
+                class="app-card__withdraw-btn"
+                (click)="withdraw(app.id); $event.stopPropagation()"
+                [disabled]="actionLoading()"
+              >
+                Withdraw
+              </button>
+            }
+          </div>
         </div>
       }
     </div>

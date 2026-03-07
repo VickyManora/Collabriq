@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
 import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
@@ -40,6 +41,7 @@ export class BusinessProfileComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private creatorService: CreatorService,
   ) {}
 
@@ -105,6 +107,6 @@ export class BusinessProfileComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/creator/browse']);
+    this.location.back();
   }
 }

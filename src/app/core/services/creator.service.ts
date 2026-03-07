@@ -16,7 +16,11 @@ export type ApplicationWithRequirement = Application & {
     title: string;
     status: string;
     category: string | null;
+    compensation_details: string | null;
+    location: string | null;
+    closes_at: string | null;
     business_id: string;
+    applications: { count: number }[];
     business: { business_name: string | null; full_name: string; instagram_handle: string | null } | null;
   };
 };
@@ -94,7 +98,7 @@ export class CreatorService {
     const userId = this.auth.profile()?.id;
     return this.supabase
       .from('applications')
-      .select('*, requirement:requirements!requirement_id(title, status, category, business_id, business:profiles!business_id(business_name, full_name, instagram_handle))')
+      .select('*, requirement:requirements!requirement_id(title, status, category, compensation_details, location, closes_at, business_id, applications(count), business:profiles!business_id(business_name, full_name, instagram_handle))')
       .eq('creator_id', userId!)
       .order('created_at', { ascending: false })
       .returns<ApplicationWithRequirement[]>();

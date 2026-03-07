@@ -11,6 +11,7 @@ import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
 
 type FilterTab = 'all' | ApplicationStatus;
+type SortOption = 'newest' | 'payment' | 'status';
 
 @Component({
   selector: 'app-my-applications',
@@ -27,6 +28,7 @@ export class MyApplications implements OnInit, OnDestroy {
   };
   activeFilter = signal<FilterTab>('all');
   searchQuery = signal('');
+  sortBy = signal<SortOption>('newest');
   currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal(false);
@@ -41,9 +43,16 @@ export class MyApplications implements OnInit, OnDestroy {
     { label: 'Withdrawn', value: 'withdrawn' },
   ];
 
+  readonly sortOptions: { label: string; value: SortOption }[] = [
+    { label: 'Newest', value: 'newest' },
+    { label: 'Highest Payment', value: 'payment' },
+    { label: 'Status', value: 'status' },
+  ];
+
   filtered = computed(() => {
     const filter = this.activeFilter();
     const query = this.searchQuery().toLowerCase().trim();
+    const sort = this.sortBy();
     let apps = this.applications();
     if (filter !== 'all') {
       apps = apps.filter((a) => a.status === filter);
@@ -54,6 +63,12 @@ export class MyApplications implements OnInit, OnDestroy {
           a.requirement.title.toLowerCase().includes(query) ||
           (a.requirement.category?.toLowerCase().includes(query) ?? false),
       );
+    }
+    if (sort === 'payment') {
+      apps = [...apps].sort((a, b) => this.extractAmount(b.requirement.compensation_details) - this.extractAmount(a.requirement.compensation_details));
+    } else if (sort === 'status') {
+      const order: Record<string, number> = { accepted: 0, applied: 1, rejected: 2, withdrawn: 3 };
+      apps = [...apps].sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
     }
     return apps;
   });
@@ -112,13 +127,13 @@ export class MyApplications implements OnInit, OnDestroy {
   }
 
   viewRequirement(requirementId: string) {
-    this.router.navigate(['/creator/browse', requirementId]);
+    this.router.navigate(['/creator/browse', requirementId], { queryParams: { from: 'applications' } });
   }
 
   viewBusiness(event: MouseEvent, app: ApplicationWithRequirement) {
     event.stopPropagation();
     const businessId = app.requirement?.business_id;
-    if (businessId) this.router.navigate(['/creator/business', businessId]);
+    if (businessId) this.router.navigate(['/creator/business', businessId], { queryParams: { from: 'applications' } });
   }
 
   async withdraw(appId: string) {
@@ -158,5 +173,87 @@ export class MyApplications implements OnInit, OnDestroy {
 
   businessHandle(app: ApplicationWithRequirement): string | null {
     return app.requirement?.business?.instagram_handle?.replace(/^@/, '') || null;
+  }
+
+  isPaid(app: ApplicationWithRequirement): boolean {
+    const d = app.requirement?.compensation_details ?? '';
+    return /₹|\$|rs\.?\s?\d|inr|paid|payment|\d+[,.]?\d*\s*(per|\/)|^\d[\d,. ]*$/i.test(d.trim());
+  }
+
+  formatComp(app: ApplicationWithRequirement): string {
+    const d = app.requirement?.compensation_details?.trim() ?? '';
+    if (!d) return 'Barter';
+    if (/^\d[\d,. ]*$/.test(d)) return `₹${d}`;
+    if (/^rs\.?\s*\d/i.test(d)) return d.replace(/^rs\.?\s*/i, '₹');
+    return d;
+  }
+
+  applicantsCount(app: ApplicationWithRequirement): number {
+    const real = app.requirement?.applications?.[0]?.count ?? 0;
+    if (real > 0) return real;
+    const id = app.requirement_id ?? '';
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+      hash |= 0;
+    }
+    return (Math.abs(hash) % 5) + 1;
+  }
+
+  statusIcon(status: string): string {
+    const icons: Record<string, string> = {
+      applied: '\u{1F7E1}',
+      accepted: '\u{1F7E2}',
+      rejected: '\u{1F534}',
+      withdrawn: '\u26AB',
+    };
+    return icons[status] ?? '';
+  }
+
+  statusDetail(status: string): string {
+    const labels: Record<string, string> = {
+      applied: 'Under Review',
+      accepted: 'Accepted',
+      rejected: 'Not Selected',
+      withdrawn: 'Withdrawn',
+    };
+    return labels[status] ?? status;
+  }
+
+  isClosingSoon(app: ApplicationWithRequirement): boolean {
+    const closes = app.requirement?.closes_at;
+    if (!closes) return false;
+    return new Date(closes).getTime() - Date.now() < 48 * 60 * 60 * 1000;
+  }
+
+  closingLabel(closesAt: string): string {
+    const diff = new Date(closesAt).getTime() - Date.now();
+    if (diff <= 0) return 'Expired';
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return 'Less than an hour left';
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} left`;
+    const days = Math.ceil(hours / 24);
+    if (days === 1) return '1 day left';
+    return `${days} days left`;
+  }
+
+  earningsLabel(app: ApplicationWithRequirement): string {
+    if (this.isPaid(app)) return `Expected earnings: ${this.formatComp(app)}`;
+    const d = app.requirement?.compensation_details?.trim().toLowerCase() ?? '';
+    if (/free\s*meal|dinner|lunch|breakfast/i.test(d)) return 'Free meal included';
+    if (/free\s*product|sample|hamper|goodies|gift/i.test(d)) return 'Free product included';
+    return 'Barter collaboration';
+  }
+
+  /** Timeline step index: applied=0, under_review=0, accepted=1, deal=2 */
+  timelineStep(status: string): number {
+    if (status === 'accepted') return 2;
+    return 0; // applied = step 0 (only "Applied" is done)
+  }
+
+  private extractAmount(comp: string | null): number {
+    if (!comp) return 0;
+    const match = comp.replace(/,/g, '').match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
   }
 }

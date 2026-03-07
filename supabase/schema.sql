@@ -401,14 +401,14 @@ CREATE POLICY "Anyone can read ratings"
   ON public.ratings FOR SELECT
   USING (TRUE);
 
-CREATE POLICY "Deal parties can rate on completed deals"
+CREATE POLICY "Deal parties can rate on active deals"
   ON public.ratings FOR INSERT
   WITH CHECK (
     rater_id = auth.uid()
     AND EXISTS (
       SELECT 1 FROM public.deals
       WHERE deals.id = deal_id
-        AND deals.status = 'completed'
+        AND deals.status IN ('active', 'creator_marked_done', 'completed')
         AND (deals.business_id = auth.uid() OR deals.creator_id = auth.uid())
     )
   );

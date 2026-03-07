@@ -38,22 +38,19 @@
         </div>
       </div>
 
-      <!-- Chip-style stats -->
+      <!-- Primary chips -->
       <div class="req-view__chips">
         @if (isPaid(req)) {
           <span class="req-view__chip req-view__chip--paid">&#x1F4B0; {{ formatCompensation(req.compensation_details!) }}</span>
         } @else {
           <span class="req-view__chip req-view__chip--barter">&#x1F381; {{ req.compensation_details ? formatBarter(req.compensation_details) : 'Barter' }}</span>
         }
+        <span class="req-view__chip req-view__chip--applicants">&#x1F465; {{ displayApplicants() }} creators applied</span>
         @if (req.location) {
           <span class="req-view__chip req-view__chip--location">&#x1F4CD; {{ req.location }}</span>
         }
-        <span class="req-view__chip req-view__chip--spots">&#x1F525; {{ spotsRemaining() }} of {{ req.creator_slots }} spots left</span>
-        <span class="req-view__chip req-view__chip--applicants">&#x1F465; {{ displayApplicants() }} applied</span>
-        @if (req.closes_at) {
-          <span class="req-view__chip" [class.req-view__chip--urgent]="isClosingSoon(req)">&#x23F3; {{ req.closes_at | closesIn }}</span>
-        }
       </div>
+
 
       <!-- Business info -->
       <div class="req-view__business-card">
@@ -110,6 +107,16 @@
 
       <!-- Details -->
       <div class="req-view__info">
+        <div class="req-view__info-item">
+          <span class="req-view__info-label">&#x1F525; Spots Left</span>
+          <span>{{ spotsRemaining() }} of {{ req.creator_slots }}</span>
+        </div>
+        @if (req.closes_at) {
+          <div class="req-view__info-item">
+            <span class="req-view__info-label" [class.req-view__info-urgent]="isClosingSoon(req)">&#x23F3; Closing In</span>
+            <span [class.req-view__info-urgent]="isClosingSoon(req)">{{ req.closes_at | closesIn }}</span>
+          </div>
+        }
         <div class="req-view__info-item">
           <span class="req-view__info-label">&#x1F552; Posted</span>
           <span>{{ req.created_at | timeAgo }}</span>

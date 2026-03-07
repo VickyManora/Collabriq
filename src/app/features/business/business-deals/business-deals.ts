@@ -122,10 +122,10 @@ export class BusinessDeals implements OnInit, OnDestroy {
   }
 
   private async loadRatings(deals: BusinessDealWithDetails[]) {
-    const completedDeals = deals.filter((d) => d.status === 'completed');
+    const ratedDeals = deals.filter((d) => d.status !== 'active' && d.status !== 'cancelled');
     const ratingsMap = new Map<string, Rating>();
 
-    for (const deal of completedDeals) {
+    for (const deal of ratedDeals) {
       const { data } = await this.reqService.getMyRatingForDeal(deal.id);
       if (data) {
         ratingsMap.set(deal.id, data);
@@ -161,10 +161,6 @@ export class BusinessDeals implements OnInit, OnDestroy {
     return (deal.status === 'active' || deal.status === 'creator_marked_done') && !deal.business_marked_done;
   }
 
-  canRate(deal: BusinessDealWithDetails): boolean {
-    return deal.status === 'completed' && !this.ratings().has(deal.id);
-  }
-
   hasRated(dealId: string): boolean {
     return this.ratings().has(dealId);
   }
@@ -177,23 +173,12 @@ export class BusinessDeals implements OnInit, OnDestroy {
     return this.avgRatings().get(creatorId);
   }
 
-  async markDone(dealId: string) {
+  // Click "Mark Deal Completed" → open rating popup
+  startMarkDone(dealId: string) {
     if (this.isPending) {
       this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
       return;
     }
-    this.actionLoading.set(true);
-    const { error } = await this.reqService.markDealDone(dealId);
-    if (error) {
-      this.toast.error('Failed to mark deal as done.');
-    } else {
-      this.toast.success('Deal marked as done.');
-      await this.loadDeals();
-    }
-    this.actionLoading.set(false);
-  }
-
-  startRating(dealId: string) {
     this.ratingDealId.set(dealId);
     this.ratingStars = 0;
   }
@@ -203,25 +188,42 @@ export class BusinessDeals implements OnInit, OnDestroy {
     this.ratingStars = 0;
   }
 
-  async submitRating(deal: BusinessDealWithDetails) {
+  // Submit rating + mark done together
+  async submitRatingAndComplete(deal: BusinessDealWithDetails) {
     if (this.ratingStars < 1 || this.ratingStars > 5) return;
     this.actionLoading.set(true);
-    const { data, error } = await this.reqService.rateCreator(
+
+    // 1. Submit rating first
+    const { data: ratingData, error: ratingError } = await this.reqService.rateCreator(
       deal.id,
       deal.creator_id,
       this.ratingStars,
     );
-    if (error) {
+    if (ratingError) {
       this.toast.error('Failed to submit rating.');
-    } else if (data) {
-      this.toast.success('Rating submitted!');
-      const updated = new Map(this.ratings());
-      updated.set(deal.id, data);
-      this.ratings.set(updated);
-      this.ratingDealId.set(null);
-      this.ratingStars = 0;
-      await this.loadAverageRatings(this.deals());
+      this.actionLoading.set(false);
+      return;
     }
+
+    // 2. Then mark deal as done
+    const { error: doneError } = await this.reqService.markDealDone(deal.id);
+    if (doneError) {
+      this.toast.error('Failed to mark deal as done.');
+      this.actionLoading.set(false);
+      return;
+    }
+
+    // 3. Update local state
+    if (ratingData) {
+      const updated = new Map(this.ratings());
+      updated.set(deal.id, ratingData);
+      this.ratings.set(updated);
+    }
+    this.ratingDealId.set(null);
+    this.ratingStars = 0;
+    this.toast.success('Rating submitted & deal marked as done!');
+    await this.loadDeals();
+    await this.loadAverageRatings(this.deals());
     this.actionLoading.set(false);
   }
 

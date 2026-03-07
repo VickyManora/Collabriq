@@ -4,8 +4,7 @@
       <a
         class="sidebar__link"
         [routerLink]="item.path"
-        routerLinkActive="sidebar__link--active"
-        [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+        [class.sidebar__link--active]="isActive(item.path)"
         (click)="onLinkClick()"
       >
         @switch (item.icon) {

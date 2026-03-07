@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CreatorService, RequirementWithBusiness } from '../../../core/services/creator.service';
@@ -38,6 +39,7 @@ export class RequirementView implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private creatorService: CreatorService,
     private reqService: RequirementService,
     protected auth: AuthService,
@@ -202,7 +204,7 @@ export class RequirementView implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/creator/browse']);
+    this.location.back();
   }
 
   viewBusiness() {

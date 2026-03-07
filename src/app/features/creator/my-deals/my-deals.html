@@ -73,23 +73,10 @@
           <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
 
           @if (canMarkDone(deal)) {
-            <button
-              class="deal-card__done-btn"
-              (click)="markDone(deal.id); $event.stopPropagation()"
-              [disabled]="actionLoading() || isPending"
-            >
-              Mark as Done
-            </button>
-          }
-
-          @if (deal.status === 'creator_marked_done') {
-            <p class="deal-card__waiting">Waiting for business to mark done...</p>
-          }
-
-          @if (canRate(deal)) {
             @if (ratingDealId() === deal.id) {
+              <!-- Rating popup before marking done -->
               <div class="deal-card__rating-form" (click)="$event.stopPropagation()">
-                <p class="deal-card__rating-label">Rate this business:</p>
+                <p class="deal-card__rating-label">Rate this business to complete the deal:</p>
                 <div class="deal-card__stars">
                   @for (star of starOptions; track star) {
                     <button
@@ -104,10 +91,10 @@
                 <div class="deal-card__rating-actions">
                   <button
                     class="deal-card__rate-submit"
-                    (click)="submitRating(deal)"
+                    (click)="submitRatingAndComplete(deal)"
                     [disabled]="ratingStars < 1 || actionLoading()"
                   >
-                    Submit Rating
+                    Submit Rating & Mark Done
                   </button>
                   <button class="deal-card__rate-cancel" (click)="cancelRating()">
                     Cancel
@@ -115,10 +102,18 @@
                 </div>
               </div>
             } @else {
-              <button class="deal-card__rate-btn" (click)="startRating(deal.id); $event.stopPropagation()">
-                Rate Business
+              <button
+                class="deal-card__done-btn"
+                (click)="startMarkDone(deal.id); $event.stopPropagation()"
+                [disabled]="actionLoading() || isPending"
+              >
+                Mark as Done
               </button>
             }
+          }
+
+          @if (deal.status === 'creator_marked_done') {
+            <p class="deal-card__waiting">Waiting for business to mark done...</p>
           }
 
           @if (hasRated(deal.id)) {

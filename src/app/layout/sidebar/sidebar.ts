@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { filter } from 'rxjs';
 
 interface NavItem {
   label: string;
@@ -10,7 +11,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
@@ -18,10 +19,38 @@ export class Sidebar {
   isOpen = input(false);
   linkClicked = output<void>();
 
-  constructor(protected auth: AuthService) {}
+  private currentUrl = '';
+  private fromParam = '';
+
+  constructor(
+    protected auth: AuthService,
+    private router: Router,
+  ) {
+    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe((e) => {
+      this.currentUrl = e.urlAfterRedirects.split('?')[0];
+      this.fromParam = new URLSearchParams(e.urlAfterRedirects.split('?')[1] || '').get('from') || '';
+    });
+  }
 
   onLinkClick() {
     this.linkClicked.emit();
+  }
+
+  isActive(path: string): boolean {
+    // If we're on a detail page (browse/:id or business/:id) with a `from` param, highlight that source tab
+    if (this.fromParam) {
+      const fromPath = `/creator/${this.fromParam}`;
+      if (path === fromPath) return true;
+      // Don't highlight browse when `from` points elsewhere
+      if (this.currentUrl.startsWith('/creator/browse/') || this.currentUrl.startsWith('/creator/business/')) {
+        return false;
+      }
+    }
+
+    if (path === '/dashboard') {
+      return this.currentUrl === '/dashboard';
+    }
+    return this.currentUrl.startsWith(path);
   }
 
   get navItems(): NavItem[] {
