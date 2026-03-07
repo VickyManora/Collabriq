@@ -18,7 +18,7 @@
     <!-- Desktop links -->
     <div class="land-nav__links">
       <a routerLink="/browse" class="land-nav__link">Browse Opportunities</a>
-      <a href="#how-it-works" class="land-nav__link">How It Works</a>
+      <a class="land-nav__link" (click)="scrollToHowItWorks()">How It Works</a>
       <a routerLink="/auth/login" class="land-nav__link">Login</a>
       <a routerLink="/auth/signup" class="land-nav__cta">Sign Up</a>
     </div>
@@ -28,7 +28,7 @@
   @if (mobileMenuOpen()) {
     <div class="land-nav__mobile">
       <a routerLink="/browse" class="land-nav__mobile-link" (click)="closeMobileMenu()">Browse Opportunities</a>
-      <a href="#how-it-works" class="land-nav__mobile-link" (click)="closeMobileMenu()">How It Works</a>
+      <a class="land-nav__mobile-link" (click)="scrollToHowItWorks(); closeMobileMenu()">How It Works</a>
       <a routerLink="/auth/login" class="land-nav__mobile-link" (click)="closeMobileMenu()">Login</a>
       <a routerLink="/auth/signup" class="land-nav__mobile-cta" (click)="closeMobileMenu()">Sign Up</a>
     </div>
@@ -39,26 +39,70 @@
 <section class="hero">
   <div class="hero__glow"></div>
   <div class="hero__inner">
-    <h1 class="hero__title">Connect Local Businesses with Creators</h1>
-    <p class="hero__sub">
-      Collabriq helps Pune businesses collaborate with creators for social media promotions.
+    <h1 class="hero__title" data-animate="fade-up">Find Paid Brand Collaborations in Pune</h1>
+    <p class="hero__sub" data-animate="fade-up" style="transition-delay: 100ms">
+      Browse real paid collaborations from Pune businesses — reels, photoshoots, and brand promotions. Apply in one click.
     </p>
-    <div class="hero__actions">
-      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--accent">Post a Collaboration</a>
-      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--outline">Join as Creator</a>
+    <div class="hero__actions" data-animate="fade-up" style="transition-delay: 200ms">
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="hero__btn hero__btn--accent">Join as Creator</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="hero__btn hero__btn--outline">I'm a Business</a>
     </div>
-    <p class="hero__trust">✨ Built for creators and businesses in Pune</p>
-    <p class="hero__browse-hint">
+    <p class="hero__trust" data-animate="fade-up" style="transition-delay: 300ms">✨ Built for creators in Pune</p>
+    <p class="hero__browse-hint" data-animate="fade-up" style="transition-delay: 350ms">
       <a routerLink="/browse">Browse real collaborations before signing up.</a>
     </p>
+  </div>
+</section>
+
+<!-- Social Proof -->
+<section class="proof">
+  <div class="proof__inner" data-animate="fade-up">
+    <p class="proof__label">Trusted by creators and businesses across Pune</p>
+    <div class="proof__brands">
+      <div class="proof__brand">
+        <span class="proof__brand-avatar">C</span>
+        <div class="proof__brand-info">
+          <span class="proof__brand-name">Cafe Mosaic</span>
+          <span class="proof__brand-stat">12 creators worked</span>
+        </div>
+      </div>
+      <div class="proof__brand">
+        <span class="proof__brand-avatar">P</span>
+        <div class="proof__brand-info">
+          <span class="proof__brand-name">Paris Bites</span>
+          <span class="proof__brand-stat">8 collaborations</span>
+        </div>
+      </div>
+      <div class="proof__brand">
+        <span class="proof__brand-avatar">B</span>
+        <div class="proof__brand-info">
+          <span class="proof__brand-name">Brew Studio</span>
+          <span class="proof__brand-stat">6 collaborations</span>
+        </div>
+      </div>
+    </div>
+    <div class="proof__stats">
+      <div class="proof__stat">
+        <span class="proof__stat-number">500+</span>
+        <span class="proof__stat-label">Creators joined</span>
+      </div>
+      <div class="proof__stat">
+        <span class="proof__stat-number">120+</span>
+        <span class="proof__stat-label">Collaborations posted</span>
+      </div>
+      <div class="proof__stat">
+        <span class="proof__stat-number">50+</span>
+        <span class="proof__stat-label">Deals completed</span>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- Platform Preview -->
 <section class="preview">
   <div class="preview__inner">
+    <p class="preview__hint">See how creators find collaborations in seconds</p>
     <h2 class="section-title">See the Platform in Action</h2>
-    <p class="preview__subtitle">See how creators discover opportunities and businesses manage collaborations.</p>
     <div class="preview__tabs">
       <button
         class="preview__tab"
@@ -94,63 +138,145 @@
 <!-- How It Works -->
 <section class="how" id="how-it-works">
   <div class="how__inner">
-    <h2 class="section-title">How It Works</h2>
+    <p class="how__label" data-animate="fade-up">Simple 3-step collaboration</p>
+    <h2 class="section-title" data-animate="fade-up">How Creators Get Collaborations</h2>
+
+    <!-- Collaboration connector -->
+    <div class="how__collab" data-animate="collab">
+      <div class="how__collab-node how__collab-node--biz">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Business</span>
+      </div>
+      <div class="how__collab-line">
+        <div class="how__collab-line-inner"></div>
+        <div class="how__collab-pulse"></div>
+        <div class="how__collab-handshake">🤝</div>
+      </div>
+      <div class="how__collab-node how__collab-node--creator">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Creator</span>
+      </div>
+    </div>
 
     <div class="how__grid">
-      <div class="how__col">
-        <h3 class="how__role">For Creators</h3>
+      <div class="how__col" data-animate="slide-right">
+        <h3 class="how__role">For Businesses</h3>
         <div class="how__steps">
-          <div class="how__step">
-            <span class="how__step-num">1</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 0ms">
+            <span class="how__step-icon">📢</span>
             <div>
-              <h4>Browse collaborations</h4>
-              <p>Discover opportunities from local businesses looking for creators like you.</p>
+              <h4>Post a collaboration</h4>
+              <p>Describe what you need — our AI helps you write the perfect brief in seconds.</p>
             </div>
           </div>
-          <div class="how__step">
-            <span class="how__step-num">2</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 120ms">
+            <span class="how__step-icon">👀</span>
             <div>
-              <h4>Apply to opportunities</h4>
-              <p>Send your pitch and showcase why you're the perfect fit.</p>
+              <h4>Review creator applications</h4>
+              <p>Browse pitches from verified local creators and pick the ones that match your brand.</p>
             </div>
           </div>
-          <div class="how__step">
-            <span class="how__step-num">3</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 240ms">
+            <span class="how__step-icon">🚀</span>
             <div>
-              <h4>Collaborate with brands</h4>
-              <p>Work directly with businesses and grow your portfolio.</p>
+              <h4>Launch &amp; track collaborations</h4>
+              <p>Kick off deals, track delivery, and manage everything from one dashboard.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="how__col">
-        <h3 class="how__role">For Businesses</h3>
+      <div class="how__col" data-animate="slide-left">
+        <h3 class="how__role how__role--creator">For Creators</h3>
         <div class="how__steps">
-          <div class="how__step">
-            <span class="how__step-num">1</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 100ms">
+            <span class="how__step-icon">💰</span>
             <div>
-              <h4>Post a collaboration</h4>
-              <p>Describe what you need and the type of creators you're looking for.</p>
+              <h4>Browse paid collaborations</h4>
+              <p>Discover local businesses looking for creators like you — paid gigs and barter deals.</p>
             </div>
           </div>
-          <div class="how__step">
-            <span class="how__step-num">2</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 220ms">
+            <span class="how__step-icon">⚡</span>
             <div>
-              <h4>Review creator applications</h4>
-              <p>Browse pitches and pick the creators that match your brand.</p>
+              <h4>Apply with one click</h4>
+              <p>Send your pitch and share your content portfolio — no lengthy forms.</p>
             </div>
           </div>
-          <div class="how__step">
-            <span class="how__step-num">3</span>
+          <div class="how__step" data-animate="fade-up" style="transition-delay: 340ms">
+            <span class="how__step-icon">🤝</span>
             <div>
-              <h4>Start collaborations</h4>
-              <p>Kick off deals and track progress all in one place.</p>
+              <h4>Earn &amp; grow your profile</h4>
+              <p>Work with local brands, get paid for your content, and build your creator portfolio.</p>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="how__cta" data-animate="fade-up" style="transition-delay: 400ms">
+      <p class="how__cta-trust">Already used by creators and businesses in Pune</p>
+      <p class="how__cta-text">Start collaborating today.</p>
+      <div class="how__cta-actions">
+        <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="how__cta-btn how__cta-btn--outline">Join as Creator</a>
+        <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="how__cta-btn how__cta-btn--accent">Post a Collaboration</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Creators -->
+<section class="why">
+  <div class="why__inner">
+    <p class="why__label">Why creators use Collabriq</p>
+    <h2 class="section-title">Built for creators who want to earn locally</h2>
+    <p class="why__subtitle">Why creators choose Collabriq instead of cold-DMing brands</p>
+    <div class="why__grid">
+      <div class="why__card" data-animate="fade-up">
+        <span class="why__icon">💰</span>
+        <h3 class="why__heading">Paid collaborations</h3>
+        <p class="why__desc">Local businesses looking for creators like you — real gigs, real pay.</p>
+      </div>
+      <div class="why__card" data-animate="fade-up" style="transition-delay: 100ms">
+        <span class="why__icon">📩</span>
+        <h3 class="why__heading">No cold DMs</h3>
+        <p class="why__desc">Businesses come to you. Browse, apply, and get selected.</p>
+      </div>
+      <div class="why__card" data-animate="fade-up" style="transition-delay: 200ms">
+        <span class="why__icon">🚀</span>
+        <h3 class="why__heading">Grow your portfolio</h3>
+        <p class="why__desc">Work with cafes, brands, and startups to build your creator profile.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Creator Earnings -->
+<section class="earnings">
+  <div class="earnings__inner">
+    <p class="earnings__label">What creators typically earn</p>
+    <h2 class="section-title">Typical Creator Collaborations in Pune</h2>
+    <div class="earnings__grid">
+      <div class="earnings__card" data-animate="fade-up">
+        <span class="earnings__icon">🎬</span>
+        <h3 class="earnings__type">Cafe Reel</h3>
+        <p class="earnings__amount">₹2,000</p>
+        <p class="earnings__detail">30-sec Instagram reel</p>
+      </div>
+      <div class="earnings__card" data-animate="fade-up" style="transition-delay: 100ms">
+        <span class="earnings__icon">📸</span>
+        <h3 class="earnings__type">Restaurant Photoshoot</h3>
+        <p class="earnings__amount">₹3,000</p>
+        <p class="earnings__detail">5 styled photos + story post</p>
+      </div>
+      <div class="earnings__card" data-animate="fade-up" style="transition-delay: 200ms">
+        <span class="earnings__icon">🍰</span>
+        <h3 class="earnings__type">Dessert Review</h3>
+        <p class="earnings__amount">Free meal + ₹1,000</p>
+        <p class="earnings__detail">Honest video review</p>
+      </div>
+    </div>
+    <p class="earnings__note" data-animate="fade-up" style="transition-delay: 300ms">These are real collaboration examples from Pune businesses.</p>
   </div>
 </section>
 
@@ -158,13 +284,17 @@
 @if (!featuredLoading() && featuredRequirements().length > 0) {
   <section class="examples">
     <div class="examples__inner">
+      <p class="examples__activity-hint">New collaborations — posted recently</p>
       <h2 class="section-title">Featured Collaborations in Pune</h2>
       <div class="examples__grid">
         @for (req of featuredRequirements(); track req.id) {
-          <div class="ex-card">
-            @if (featuredIsNew(req)) {
-              <span class="ex-card__badge">NEW</span>
-            }
+          <a class="ex-card" data-animate="fade-up" routerLink="/browse">
+            <div class="ex-card__badges">
+              @if (featuredIsNew(req)) {
+                <span class="ex-card__badge">NEW</span>
+              }
+              <span class="ex-card__spots" [class]="spotsUrgencyClass(req)">🔥 {{ featuredSpotsText(req) }}</span>
+            </div>
             <div class="ex-card__header">
               <span class="ex-card__avatar">{{ featuredBusinessInitial(req) }}</span>
               <div class="ex-card__header-text">
@@ -178,17 +308,13 @@
               }
             </div>
             <h3 class="ex-card__title">{{ req.title }}</h3>
-            @if (req.compensation_details) {
-              <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
-            }
-            <p class="ex-card__location">📍 {{ featuredCity(req) }} &bull; Posted {{ req.created_at | timeAgo }}</p>
+            <span [class]="compBadgeClass(req.compensation_details)">{{ compIcon(req.compensation_details) }} {{ formatComp(req.compensation_details) }}</span>
+            <p class="ex-card__meta">📍 {{ featuredCity(req) }} &bull; Posted {{ req.created_at | timeAgo }}</p>
             <div class="ex-card__footer">
-              <span class="ex-card__spots" [class]="spotsUrgencyClass(req)">🔥 {{ featuredSpotsText(req) }}</span>
-              @if (featuredApplicants(req) > 0) {
-                <span class="ex-card__applicants">👥 {{ featuredApplicants(req) }} creators applied</span>
-              }
+              <span class="ex-card__applicants">👥 {{ featuredApplicants(req) }} creators applied</span>
+              <span class="ex-card__cta">View Details →</span>
             </div>
-          </div>
+          </a>
         }
       </div>
       <div class="examples__cta">
@@ -203,10 +329,13 @@
       <h2 class="section-title">Example Opportunities</h2>
       <div class="examples__grid">
         @for (opp of opportunities; track opp.title) {
-          <div class="ex-card">
-            @if (opp.isNew) {
-              <span class="ex-card__badge">NEW</span>
-            }
+          <a class="ex-card" data-animate="fade-up" routerLink="/browse">
+            <div class="ex-card__badges">
+              @if (opp.isNew) {
+                <span class="ex-card__badge">NEW</span>
+              }
+              <span class="ex-card__spots">{{ opp.spots }}</span>
+            </div>
             <div class="ex-card__header">
               <span class="ex-card__avatar">{{ opp.initial }}</span>
               <div class="ex-card__header-text">
@@ -216,13 +345,13 @@
               <span [class]="opp.category | categoryClass">{{ opp.category }}</span>
             </div>
             <h3 class="ex-card__title">{{ opp.title }}</h3>
-            <span [class]="opp.compensation | compClass">{{ opp.compensation }}</span>
-            <p class="ex-card__location">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
+            <span [class]="compBadgeClass(opp.compensation)">{{ compIcon(opp.compensation) }} {{ formatComp(opp.compensation) }}</span>
+            <p class="ex-card__meta">📍 {{ opp.location }} &bull; Posted {{ opp.postedAgo }}</p>
             <div class="ex-card__footer">
-              <span class="ex-card__spots">{{ opp.spots }}</span>
               <span class="ex-card__applicants">👥 {{ opp.applicants }} creators applied</span>
+              <span class="ex-card__cta">View Details →</span>
             </div>
-          </div>
+          </a>
         }
       </div>
       <div class="examples__cta">
@@ -232,13 +361,101 @@
   </section>
 }
 
+<!-- Latest Creators -->
+<section class="joiners">
+  <div class="joiners__inner" data-animate="fade-up">
+    <p class="joiners__label">Social momentum</p>
+    <h2 class="section-title">Creators joining Collabriq today</h2>
+    <div class="joiners__list">
+      <div class="joiners__item">
+        <span class="joiners__avatar">N</span>
+        <div class="joiners__info">
+          <span class="joiners__name">Neha K.</span>
+          <span class="joiners__type">Cafe Blogger</span>
+        </div>
+        <span class="joiners__badge">Just joined</span>
+      </div>
+      <div class="joiners__item">
+        <span class="joiners__avatar">A</span>
+        <div class="joiners__info">
+          <span class="joiners__name">Aman T.</span>
+          <span class="joiners__type">Video Creator</span>
+        </div>
+        <span class="joiners__badge">Just joined</span>
+      </div>
+      <div class="joiners__item">
+        <span class="joiners__avatar">S</span>
+        <div class="joiners__info">
+          <span class="joiners__name">Sneha R.</span>
+          <span class="joiners__type">Lifestyle Blogger</span>
+        </div>
+        <span class="joiners__badge">3h ago</span>
+      </div>
+    </div>
+    <p class="joiners__note">Join 500+ creators already on Collabriq</p>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="testimonials__inner">
+    <p class="testimonials__label">Real creator stories</p>
+    <h2 class="section-title">Creators in Pune are already collaborating</h2>
+    <div class="testimonials__grid">
+      <div class="testimonials__card" data-animate="fade-up">
+        <p class="testimonials__quote">"Got my first paid cafe reel through Collabriq. The whole process took less than a day."</p>
+        <div class="testimonials__author">
+          <span class="testimonials__avatar">P</span>
+          <div class="testimonials__author-info">
+            <span class="testimonials__name">Priya S.</span>
+            <span class="testimonials__role">Food Creator, Pune</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonials__card" data-animate="fade-up" style="transition-delay: 100ms">
+        <p class="testimonials__quote">"Finally a place where brands reach out instead of cold DMs. Already done 3 collaborations."</p>
+        <div class="testimonials__author">
+          <span class="testimonials__avatar">R</span>
+          <div class="testimonials__author-info">
+            <span class="testimonials__name">Rohit M.</span>
+            <span class="testimonials__role">Lifestyle Creator, Pune</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonials__card" data-animate="fade-up" style="transition-delay: 200ms">
+        <p class="testimonials__quote">"I posted a requirement and got 5 creator applications within hours. Super easy to use."</p>
+        <div class="testimonials__author">
+          <span class="testimonials__avatar">A</span>
+          <div class="testimonials__author-info">
+            <span class="testimonials__name">Ankit D.</span>
+            <span class="testimonials__role">Owner, Brew Studio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Share / Viral -->
+<section class="share">
+  <div class="share__inner" data-animate="fade-up">
+    <span class="share__icon">🔗</span>
+    <h2 class="share__title">Know a creator who should apply?</h2>
+    <p class="share__desc">
+      Share the opportunity link with them.
+      They can view it even before signing up.
+    </p>
+    <a routerLink="/browse" class="share__btn">Browse Opportunities</a>
+  </div>
+</section>
+
 <!-- Final CTA -->
 <section class="cta">
   <div class="cta__inner">
-    <h2 class="cta__title">Start your first creator collaboration in minutes.</h2>
+    <h2 class="cta__title">Start getting paid brand collaborations</h2>
     <div class="cta__actions">
-      <a routerLink="/auth/signup" class="cta__btn cta__btn--accent">Sign Up</a>
-      <a routerLink="/auth/login" class="cta__btn cta__btn--outline">Login</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'creator' }" class="cta__btn cta__btn--accent">Join as Creator</a>
+      <a routerLink="/auth/signup" [queryParams]="{ role: 'business' }" class="cta__btn cta__btn--outline">Post a Collaboration</a>
     </div>
     <p class="cta__trust">Free to join &bull; No subscription required</p>
   </div>

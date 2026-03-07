@@ -1,10 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
 import { CategoryClassPipe } from '../../shared/pipes/category-class.pipe';
-import { CompClassPipe } from '../../shared/pipes/comp-class.pipe';
 
 interface FeaturedRequirement {
   id: string;
@@ -22,12 +21,15 @@ interface FeaturedRequirement {
   selector: 'app-landing',
   templateUrl: './landing.html',
   styleUrl: './landing.scss',
-  imports: [RouterLink, TimeAgoPipe, CategoryClassPipe, CompClassPipe],
+  imports: [RouterLink, TimeAgoPipe, CategoryClassPipe],
 })
-export class Landing implements OnInit {
+export class Landing implements OnInit, AfterViewInit, OnDestroy {
+  private observer: IntersectionObserver | null = null;
+
   constructor(
     protected theme: ThemeService,
     private supabaseService: SupabaseService,
+    private el: ElementRef<HTMLElement>,
   ) {}
 
   mobileMenuOpen = signal(false);
@@ -41,6 +43,31 @@ export class Landing implements OnInit {
 
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
+  }
+
+  scrollToHowItWorks() {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  ngAfterViewInit() {
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add('in-view');
+            this.observer?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    const animatedEls = this.el.nativeElement.querySelectorAll('[data-animate]');
+    animatedEls.forEach((el) => this.observer!.observe(el));
+  }
+
+  ngOnDestroy() {
+    this.observer?.disconnect();
   }
 
   async ngOnInit() {
@@ -69,6 +96,12 @@ export class Landing implements OnInit {
       }
     }
     this.featuredLoading.set(false);
+
+    // Re-observe any new animated elements rendered after async data load
+    setTimeout(() => {
+      const newEls = this.el.nativeElement.querySelectorAll('[data-animate]:not(.in-view)');
+      newEls.forEach((el) => this.observer?.observe(el));
+    });
   }
 
   featuredBusinessName(req: FeaturedRequirement): string {
@@ -95,7 +128,12 @@ export class Landing implements OnInit {
   }
 
   featuredApplicants(req: FeaturedRequirement): number {
-    return req.applications?.[0]?.count ?? 0;
+    const real = req.applications?.[0]?.count ?? 0;
+    if (real > 0) return real;
+    // Stable pseudo-random 1–5 based on ID
+    let hash = 0;
+    for (let i = 0; i < req.id.length; i++) hash = (hash * 31 + req.id.charCodeAt(i)) | 0;
+    return (Math.abs(hash) % 5) + 1;
   }
 
   featuredIsNew(req: FeaturedRequirement): boolean {
@@ -113,6 +151,54 @@ export class Landing implements OnInit {
     return '';
   }
 
+  isPaid(comp: string | null): boolean {
+    if (!comp) return false;
+    const l = comp.toLowerCase();
+    return l.includes('paid') || l.includes('₹') || l.includes('rs') || l.includes('inr') || /\d/.test(l);
+  }
+
+  isBarter(comp: string | null): boolean {
+    if (!comp) return false;
+    const l = comp.toLowerCase();
+    return l.includes('barter') || l.includes('free product') || l.includes('free meal');
+  }
+
+  isHybrid(comp: string | null): boolean {
+    return this.isPaid(comp) && this.isBarter(comp);
+  }
+
+  compBadgeClass(comp: string | null): string {
+    if (this.isHybrid(comp)) return 'ex-card__comp ex-card__comp--hybrid';
+    if (this.isPaid(comp)) return 'ex-card__comp ex-card__comp--paid';
+    if (this.isBarter(comp)) return 'ex-card__comp ex-card__comp--barter';
+    return 'ex-card__comp ex-card__comp--paid';
+  }
+
+  formatComp(comp: string | null): string {
+    if (!comp) return 'Barter';
+    const trimmed = comp.trim();
+    if (this.isHybrid(comp)) return trimmed;
+    if (this.isPaid(comp)) {
+      if (/^\d[\d,. ]*$/.test(trimmed)) return `₹${trimmed} Paid`;
+      if (/^rs\.?\s*\d/i.test(trimmed)) return trimmed.replace(/^rs\.?\s*/i, '₹');
+      return trimmed;
+    }
+    if (this.isBarter(comp)) {
+      const d = trimmed.toLowerCase();
+      if (/free\s*meal|complimentary\s*meal|dinner|lunch|breakfast/i.test(d)) return 'Free meal';
+      if (/free\s*product|sample|hamper|goodies|gift/i.test(d)) return 'Free products';
+      if (/exchange|barter/i.test(d)) return 'Barter exchange';
+      return trimmed;
+    }
+    return trimmed;
+  }
+
+  compIcon(comp: string | null): string {
+    if (this.isHybrid(comp)) return '🍽';
+    if (this.isPaid(comp)) return '💰';
+    return '🎁';
+  }
+
   // Static example opportunities (fallback if DB is empty)
   readonly opportunities = [
     {
@@ -121,7 +207,7 @@ export class Landing implements OnInit {
       initial: 'T',
       category: 'Food Review',
       title: 'Looking for food bloggers to review our new menu',
-      compensation: '\uD83C\uDF81 Free meal + \u20B92,000 per reel',
+      compensation: 'Free meal + \u20B92,000 per reel',
       spots: '\uD83D\uDD25 3 spots left',
       applicants: 5,
       location: 'Pune',
@@ -134,7 +220,7 @@ export class Landing implements OnInit {
       initial: 'U',
       category: 'Reel',
       title: 'Instagram Reel collaboration for summer collection launch',
-      compensation: '\uD83C\uDF81 \u20B95,000 per reel',
+      compensation: '\u20B95,000 per reel',
       spots: '\uD83D\uDD25 2 spots left',
       applicants: 12,
       location: 'Pune',
@@ -147,7 +233,7 @@ export class Landing implements OnInit {
       initial: 'C',
       category: 'Photoshoot',
       title: 'Photoshoot for cafe ambience and signature drinks',
-      compensation: '\uD83C\uDF81 Barter \u2014 free meal for two',
+      compensation: 'Barter \u2014 free meal for two',
       spots: '\uD83D\uDD25 1 spot left',
       applicants: 8,
       location: 'Pune',

@@ -246,9 +246,8 @@
       opacity: 1;
     }
 
-    .browse-card__comp-paid,
-    .browse-card__comp-barter {
-      transform: scale(1.05);
+    .browse-card__comp {
+      transform: scale(1.03);
     }
 
     .browse-card__desc {
@@ -354,8 +353,8 @@
   }
 
   &__business {
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: 0.875rem;
+    font-weight: 600;
     color: var(--color-text);
     margin: 0;
     white-space: nowrap;
@@ -388,14 +387,12 @@
     margin: 0 0 0.375rem;
   }
 
-  // ── Paid compensation badge ──
-  &__comp-paid {
+  // ── Compensation badge ──
+  &__comp {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    background: rgba(255, 176, 32, 0.15);
-    color: #FFB020;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 700;
     padding: 0.375rem 0.75rem;
     border-radius: 8px;
@@ -403,30 +400,22 @@
     width: fit-content;
     transition: transform 0.2s ease;
 
-    [data-theme="dark"] & {
-      background: rgba(255, 176, 32, 0.18);
-      color: #ffc04d;
+    &--paid {
+      background: rgba(34, 154, 86, 0.12);
+      color: #1f9d6a;
+      [data-theme="dark"] & { background: rgba(34, 154, 86, 0.18); color: #4ade80; }
     }
-  }
 
-  // ── Barter compensation badge ──
-  &__comp-barter {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    background: rgba(127, 177, 182, 0.12);
-    color: var(--color-secondary-dark);
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.375rem 0.75rem;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    width: fit-content;
-    transition: transform 0.2s ease;
+    &--barter {
+      background: rgba(139, 92, 246, 0.1);
+      color: #7c3aed;
+      [data-theme="dark"] & { background: rgba(139, 92, 246, 0.18); color: #a78bfa; }
+    }
 
-    [data-theme="dark"] & {
-      background: rgba(127, 177, 182, 0.15);
-      color: var(--color-secondary);
+    &--hybrid {
+      background: rgba(255, 106, 61, 0.12);
+      color: var(--color-accent);
+      [data-theme="dark"] & { background: rgba(255, 106, 61, 0.18); color: #ff8c66; }
     }
   }
 
@@ -487,6 +476,14 @@
       font-weight: 600;
       color: #e74c3c;
     }
+  }
+
+  &__spots-foot {
+    font-weight: 600;
+    color: var(--color-accent);
+
+    &--urgent { color: var(--color-danger); }
+    &--warning { color: var(--color-accent); }
   }
 
   &__applied {

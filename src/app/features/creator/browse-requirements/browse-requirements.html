@@ -177,11 +177,7 @@
 
           <h3 class="browse-card__title">{{ req.title }}</h3>
 
-          @if (isPaid(req)) {
-            <span class="browse-card__comp-paid">&#x1F4B0; {{ formatCompensation(req.compensation_details!) }}</span>
-          } @else {
-            <span class="browse-card__comp-barter">&#x1F381; {{ req.compensation_details ? formatBarter(req.compensation_details) : 'Barter' }}</span>
-          }
+          <span [class]="compBadgeClass(req.compensation_details)">{{ compIcon(req.compensation_details) }} {{ formatComp(req.compensation_details) }}</span>
 
           @if (req.location) {
             <span class="browse-card__location">&#x1F4CD; {{ req.location }}</span>
@@ -193,13 +189,13 @@
 
           <div class="browse-card__footer">
             <div class="browse-card__meta">
-              <span class="browse-card__posted">&#x1F552; Posted {{ req.created_at | timeAgo }}</span>
-              @if (applicationsCount(req) > 0) {
-                <span class="browse-card__applicants">&#x1F465; {{ applicationsCount(req) }} creators applied</span>
-              }
+              <span class="browse-card__spots-foot" [class.browse-card__spots-foot--urgent]="slotsAvailable(req) <= 1" [class.browse-card__spots-foot--warning]="slotsAvailable(req) <= 3 && slotsAvailable(req) > 1">&#x1F525; {{ spotsLeftText(req) }}</span>
               @if (req.closes_at) {
                 <span class="browse-card__time" [class.browse-card__time--urgent]="isClosingSoon(req)">&#x23F3; {{ req.closes_at | closesIn }}</span>
+              } @else {
+                <span class="browse-card__posted">&#x1F552; Posted {{ req.created_at | timeAgo }}</span>
               }
+              <span class="browse-card__applicants">&#x1F465; {{ applicationsCount(req) }} creators applied</span>
             </div>
             @if (getAppliedInfo(req.id)) {
               <span class="browse-card__applied">Applied &#10003;</span>
