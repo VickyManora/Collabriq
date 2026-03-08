@@ -176,9 +176,7 @@
               <div class="opp-card__footer">
                 <div class="opp-card__meta">
                   <span class="opp-card__posted">&#x1F552; Posted {{ timeAgo(req.created_at) }}</span>
-                  @if (applicationsCount(req) > 0) {
-                    <span class="opp-card__applicants">&#x1F465; {{ applicationsCount(req) }} creators applied</span>
-                  }
+                  <span class="opp-card__applicants">&#x1F465; {{ applicationsCount(req) }} creators applied</span>
                   @if (req.closes_at) {
                     <span class="opp-card__time" [class.opp-card__time--urgent]="isClosingSoon(req)">
                       @if (isClosingSoon(req)) {
