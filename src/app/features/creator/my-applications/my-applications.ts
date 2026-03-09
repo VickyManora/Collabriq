@@ -67,8 +67,15 @@ export class MyApplications implements OnInit, OnDestroy {
     if (sort === 'payment') {
       apps = [...apps].sort((a, b) => this.extractAmount(b.requirement.compensation_details) - this.extractAmount(a.requirement.compensation_details));
     } else if (sort === 'status') {
-      const order: Record<string, number> = { accepted: 0, applied: 1, rejected: 2, withdrawn: 3 };
-      apps = [...apps].sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+      apps = [...apps].sort((a, b) => this.sortPriority(a) - this.sortPriority(b));
+    } else {
+      // Default (newest): still push completed/cancelled deals to bottom
+      apps = [...apps].sort((a, b) => {
+        const pa = this.isDealFinished(a) ? 1 : 0;
+        const pb = this.isDealFinished(b) ? 1 : 0;
+        if (pa !== pb) return pa - pb;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
     }
     return apps;
   });
@@ -200,24 +207,75 @@ export class MyApplications implements OnInit, OnDestroy {
     return (Math.abs(hash) % 5) + 1;
   }
 
-  statusIcon(status: string): string {
+  /** Supabase returns deal as an array; extract first entry */
+  getDeal(app: ApplicationWithRequirement) {
+    return app.deal?.[0] ?? null;
+  }
+
+  dealStatus(app: ApplicationWithRequirement): string | null {
+    return this.getDeal(app)?.status ?? null;
+  }
+
+  isDealActive(app: ApplicationWithRequirement): boolean {
+    const ds = this.getDeal(app)?.status;
+    return ds === 'active' || ds === 'creator_marked_done';
+  }
+
+  isDealFinished(app: ApplicationWithRequirement): boolean {
+    const ds = this.getDeal(app)?.status;
+    return ds === 'completed' || ds === 'cancelled';
+  }
+
+  /** Card is muted when deal is in progress or finished */
+  isCardMuted(app: ApplicationWithRequirement): boolean {
+    return this.isDealActive(app) || this.isDealFinished(app);
+  }
+
+  statusIcon(app: ApplicationWithRequirement): string {
+    const ds = this.getDeal(app)?.status;
+    if (ds === 'completed') return '\u2705';
+    if (ds === 'cancelled') return '\u26AB';
+    if (ds === 'active' || ds === 'creator_marked_done') return '\u{1F4BC}';
     const icons: Record<string, string> = {
       applied: '\u{1F7E1}',
       accepted: '\u{1F7E2}',
       rejected: '\u{1F534}',
       withdrawn: '\u26AB',
     };
-    return icons[status] ?? '';
+    return icons[app.status] ?? '';
   }
 
-  statusDetail(status: string): string {
+  statusDetail(app: ApplicationWithRequirement): string {
+    const ds = this.getDeal(app)?.status;
+    if (ds === 'completed') return 'Deal Completed';
+    if (ds === 'cancelled') return 'Deal Cancelled';
+    if (ds === 'active' || ds === 'creator_marked_done') return 'Deal in Progress';
     const labels: Record<string, string> = {
       applied: 'Under Review',
       accepted: 'Accepted',
       rejected: 'Not Selected',
       withdrawn: 'Withdrawn',
     };
-    return labels[status] ?? status;
+    return labels[app.status] ?? app.status;
+  }
+
+  badgeClass(app: ApplicationWithRequirement): string {
+    const ds = this.getDeal(app)?.status;
+    if (ds === 'completed') return 'app-card__badge--completed';
+    if (ds === 'cancelled') return 'app-card__badge--withdrawn';
+    if (ds === 'active' || ds === 'creator_marked_done') return 'app-card__badge--deal-active';
+    return `app-card__badge--${app.status}`;
+  }
+
+  private sortPriority(app: ApplicationWithRequirement): number {
+    if (app.status === 'applied') return 0;
+    if (app.status === 'accepted' && !this.getDeal(app)) return 1;
+    if (this.isDealActive(app)) return 2;
+    if (this.getDeal(app)?.status === 'completed') return 3;
+    if (this.getDeal(app)?.status === 'cancelled') return 4;
+    if (app.status === 'rejected') return 5;
+    if (app.status === 'withdrawn') return 6;
+    return 9;
   }
 
   isClosingSoon(app: ApplicationWithRequirement): boolean {

@@ -53,7 +53,7 @@
   } @else {
     <div class="my-apps__grid">
       @for (app of paged(); track app.id) {
-        <div class="app-card" (click)="viewRequirement(app.requirement_id)">
+        <div class="app-card" [class.app-card--muted]="isCardMuted(app)" (click)="viewRequirement(app.requirement_id)">
           <!-- Header: business + status badge -->
           <div class="app-card__header">
             <div class="app-card__biz-link" (click)="viewBusiness($event, app)">
@@ -65,8 +65,8 @@
                 }
               </div>
             </div>
-            <span class="app-card__badge app-card__badge--{{ app.status }}">
-              {{ statusIcon(app.status) }} {{ statusDetail(app.status) }}
+            <span class="app-card__badge {{ badgeClass(app) }}">
+              {{ statusIcon(app) }} {{ statusDetail(app) }}
             </span>
           </div>
 
@@ -107,8 +107,32 @@
             <span class="app-card__date">Applied {{ app.created_at | date: 'mediumDate' }}</span>
           </div>
 
-          <!-- Accepted: success banner + earnings -->
-          @if (app.status === 'accepted') {
+          <!-- Deal in progress: info banner -->
+          @if (isDealActive(app)) {
+            <div class="app-card__deal-banner">
+              <span class="app-card__deal-banner-heading">&#x1F4BC; Deal in Progress</span>
+              <span class="app-card__deal-banner-text">This collaboration has moved to your deals.</span>
+            </div>
+          }
+
+          <!-- Deal completed: info banner -->
+          @if (getDeal(app)?.status === 'completed') {
+            <div class="app-card__completed-banner">
+              <span class="app-card__completed-banner-heading">&#x2705; Deal Completed</span>
+              <span class="app-card__completed-banner-text">This collaboration was completed successfully.</span>
+            </div>
+          }
+
+          <!-- Deal cancelled: info banner -->
+          @if (getDeal(app)?.status === 'cancelled') {
+            <div class="app-card__cancelled-banner">
+              <span class="app-card__cancelled-banner-heading">&#x26AB; Deal Cancelled</span>
+              <span class="app-card__cancelled-banner-text">This deal was cancelled.</span>
+            </div>
+          }
+
+          <!-- Accepted (no deal yet): success banner + earnings -->
+          @if (app.status === 'accepted' && !getDeal(app)) {
             <div class="app-card__success">
               <span class="app-card__success-heading">&#x1F389; You're selected!</span>
               <span class="app-card__success-text">This brand accepted your application.</span>
@@ -121,7 +145,37 @@
           }
 
           <!-- Status timeline -->
-          @if (app.status !== 'rejected' && app.status !== 'withdrawn') {
+          @if (isDealActive(app) || isDealFinished(app)) {
+            <!-- Deal timeline: all steps done up to deal -->
+            <div class="app-card__timeline">
+              <div class="app-card__step app-card__step--done">
+                <span class="app-card__dot"></span>
+                <span>Applied</span>
+              </div>
+              <div class="app-card__step-line app-card__step-line--done"></div>
+              <div class="app-card__step app-card__step--done">
+                <span class="app-card__dot"></span>
+                <span>Accepted</span>
+              </div>
+              <div class="app-card__step-line app-card__step-line--done"></div>
+              @if (getDeal(app)?.status === 'completed') {
+                <div class="app-card__step app-card__step--done">
+                  <span class="app-card__dot"></span>
+                  <span>Deal Completed</span>
+                </div>
+              } @else if (getDeal(app)?.status === 'cancelled') {
+                <div class="app-card__step app-card__step--cancelled">
+                  <span class="app-card__dot"></span>
+                  <span>Cancelled</span>
+                </div>
+              } @else {
+                <div class="app-card__step app-card__step--active">
+                  <span class="app-card__dot"></span>
+                  <span>Deal Active</span>
+                </div>
+              }
+            </div>
+          } @else if (app.status !== 'rejected' && app.status !== 'withdrawn') {
             <div class="app-card__timeline">
               <div class="app-card__step app-card__step--done">
                 <span class="app-card__dot"></span>
@@ -167,27 +221,56 @@
 
           <!-- Actions -->
           <div class="app-card__actions">
-            @if (app.status === 'accepted') {
+            @if (isDealActive(app)) {
+              <!-- Deal active: View Deal is primary -->
+              <a
+                class="app-card__deal-btn"
+                routerLink="/creator/deals"
+                (click)="$event.stopPropagation()"
+              >View Deal &rarr;</a>
+              <button
+                class="app-card__view-req-btn"
+                (click)="viewRequirement(app.requirement_id); $event.stopPropagation()"
+              >
+                View Requirement
+              </button>
+            } @else if (isDealFinished(app)) {
+              <!-- Deal finished: just view deal link -->
+              <a
+                class="app-card__view-req-btn"
+                routerLink="/creator/deals"
+                (click)="$event.stopPropagation()"
+              >View Deal History</a>
+            } @else if (app.status === 'accepted') {
+              <!-- Accepted, no deal yet -->
               <a
                 class="app-card__deal-btn"
                 routerLink="/creator/deals"
                 (click)="$event.stopPropagation()"
               >View Deal</a>
-            }
-            <button
-              [class]="app.status === 'accepted' ? 'app-card__view-req-btn' : 'app-card__view-req-btn app-card__view-req-btn--primary'"
-              (click)="viewRequirement(app.requirement_id); $event.stopPropagation()"
-            >
-              View Requirement
-            </button>
-            @if (app.status === 'applied') {
               <button
-                class="app-card__withdraw-btn"
-                (click)="withdraw(app.id); $event.stopPropagation()"
-                [disabled]="actionLoading()"
+                class="app-card__view-req-btn"
+                (click)="viewRequirement(app.requirement_id); $event.stopPropagation()"
               >
-                Withdraw
+                View Requirement
               </button>
+            } @else {
+              <!-- Applied / rejected / withdrawn -->
+              <button
+                class="app-card__view-req-btn app-card__view-req-btn--primary"
+                (click)="viewRequirement(app.requirement_id); $event.stopPropagation()"
+              >
+                View Requirement
+              </button>
+              @if (app.status === 'applied') {
+                <button
+                  class="app-card__withdraw-btn"
+                  (click)="withdraw(app.id); $event.stopPropagation()"
+                  [disabled]="actionLoading()"
+                >
+                  Withdraw
+                </button>
+              }
             }
           </div>
         </div>
