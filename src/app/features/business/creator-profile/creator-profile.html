@@ -1,0 +1,121 @@
+<div class="creator-profile">
+  @if (loading()) {
+    <div class="skeleton-back"><div class="skeleton skeleton--line" style="width:8rem"></div></div>
+    <div class="skeleton-card">
+      <div class="skeleton-row"><div class="skeleton skeleton--avatar-lg"></div><div class="skeleton skeleton--line-lg" style="width:50%"></div></div>
+      <div class="skeleton skeleton--line" style="width:30%"></div>
+      <div class="skeleton skeleton--line" style="width:40%"></div>
+      <div class="skeleton skeleton--block"></div>
+    </div>
+  } @else if (error() && !profile()) {
+    <p class="creator-profile__error">{{ error() }}</p>
+    <button class="creator-profile__back-btn" (click)="goBack()">&larr; Back</button>
+  } @else if (profile(); as creator) {
+    <button class="creator-profile__back-btn" (click)="goBack()">&larr; Back</button>
+
+    <div class="creator-profile__card">
+      <div class="creator-profile__identity">
+        <span class="creator-profile__avatar">{{ initial() }}</span>
+        <div class="creator-profile__identity-text">
+          <h1>{{ displayName() }}</h1>
+          @if (creator.city) {
+            <span class="creator-profile__city">{{ creator.city }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="creator-profile__details">
+        @if (handle()) {
+          <div class="creator-profile__detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+            <app-ig-link [handle]="handle()" />
+          </div>
+        }
+        @if (creator.portfolio_url) {
+          <div class="creator-profile__detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <a [href]="creator.portfolio_url" target="_blank" rel="noopener">Portfolio</a>
+          </div>
+        }
+        <div class="creator-profile__detail">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>Member since {{ memberSince() }}</span>
+        </div>
+      </div>
+
+      @if (creator.bio) {
+        <div class="creator-profile__bio">
+          <h3>About</h3>
+          <p>{{ creator.bio }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Stats -->
+    @if (reputation(); as rep) {
+      <div class="creator-profile__stats">
+        <div class="creator-profile__stat creator-profile__stat--collabs">
+          <span class="creator-profile__stat-value">{{ rep.completedDeals }}</span>
+          <span class="creator-profile__stat-label">Collaborations delivered</span>
+        </div>
+        <div class="creator-profile__stat creator-profile__stat--rating">
+          @if (rep.totalRatings > 0) {
+            <span class="creator-profile__stat-value">
+              <span class="creator-profile__rating-stars">
+                @for (filled of ratingStars(); track $index) {
+                  <span class="creator-profile__star" [class.creator-profile__star--filled]="filled === 1">&#9733;</span>
+                }
+              </span>
+              {{ rep.avgRating }}
+            </span>
+            <span class="creator-profile__stat-label">Average rating ({{ rep.totalRatings }} reviews)</span>
+          } @else {
+            <span class="creator-profile__stat-value">--</span>
+            <span class="creator-profile__stat-label">No ratings yet</span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Portfolio (auto-built from completed deals) -->
+    @if (portfolio().length > 0) {
+      <div class="creator-profile__portfolio">
+        <h2>Collaboration Portfolio</h2>
+        <p class="creator-profile__portfolio-sub">Auto-built from completed collaborations on Collabriq</p>
+        <div class="creator-profile__portfolio-grid">
+          @for (item of portfolio(); track item.id) {
+            <div class="portfolio-card">
+              <div class="portfolio-card__header">
+                <span class="portfolio-card__biz-initial">{{ businessName(item).charAt(0).toUpperCase() }}</span>
+                <div class="portfolio-card__biz-info">
+                  <span class="portfolio-card__biz-name">{{ businessName(item) }}</span>
+                  @if (businessHandle(item)) {
+                    <span class="portfolio-card__biz-handle"><app-ig-link [handle]="businessHandle(item)" /></span>
+                  }
+                </div>
+              </div>
+              <h3 class="portfolio-card__title">{{ item.requirement?.title ?? 'Collaboration' }}</h3>
+              <div class="portfolio-card__meta">
+                @if (item.requirement?.category) {
+                  <span class="portfolio-card__category">{{ item.requirement?.category }}</span>
+                }
+                @if (item.completed_at) {
+                  <span class="portfolio-card__date">{{ item.completed_at | date: 'MMM yyyy' }}</span>
+                }
+              </div>
+              @if (item.content_proof_url) {
+                <a class="portfolio-card__proof" [href]="item.content_proof_url" target="_blank" rel="noopener">
+                  &#x1F4F8; View content
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="creator-profile__empty-portfolio">
+        <p>No completed collaborations yet.</p>
+      </div>
+    }
+  }
+</div>

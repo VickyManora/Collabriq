@@ -124,6 +124,32 @@ export class RequirementService {
       .single<Application>();
   }
 
+  async getBusinessRatingStats(): Promise<{ avgRating: number; totalRatings: number; completedDeals: number }> {
+    const userId = this.auth.profile()?.id;
+    const [ratingsResult, dealsResult] = await Promise.all([
+      this.supabase
+        .from('ratings')
+        .select('stars')
+        .eq('ratee_id', userId!),
+      this.supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .eq('business_id', userId!)
+        .eq('status', 'completed'),
+    ]);
+
+    const ratings = ratingsResult.data ?? [];
+    const avgRating = ratings.length > 0
+      ? Math.round((ratings.reduce((sum: number, r: { stars: number }) => sum + r.stars, 0) / ratings.length) * 10) / 10
+      : 0;
+
+    return {
+      avgRating,
+      totalRatings: ratings.length,
+      completedDeals: dealsResult.count ?? 0,
+    };
+  }
+
   async getMyRequirementCounts() {
     const userId = this.auth.profile()?.id;
     const { data, error } = await this.supabase
@@ -192,6 +218,32 @@ export class RequirementService {
       })
       .select()
       .single<Rating>();
+  }
+
+  async getPendingApplicationCountsByRequirement(): Promise<Map<string, number>> {
+    const userId = this.auth.profile()?.id;
+    const { data: reqs } = await this.supabase
+      .from('requirements')
+      .select('id')
+      .eq('business_id', userId!)
+      .in('status', ['open', 'partially_filled']);
+
+    if (!reqs || reqs.length === 0) return new Map();
+
+    const reqIds = reqs.map((r: { id: string }) => r.id);
+    const { data, error } = await this.supabase
+      .from('applications')
+      .select('requirement_id')
+      .in('requirement_id', reqIds)
+      .eq('status', 'applied');
+
+    if (error || !data) return new Map();
+
+    const counts = new Map<string, number>();
+    for (const app of data) {
+      counts.set(app.requirement_id, (counts.get(app.requirement_id) || 0) + 1);
+    }
+    return counts;
   }
 
   async getPendingApplicationCount(): Promise<number> {

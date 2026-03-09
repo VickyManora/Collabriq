@@ -1,11 +1,64 @@
 <div class="req-list">
   <div class="req-list__header">
-    <h1>My Requirements</h1>
-    <button class="req-list__new-btn" (click)="createNew()">+ New Requirement</button>
+    <h1>My Collaborations</h1>
+    <button class="req-list__new-btn" (click)="createNew()">+ Post New Collaboration</button>
   </div>
 
   @if (isPending) {
     <app-pending-banner />
+  }
+
+  <!-- Action Alert Banner -->
+  @if (!loading() && totalPendingApprovals() > 0) {
+    <div class="req-list__alert">
+      <div class="req-list__alert-content">
+        <span class="req-list__alert-icon">&#x1F514;</span>
+        <div class="req-list__alert-text">
+          <strong>{{ totalPendingApprovals() }} creator{{ totalPendingApprovals() !== 1 ? 's' : '' }} waiting for your review</strong>
+          <span class="req-list__alert-sub">Respond quickly to keep creators engaged</span>
+        </div>
+      </div>
+      <button class="req-list__alert-btn" (click)="scrollToFirstActionCard()">Review Applications</button>
+    </div>
+  }
+
+  <!-- #7 Performance Summary -->
+  @if (stats(); as s) {
+    <div class="req-list__summary">
+      <h2 class="req-list__summary-heading">Your Collaboration Performance</h2>
+      <div class="req-list__summary-grid">
+        <div class="req-list__stat-card req-list__stat-card--posted">
+          <span class="req-list__stat-icon">&#x1F4E2;</span>
+          <div class="req-list__stat-content">
+            <span class="req-list__stat-value">{{ s.totalRequirements }}</span>
+            <span class="req-list__stat-label">Posted</span>
+          </div>
+        </div>
+        <div class="req-list__stat-card" [class]="s.pendingApprovals > 0 ? 'req-list__stat-card req-list__stat-card--pending' : 'req-list__stat-card req-list__stat-card--apps'">
+          <span class="req-list__stat-icon">{{ s.pendingApprovals > 0 ? '&#x1F514;' : '&#x1F465;' }}</span>
+          <div class="req-list__stat-content">
+            <span class="req-list__stat-value">{{ s.pendingApprovals > 0 ? s.pendingApprovals : s.totalApplications }}</span>
+            <span class="req-list__stat-label">{{ s.pendingApprovals > 0 ? 'Awaiting Review' : 'Applications' }}</span>
+          </div>
+        </div>
+        <div class="req-list__stat-card req-list__stat-card--deals">
+          <span class="req-list__stat-icon">&#x1F91D;</span>
+          <div class="req-list__stat-content">
+            <span class="req-list__stat-value">{{ s.completedDeals }}</span>
+            <span class="req-list__stat-label">Completed</span>
+          </div>
+        </div>
+        @if (s.avgRating > 0) {
+          <div class="req-list__stat-card req-list__stat-card--rating">
+            <span class="req-list__stat-icon">&#x2B50;</span>
+            <div class="req-list__stat-content">
+              <span class="req-list__stat-value">{{ s.avgRating }}</span>
+              <span class="req-list__stat-label">Rating ({{ s.totalRatings }})</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   }
 
   <div class="req-list__tabs">
@@ -16,6 +69,9 @@
         (click)="setFilter(tab.value)"
       >
         {{ tab.label }}
+        @if (tabCount()[tab.value]; as count) {
+          <span class="req-list__tab-count">{{ count }}</span>
+        }
       </button>
     }
   </div>
@@ -40,21 +96,34 @@
   } @else if (filtered().length === 0) {
     <div class="req-list__empty">
       @if (activeFilter() === 'all') {
-        <p>No requirements yet.</p>
-        <p class="req-list__empty-sub">Create your first collaboration to start finding creators.</p>
+        <p>No collaborations yet.</p>
+        <p class="req-list__empty-sub">Post your first collaboration to start finding creators.</p>
       } @else {
-        <p>No requirements match this filter.</p>
-        <p class="req-list__empty-sub">Try a different filter to see your requirements.</p>
+        <p>No collaborations match this filter.</p>
+        <p class="req-list__empty-sub">Try a different filter to see your collaborations.</p>
       }
     </div>
   } @else {
     <div class="req-list__grid">
       @for (req of filtered(); track req.id) {
-        <div class="req-card" (click)="viewDetail(req.id)">
+        <div
+          class="req-card"
+          [class.req-card--draft]="isDraft(req)"
+          [class.req-card--action]="needsAction(req)"
+          (click)="viewDetail(req.id)"
+        >
+          <!-- Action needed indicator -->
+          @if (needsAction(req)) {
+            <div class="req-card__action-banner">
+              <span class="req-card__action-dot"></span>
+              Action Needed
+            </div>
+          }
+
           <div class="req-card__top">
             <h3 class="req-card__title">{{ req.title }}</h3>
             <span class="req-card__badge req-card__badge--{{ req.status }}">
-              {{ statusLabel(req.status) }}
+              {{ isFilled(req) && isActive(req) ? 'Filled' : statusLabel(req.status) }}
             </span>
           </div>
 
@@ -62,24 +131,62 @@
             <span [class]="req.category | categoryClass">{{ req.category }}</span>
           }
 
-          <div class="req-card__stats">
-            <span class="req-card__slots">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
-              Slots: {{ req.filled_slots }}/{{ req.creator_slots }}
+          <!-- #3 Slots progress bar -->
+          <div class="req-card__slots">
+            <div class="req-card__slots-bar">
+              <div
+                class="req-card__slots-fill"
+                [class.req-card__slots-fill--full]="isFilled(req)"
+                [style.width.%]="slotsPercent(req)"
+              ></div>
+            </div>
+            <span class="req-card__slots-text" [class.req-card__slots-text--full]="isFilled(req)">
+              {{ req.filled_slots }} of {{ req.creator_slots }} filled
             </span>
-            @if (applicationsCount(req) > 0) {
-              <span class="req-card__applicants">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                {{ applicationsCount(req) }} creators applied
-              </span>
-            }
-            @if (req.closes_at && (req.status === 'open' || req.status === 'partially_filled')) {
-              <span class="req-card__time" [class.req-card__time--urgent]="isClosingSoon(req)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                {{ req.closes_at | closesIn }}
-              </span>
-            }
           </div>
+
+          <!-- Pending applications badge (action-oriented) -->
+          @if (needsAction(req)) {
+            <div class="req-card__apps-row">
+              <span class="req-card__apps-badge req-card__apps-badge--action">
+                &#x1F514; {{ pendingCount(req) }} Creator{{ pendingCount(req) !== 1 ? 's' : '' }} Waiting for Review
+              </span>
+            </div>
+          } @else if (isActive(req) || req.status === 'closed' || req.status === 'partially_filled') {
+            <div class="req-card__apps-row">
+              <span
+                class="req-card__apps-badge"
+                [class.req-card__apps-badge--hot]="applicationsCount(req) >= 3"
+                [class.req-card__apps-badge--new]="applicationsCount(req) > 0 && applicationsCount(req) < 3"
+              >
+                @if (applicationsCount(req) >= 3) {
+                  &#x1F525;
+                } @else {
+                  &#x1F465;
+                }
+                {{ applicationsCount(req) }} Application{{ applicationsCount(req) !== 1 ? 's' : '' }}
+              </span>
+            </div>
+          }
+
+          <!-- #6 Closing date -->
+          @if (req.closes_at && isActive(req)) {
+            <span class="req-card__time" [class.req-card__time--urgent]="isClosingSoon(req)">
+              @if (isClosingSoon(req)) {
+                &#x26A0;
+              } @else {
+                &#x23F3;
+              }
+              {{ req.closes_at | closesIn }}
+            </span>
+          }
+
+          <!-- #4 Draft next step -->
+          @if (isDraft(req)) {
+            <div class="req-card__draft-nudge">
+              <span class="req-card__draft-nudge-text">Finish setup to publish this collaboration</span>
+            </div>
+          }
 
           @if (req.status === 'cancelled' && req.rejection_reason) {
             <div class="req-card__rejection">
@@ -88,12 +195,34 @@
             </div>
           }
 
+          <!-- #1 Quick actions + footer -->
           <div class="req-card__footer">
             <span class="req-card__date">{{ req.created_at | date: 'mediumDate' }}</span>
-            <span class="req-card__view-btn" (click)="viewDetail(req.id); $event.stopPropagation()">
-              View Applications
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </span>
+            <div class="req-card__actions" (click)="$event.stopPropagation()">
+              @if (isDraft(req)) {
+                <button class="req-card__action-btn req-card__action-btn--primary" (click)="editRequirement($event, req.id)">
+                  Continue Editing
+                </button>
+              } @else if (needsAction(req)) {
+                <button class="req-card__action-btn req-card__action-btn--review" (click)="reviewApplications($event, req.id)">
+                  Review Applications
+                </button>
+                <button class="req-card__action-btn req-card__action-btn--danger" (click)="closeRequirement($event, req)" [disabled]="actionLoading()">
+                  Close
+                </button>
+              } @else if (isActive(req)) {
+                <button class="req-card__action-btn" (click)="viewDetail(req.id)">
+                  View
+                </button>
+                <button class="req-card__action-btn req-card__action-btn--danger" (click)="closeRequirement($event, req)" [disabled]="actionLoading()">
+                  Close
+                </button>
+              } @else {
+                <span class="req-card__view-link" (click)="viewDetail(req.id)">
+                  View Details &rarr;
+                </span>
+              }
+            </div>
           </div>
         </div>
       }
