@@ -5,10 +5,50 @@
     <app-pending-banner />
   }
 
+  <!-- #1 Stats with better meaning -->
+  @if (!loading() && deals().length > 0) {
+    <div class="my-deals__summary">
+      <h2 class="my-deals__summary-heading">Your Collabriq Earnings</h2>
+      <div class="my-deals__summary-grid">
+        <div class="my-deals__stat-card my-deals__stat-card--earnings">
+          <span class="my-deals__stat-icon">&#x1F4B0;</span>
+          <div class="my-deals__stat-content">
+            <span class="my-deals__stat-value">{{ totalEarnings() > 0 ? formatEarnings(totalEarnings()) : '&#x1F381; ' + barterCount() }}</span>
+            <span class="my-deals__stat-label">{{ totalEarnings() > 0 ? 'Earned' : 'Barter Collabs' }}</span>
+          </div>
+        </div>
+        <div class="my-deals__stat-card my-deals__stat-card--active">
+          <span class="my-deals__stat-icon">&#x1F91D;</span>
+          <div class="my-deals__stat-content">
+            <span class="my-deals__stat-value">{{ activeCount() }}</span>
+            <span class="my-deals__stat-label">Active {{ activeCount() === 1 ? 'Deal' : 'Deals' }}</span>
+          </div>
+        </div>
+        <div class="my-deals__stat-card my-deals__stat-card--completed">
+          <span class="my-deals__stat-icon">&#x2705;</span>
+          <div class="my-deals__stat-content">
+            <span class="my-deals__stat-value">{{ completedCount() }}</span>
+            <span class="my-deals__stat-label">Completed</span>
+          </div>
+        </div>
+        @if (avgRating() > 0) {
+          <div class="my-deals__stat-card my-deals__stat-card--rating">
+            <span class="my-deals__stat-icon">&#x2B50;</span>
+            <div class="my-deals__stat-content">
+              <span class="my-deals__stat-value">{{ avgRating() }}</span>
+              <span class="my-deals__stat-label">Rating</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- #7 Shorter search placeholder -->
   <input
     class="my-deals__search"
     type="text"
-    placeholder="Search by business name..."
+    placeholder="Search collaborations..."
     [ngModel]="searchQuery()"
     (ngModelChange)="onSearch($event)"
   />
@@ -70,11 +110,53 @@
 
           <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
 
+          <!-- #4 Deal value badge row -->
+          <div class="deal-card__value-row">
+            @if (isPaid(deal)) {
+              <span class="deal-card__comp deal-card__comp--paid">&#x1F4B0; {{ formatComp(deal) }}</span>
+            } @else {
+              <span class="deal-card__comp deal-card__comp--barter">&#x1F381; Barter</span>
+            }
+            @if (deal.requirement?.category) {
+              <span class="deal-card__value-sep">&middot;</span>
+              <span class="deal-card__meta-text">{{ deal.requirement?.category }}</span>
+            }
+            @if (deal.requirement?.location) {
+              <span class="deal-card__value-sep">&middot;</span>
+              <span class="deal-card__meta-text">&#x1F4CD; {{ deal.requirement?.location }}</span>
+            }
+          </div>
+
           <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
 
+          <!-- #5 Deal timeline (not for cancelled) -->
+          @if (deal.status !== 'cancelled') {
+            <div class="deal-card__timeline">
+              <div class="deal-card__tl-step deal-card__tl-step--done">
+                <span class="deal-card__tl-dot"></span>
+                <span>Started</span>
+              </div>
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 1"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 1" [class.deal-card__tl-step--active]="timelineStep(deal) === 0">
+                <span class="deal-card__tl-dot"></span>
+                <span>Content Submitted</span>
+              </div>
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 2"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 2" [class.deal-card__tl-step--active]="timelineStep(deal) === 1">
+                <span class="deal-card__tl-dot"></span>
+                <span>Brand Approval</span>
+              </div>
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 3"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 3">
+                <span class="deal-card__tl-dot"></span>
+                <span>Completed</span>
+              </div>
+            </div>
+          }
+
+          <!-- #3 Active deal: Submit Content CTA -->
           @if (canMarkDone(deal)) {
             @if (ratingDealId() === deal.id) {
-              <!-- Rating popup before marking done -->
               <div class="deal-card__rating-form" (click)="$event.stopPropagation()">
                 <p class="deal-card__rating-label">Rate this business to complete the deal:</p>
                 <div class="deal-card__stars">
@@ -94,29 +176,99 @@
                     (click)="submitRatingAndComplete(deal)"
                     [disabled]="ratingStars < 1 || actionLoading()"
                   >
-                    Submit Rating & Mark Done
+                    Submit Rating &amp; Complete
                   </button>
-                  <button class="deal-card__rate-cancel" (click)="cancelRating()">
-                    Cancel
-                  </button>
+                  <button class="deal-card__rate-cancel" (click)="cancelRating()">Cancel</button>
                 </div>
               </div>
             } @else {
-              <button
-                class="deal-card__done-btn"
-                (click)="startMarkDone(deal.id); $event.stopPropagation()"
-                [disabled]="actionLoading() || isPending"
-              >
-                Mark as Done
-              </button>
+              <div class="deal-card__actions">
+                <button
+                  class="deal-card__done-btn"
+                  (click)="startMarkDone(deal.id); $event.stopPropagation()"
+                  [disabled]="actionLoading() || isPending"
+                >
+                  Submit Content
+                </button>
+                <button
+                  class="deal-card__req-btn"
+                  (click)="viewRequirement(deal); $event.stopPropagation()"
+                >
+                  View Requirement
+                </button>
+              </div>
             }
           }
 
+          <!-- Waiting for brand approval -->
           @if (deal.status === 'creator_marked_done') {
-            <p class="deal-card__waiting">Waiting for business to mark done...</p>
+            <div class="deal-card__waiting-banner">
+              <span class="deal-card__waiting-icon">&#x23F3;</span>
+              <div class="deal-card__waiting-content">
+                <span class="deal-card__waiting-title">Waiting for brand approval</span>
+                <span class="deal-card__waiting-sub">You've submitted your content. The brand will review and confirm.</span>
+              </div>
+            </div>
+            <div class="deal-card__actions">
+              <button
+                class="deal-card__req-btn"
+                (click)="viewRequirement(deal); $event.stopPropagation()"
+              >
+                View Requirement
+              </button>
+            </div>
           }
 
-          @if (hasRated(deal.id)) {
+          <!-- Cancelled: show reason -->
+          @if (deal.status === 'cancelled') {
+            <div class="deal-card__cancelled-info">
+              <span class="deal-card__cancelled-icon">&#x26D4;</span>
+              <span class="deal-card__cancelled-text">{{ cancellationLabel(deal) }}</span>
+            </div>
+            <div class="deal-card__actions">
+              <button
+                class="deal-card__req-btn"
+                (click)="viewRequirement(deal); $event.stopPropagation()"
+              >
+                View Requirement
+              </button>
+            </div>
+          }
+
+          <!-- #2 Completed: achievement badge -->
+          @if (deal.status === 'completed') {
+            <div class="deal-card__achievement">
+              <div class="deal-card__achievement-header">&#x1F389; Collaboration Completed</div>
+              <div class="deal-card__achievement-details">
+                @if (hasRated(deal.id)) {
+                  <span class="deal-card__achievement-item">&#x2B50; Rating: {{ getRating(deal.id) }}.0</span>
+                }
+                <!-- #6 Content posted section -->
+                @if (businessHandle(deal)) {
+                  <span class="deal-card__achievement-item deal-card__achievement-item--proof">
+                    &#x1F4F8; Content posted
+                    <span class="deal-card__achievement-ig">Instagram: <app-ig-link [handle]="businessHandle(deal)" /></span>
+                  </span>
+                }
+                @if (isPaid(deal)) {
+                  <span class="deal-card__achievement-item">&#x1F4B0; Earned: {{ formatComp(deal) }}</span>
+                } @else {
+                  <span class="deal-card__achievement-item">&#x1F381; {{ formatBarter(deal) }}</span>
+                }
+                @if (deal.completed_at) {
+                  <span class="deal-card__achievement-item">&#x1F4C5; Completed {{ deal.completed_at | date: 'mediumDate' }}</span>
+                }
+              </div>
+            </div>
+            <div class="deal-card__actions">
+              <button
+                class="deal-card__req-btn"
+                (click)="viewRequirement(deal); $event.stopPropagation()"
+              >
+                View Requirement
+              </button>
+            </div>
+          } @else if (hasRated(deal.id) && deal.status !== 'cancelled') {
             <div class="deal-card__rated">
               <span class="deal-card__rated-label">Your Rating</span>
               <div class="deal-card__rated-stars">

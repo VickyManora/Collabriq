@@ -27,7 +27,7 @@ export type ApplicationWithRequirement = Application & {
 };
 
 export type DealWithDetails = Deal & {
-  requirement: { title: string } | null;
+  requirement: { title: string; compensation_details: string | null; category: string | null; location: string | null } | null;
   business: { business_name: string | null; full_name: string; email: string; phone: string | null; instagram_handle: string | null } | null;
 };
 
@@ -127,7 +127,7 @@ export class CreatorService {
     const userId = this.auth.profile()?.id;
     return this.supabase
       .from('deals')
-      .select('*, requirement:requirements!requirement_id(title), business:profiles!business_id(business_name, full_name, email, phone, instagram_handle)')
+      .select('*, requirement:requirements!requirement_id(title, compensation_details, category, location), business:profiles!business_id(business_name, full_name, email, phone, instagram_handle)')
       .eq('creator_id', userId!)
       .order('created_at', { ascending: false })
       .returns<DealWithDetails[]>();

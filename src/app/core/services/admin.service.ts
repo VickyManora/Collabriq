@@ -116,7 +116,7 @@ export class AdminService {
   async cancelDeal(id: string) {
     return this.supabase
       .from('deals')
-      .update({ status: 'cancelled' })
+      .update({ status: 'cancelled', cancelled_by: 'admin' })
       .eq('id', id)
       .select()
       .single<Deal>();

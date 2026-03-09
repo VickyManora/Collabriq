@@ -10,6 +10,7 @@ export interface Deal {
   creator_marked_done: boolean;
   business_marked_done: boolean;
   completed_at: string | null;
+  cancelled_by: 'business' | 'creator' | 'admin' | null;
   created_at: string;
   updated_at: string;
 }

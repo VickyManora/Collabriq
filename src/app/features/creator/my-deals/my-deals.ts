@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { CreatorService, DealWithDetails } from '../../../core/services/creator.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -18,7 +18,7 @@ type FilterTab = 'all' | DealStatus;
   selector: 'app-my-deals',
   templateUrl: './my-deals.html',
   styleUrl: './my-deals.scss',
-  imports: [DatePipe, FormsModule, Pagination, PendingBanner, InstagramLink],
+  imports: [DatePipe, FormsModule, RouterLink, Pagination, PendingBanner, InstagramLink],
 })
 export class MyDeals implements OnInit, OnDestroy {
   deals = signal<DealWithDetails[]>([]);
@@ -47,6 +47,36 @@ export class MyDeals implements OnInit, OnDestroy {
 
   readonly starOptions = [1, 2, 3, 4, 5];
 
+  // ─── Earnings summary computed signals ───
+
+  totalEarnings = computed(() => {
+    return this.deals()
+      .filter((d) => d.status === 'completed' && this.isPaid(d))
+      .reduce((sum, d) => sum + this.extractAmount(d.requirement?.compensation_details), 0);
+  });
+
+  completedCount = computed(() => {
+    return this.deals().filter((d) => d.status === 'completed').length;
+  });
+
+  activeCount = computed(() => {
+    return this.deals().filter((d) => d.status === 'active' || d.status === 'creator_marked_done').length;
+  });
+
+  avgRating = computed(() => {
+    const ratingsMap = this.ratings();
+    if (ratingsMap.size === 0) return 0;
+    let total = 0;
+    ratingsMap.forEach((r) => (total += r.stars));
+    return Math.round((total / ratingsMap.size) * 10) / 10;
+  });
+
+  barterCount = computed(() => {
+    return this.deals()
+      .filter((d) => d.status === 'completed' && !this.isPaid(d))
+      .length;
+  });
+
   filtered = computed(() => {
     const filter = this.activeFilter();
     const query = this.searchQuery().toLowerCase().trim();
@@ -62,7 +92,8 @@ export class MyDeals implements OnInit, OnDestroy {
       d = d.filter(
         (deal) =>
           (deal.business?.business_name?.toLowerCase().includes(query) ?? false) ||
-          (deal.business?.full_name?.toLowerCase().includes(query) ?? false),
+          (deal.business?.full_name?.toLowerCase().includes(query) ?? false) ||
+          (deal.requirement?.title?.toLowerCase().includes(query) ?? false),
       );
     }
     return d;
@@ -233,6 +264,56 @@ export class MyDeals implements OnInit, OnDestroy {
     this.toast.success('Rating submitted & deal marked as done!');
     await this.loadDeals();
     this.actionLoading.set(false);
+  }
+
+  isPaid(deal: DealWithDetails): boolean {
+    const d = deal.requirement?.compensation_details ?? '';
+    return /₹|\$|rs\.?\s?\d|inr|paid|payment|\d+[,.]?\d*\s*(per|\/)|^\d[\d,. ]*$/i.test(d.trim());
+  }
+
+  formatComp(deal: DealWithDetails): string {
+    const d = deal.requirement?.compensation_details?.trim() ?? '';
+    if (!d) return 'Barter';
+    if (/^\d[\d,. ]*$/.test(d)) return `₹${d}`;
+    if (/^rs\.?\s*\d/i.test(d)) return d.replace(/^rs\.?\s*/i, '₹');
+    return d;
+  }
+
+  formatBarter(deal: DealWithDetails): string {
+    const d = deal.requirement?.compensation_details?.toLowerCase().trim() ?? '';
+    if (/free\s*meal|complimentary\s*meal|dinner|lunch|breakfast/i.test(d)) return 'Free Meal Collaboration';
+    if (/free\s*product|sample|hamper|goodies|gift/i.test(d)) return 'Free Product Collaboration';
+    if (/exchange|barter/i.test(d)) return 'Barter Exchange';
+    return deal.requirement?.compensation_details?.trim() || 'Barter Collaboration';
+  }
+
+  private extractAmount(comp: string | null | undefined): number {
+    if (!comp) return 0;
+    const match = comp.replace(/,/g, '').match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  }
+
+  formatEarnings(amount: number): string {
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 1)}K`;
+    return `₹${amount}`;
+  }
+
+  /** Timeline step: 0=started, 1=content submitted, 2=brand approval, 3=completed */
+  timelineStep(deal: DealWithDetails): number {
+    if (deal.status === 'completed') return 3;
+    if (deal.status === 'creator_marked_done') return 1;
+    if (deal.status === 'active' && deal.creator_marked_done) return 1;
+    if (deal.status === 'active') return 0;
+    return 0;
+  }
+
+  cancellationLabel(deal: DealWithDetails): string {
+    const by = deal.cancelled_by;
+    if (by === 'business') return 'Cancelled by business';
+    if (by === 'creator') return 'Cancelled by you';
+    if (by === 'admin') return 'Cancelled by admin';
+    return 'Deal was cancelled';
   }
 
   statusLabel(status: DealStatus): string {
