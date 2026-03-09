@@ -6,6 +6,7 @@ import { Subscription, filter } from 'rxjs';
 import { RequirementService, BusinessDealWithDetails } from '../../../core/services/requirement.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { PendingBanner } from '../../../shared/pending-banner/pending-banner';
 import { DealStatus } from '../../../core/models/deal.model';
 import { Rating } from '../../../core/models/rating.model';
 import { Pagination } from '../../../shared/pagination/pagination';
@@ -17,7 +18,7 @@ type FilterTab = 'all' | 'active' | 'completed' | 'cancelled';
   selector: 'app-business-deals',
   templateUrl: './business-deals.html',
   styleUrl: './business-deals.scss',
-  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination, InstagramLink],
+  imports: [DatePipe, DecimalPipe, TitleCasePipe, FormsModule, Pagination, InstagramLink, PendingBanner],
 })
 export class BusinessDeals implements OnInit, OnDestroy {
   deals = signal<BusinessDealWithDetails[]>([]);
@@ -33,6 +34,8 @@ export class BusinessDeals implements OnInit, OnDestroy {
   currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal(false);
+
+  // Rating form (on completed deals)
   ratingDealId = signal<string | null>(null);
   ratingStars = 0;
 
@@ -60,7 +63,7 @@ export class BusinessDeals implements OnInit, OnDestroy {
     }
     if (query) {
       d = d.filter(
-        (deal) => deal.creator.full_name.toLowerCase().includes(query),
+        (deal) => deal.creator?.full_name?.toLowerCase().includes(query),
       );
     }
     return d;
@@ -122,7 +125,7 @@ export class BusinessDeals implements OnInit, OnDestroy {
   }
 
   private async loadRatings(deals: BusinessDealWithDetails[]) {
-    const ratedDeals = deals.filter((d) => d.status !== 'active' && d.status !== 'cancelled');
+    const ratedDeals = deals.filter((d) => d.status === 'completed' || d.status === 'creator_marked_done');
     const ratingsMap = new Map<string, Rating>();
 
     for (const deal of ratedDeals) {
@@ -157,8 +160,14 @@ export class BusinessDeals implements OnInit, OnDestroy {
     this.currentPage.set(1);
   }
 
-  canMarkDone(deal: BusinessDealWithDetails): boolean {
-    return (deal.status === 'active' || deal.status === 'creator_marked_done') && !deal.business_marked_done;
+  /** Business can approve deal when creator has submitted content */
+  canApproveDeal(deal: BusinessDealWithDetails): boolean {
+    return deal.status === 'creator_marked_done' && !deal.business_marked_done;
+  }
+
+  /** Deal is active but creator hasn't submitted content yet */
+  isWaitingForCreator(deal: BusinessDealWithDetails): boolean {
+    return deal.status === 'active' && !deal.creator_marked_done;
   }
 
   hasRated(dealId: string): boolean {
@@ -173,12 +182,35 @@ export class BusinessDeals implements OnInit, OnDestroy {
     return this.avgRatings().get(creatorId);
   }
 
-  // Click "Mark Deal Completed" → open rating popup
-  startMarkDone(dealId: string) {
+  creatorInitial(deal: BusinessDealWithDetails): string {
+    return (deal.creator?.full_name ?? 'U').charAt(0).toUpperCase();
+  }
+
+  viewCreator(creatorId: string) {
+    this.router.navigate(['/business/creator', creatorId]);
+  }
+
+  // ─── Approve deal (mark business_marked_done) ───
+
+  async approveDeal(deal: BusinessDealWithDetails) {
     if (this.isPending) {
-      this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
+      this.toast.error('Your account is pending approval.');
       return;
     }
+    this.actionLoading.set(true);
+    const { error } = await this.reqService.markDealDone(deal.id);
+    if (error) {
+      this.toast.error('Failed to approve deal.');
+    } else {
+      this.toast.success('Deal completed! Content approved.');
+      await this.loadDeals();
+    }
+    this.actionLoading.set(false);
+  }
+
+  // ─── Rating flow (on completed deals only) ───
+
+  startRating(dealId: string) {
     this.ratingDealId.set(dealId);
     this.ratingStars = 0;
   }
@@ -188,49 +220,52 @@ export class BusinessDeals implements OnInit, OnDestroy {
     this.ratingStars = 0;
   }
 
-  // Submit rating + mark done together
-  async submitRatingAndComplete(deal: BusinessDealWithDetails) {
+  async submitRating(deal: BusinessDealWithDetails) {
     if (this.ratingStars < 1 || this.ratingStars > 5) return;
     this.actionLoading.set(true);
 
-    // 1. Submit rating first
-    const { data: ratingData, error: ratingError } = await this.reqService.rateCreator(
+    const { data: ratingData, error } = await this.reqService.rateCreator(
       deal.id,
       deal.creator_id,
       this.ratingStars,
     );
-    if (ratingError) {
+    if (error) {
       this.toast.error('Failed to submit rating.');
-      this.actionLoading.set(false);
-      return;
+    } else {
+      if (ratingData) {
+        const updated = new Map(this.ratings());
+        updated.set(deal.id, ratingData);
+        this.ratings.set(updated);
+      }
+      this.ratingDealId.set(null);
+      this.ratingStars = 0;
+      this.toast.success('Rating submitted! Thank you.');
+      await this.loadAverageRatings(this.deals());
     }
-
-    // 2. Then mark deal as done
-    const { error: doneError } = await this.reqService.markDealDone(deal.id);
-    if (doneError) {
-      this.toast.error('Failed to mark deal as done.');
-      this.actionLoading.set(false);
-      return;
-    }
-
-    // 3. Update local state
-    if (ratingData) {
-      const updated = new Map(this.ratings());
-      updated.set(deal.id, ratingData);
-      this.ratings.set(updated);
-    }
-    this.ratingDealId.set(null);
-    this.ratingStars = 0;
-    this.toast.success('Rating submitted & deal marked as done!');
-    await this.loadDeals();
-    await this.loadAverageRatings(this.deals());
     this.actionLoading.set(false);
+  }
+
+  // ─── Timeline ───
+
+  timelineStep(deal: BusinessDealWithDetails): number {
+    if (deal.status === 'completed') return 3;
+    if (deal.status === 'creator_marked_done') return 1;
+    if (deal.status === 'active') return 0;
+    return 0;
+  }
+
+  cancellationLabel(deal: BusinessDealWithDetails): string {
+    const by = deal.cancelled_by;
+    if (by === 'business') return 'Cancelled by you';
+    if (by === 'creator') return 'Cancelled by creator';
+    if (by === 'admin') return 'Cancelled by admin';
+    return 'Deal was cancelled';
   }
 
   statusLabel(status: DealStatus): string {
     const labels: Record<DealStatus, string> = {
       active: 'Active',
-      creator_marked_done: 'Creator Done',
+      creator_marked_done: 'Content Submitted',
       completed: 'Completed',
       cancelled: 'Cancelled',
     };

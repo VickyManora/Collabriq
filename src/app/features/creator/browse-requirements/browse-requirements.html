@@ -168,6 +168,19 @@
                 @if (businessHandle(req)) {
                   <p class="browse-card__handle"><app-ig-link [handle]="businessHandle(req)" /></p>
                 }
+                @if (getReputation(req.business_id); as rep) {
+                  <p class="browse-card__reputation">
+                    @if (rep.avgRating > 0) {
+                      <span class="browse-card__rep-rating">&#9733; {{ rep.avgRating }}</span>
+                    }
+                    @if (rep.completedDeals > 0) {
+                      @if (rep.avgRating > 0) {
+                        <span class="browse-card__rep-sep">&middot;</span>
+                      }
+                      <span class="browse-card__rep-deals">{{ rep.completedDeals }} collab{{ rep.completedDeals !== 1 ? 's' : '' }}</span>
+                    }
+                  </p>
+                }
               </div>
             </div>
             @if (req.category) {

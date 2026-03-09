@@ -11,8 +11,8 @@ export type RequirementWithApps = Requirement & {
 };
 
 export type BusinessDealWithDetails = Deal & {
-  requirement: { title: string };
-  creator: { full_name: string; email: string; phone: string | null; instagram_handle: string | null; portfolio_url: string | null };
+  requirement: { title: string } | null;
+  creator: { full_name: string; email: string; phone: string | null; instagram_handle: string | null; portfolio_url: string | null } | null;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -300,6 +300,58 @@ export class RequirementService {
 
     activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     return activities.slice(0, limit);
+  }
+
+  async getCreatorProfile(creatorId: string) {
+    return this.supabase
+      .from('profiles')
+      .select('id, full_name, bio, city, instagram_handle, portfolio_url, created_at')
+      .eq('id', creatorId)
+      .eq('role', 'creator')
+      .eq('is_deleted', false)
+      .single<{
+        id: string; full_name: string; bio: string | null; city: string;
+        instagram_handle: string | null; portfolio_url: string | null; created_at: string;
+      }>();
+  }
+
+  async getCreatorPortfolio(creatorId: string) {
+    return this.supabase
+      .from('deals')
+      .select('id, status, completed_at, content_proof_url, requirement:requirements!requirement_id(title, category, compensation_details), business:profiles!business_id(business_name, full_name, instagram_handle)')
+      .eq('creator_id', creatorId)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .returns<{
+        id: string; status: string; completed_at: string | null; content_proof_url: string | null;
+        requirement: { title: string; category: string | null; compensation_details: string | null } | null;
+        business: { business_name: string | null; full_name: string; instagram_handle: string | null } | null;
+      }[]>();
+  }
+
+  async getCreatorReputation(creatorId: string): Promise<{ avgRating: number; totalRatings: number; completedDeals: number }> {
+    const [ratingsResult, dealsResult] = await Promise.all([
+      this.supabase
+        .from('ratings')
+        .select('stars')
+        .eq('ratee_id', creatorId),
+      this.supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', creatorId)
+        .eq('status', 'completed'),
+    ]);
+
+    const ratings = ratingsResult.data ?? [];
+    const avgRating = ratings.length > 0
+      ? Math.round((ratings.reduce((sum: number, r: { stars: number }) => sum + r.stars, 0) / ratings.length) * 10) / 10
+      : 0;
+
+    return {
+      avgRating,
+      totalRatings: ratings.length,
+      completedDeals: dealsResult.count ?? 0,
+    };
   }
 
   async getCreatorAverageRating(creatorId: string): Promise<{ avg: number; count: number }> {

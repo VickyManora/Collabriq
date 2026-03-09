@@ -368,6 +368,28 @@
     margin: 0;
   }
 
+  &__reputation {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    font-size: 0.6875rem;
+  }
+
+  &__rep-rating {
+    color: #f59e0b;
+    font-weight: 600;
+  }
+
+  &__rep-sep {
+    color: var(--color-text-faint);
+  }
+
+  &__rep-deals {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
   &__category {
     font-size: 0.6875rem;
     font-weight: 500;

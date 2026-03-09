@@ -5,7 +5,6 @@
     <app-pending-banner />
   }
 
-  <!-- #1 Stats with better meaning -->
   @if (!loading() && deals().length > 0) {
     <div class="my-deals__summary">
       <h2 class="my-deals__summary-heading">Your Collabriq Earnings</h2>
@@ -44,7 +43,6 @@
     </div>
   }
 
-  <!-- #7 Shorter search placeholder -->
   <input
     class="my-deals__search"
     type="text"
@@ -110,7 +108,7 @@
 
           <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
 
-          <!-- #4 Deal value badge row -->
+          <!-- Deal value row -->
           <div class="deal-card__value-row">
             @if (isPaid(deal)) {
               <span class="deal-card__comp deal-card__comp--paid">&#x1F4B0; {{ formatComp(deal) }}</span>
@@ -129,7 +127,7 @@
 
           <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
 
-          <!-- #5 Deal timeline (not for cancelled) -->
+          <!-- Timeline (not for cancelled) -->
           @if (deal.status !== 'cancelled') {
             <div class="deal-card__timeline">
               <div class="deal-card__tl-step deal-card__tl-step--done">
@@ -154,38 +152,50 @@
             </div>
           }
 
-          <!-- #3 Active deal: Submit Content CTA -->
-          @if (canMarkDone(deal)) {
-            @if (ratingDealId() === deal.id) {
-              <div class="deal-card__rating-form" (click)="$event.stopPropagation()">
-                <p class="deal-card__rating-label">Rate this business to complete the deal:</p>
-                <div class="deal-card__stars">
-                  @for (star of starOptions; track star) {
-                    <button
-                      class="deal-card__star"
-                      [class.deal-card__star--active]="ratingStars >= star"
-                      (click)="ratingStars = star"
-                    >
-                      &#9733;
-                    </button>
-                  }
-                </div>
-                <div class="deal-card__rating-actions">
+          <!-- ═══ NUDGE: Remind to submit content ═══ -->
+          @if (shouldNudge(deal)) {
+            <div class="deal-card__nudge" (click)="$event.stopPropagation()">
+              <span class="deal-card__nudge-icon">&#x1F4AC;</span>
+              <div class="deal-card__nudge-content">
+                <span class="deal-card__nudge-text">{{ nudgeMessage(deal) }}</span>
+                <button
+                  class="deal-card__nudge-btn"
+                  (click)="openSubmitForm(deal.id)"
+                >
+                  Submit Now
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ═══ ACTIVE: Submit Content ═══ -->
+          @if (canSubmitContent(deal)) {
+            @if (submitDealId() === deal.id) {
+              <!-- Expanded submit form with proof URL -->
+              <div class="deal-card__submit-form" (click)="$event.stopPropagation()">
+                <p class="deal-card__submit-label">Add your Instagram post link (optional):</p>
+                <input
+                  class="deal-card__submit-input"
+                  type="url"
+                  placeholder="https://instagram.com/p/..."
+                  [(ngModel)]="proofUrl"
+                />
+                <div class="deal-card__submit-actions">
                   <button
-                    class="deal-card__rate-submit"
-                    (click)="submitRatingAndComplete(deal)"
-                    [disabled]="ratingStars < 1 || actionLoading()"
+                    class="deal-card__submit-btn"
+                    (click)="submitContent(deal)"
+                    [disabled]="actionLoading()"
                   >
-                    Submit Rating &amp; Complete
+                    Submit Content
                   </button>
-                  <button class="deal-card__rate-cancel" (click)="cancelRating()">Cancel</button>
+                  <button class="deal-card__submit-cancel" (click)="cancelSubmit()">Cancel</button>
                 </div>
               </div>
             } @else {
               <div class="deal-card__actions">
                 <button
                   class="deal-card__done-btn"
-                  (click)="startMarkDone(deal.id); $event.stopPropagation()"
+                  (click)="openSubmitForm(deal.id); $event.stopPropagation()"
                   [disabled]="actionLoading() || isPending"
                 >
                   Submit Content
@@ -200,15 +210,21 @@
             }
           }
 
-          <!-- Waiting for brand approval -->
+          <!-- ═══ WAITING: Content submitted, waiting for brand ═══ -->
           @if (deal.status === 'creator_marked_done') {
             <div class="deal-card__waiting-banner">
               <span class="deal-card__waiting-icon">&#x23F3;</span>
               <div class="deal-card__waiting-content">
                 <span class="deal-card__waiting-title">Waiting for brand approval</span>
-                <span class="deal-card__waiting-sub">You've submitted your content. The brand will review and confirm.</span>
+                <span class="deal-card__waiting-sub">Your content has been submitted. The brand will review and confirm.</span>
               </div>
             </div>
+            @if (deal.content_proof_url) {
+              <div class="deal-card__proof">
+                <span class="deal-card__proof-icon">&#x1F517;</span>
+                <a class="deal-card__proof-link" [href]="deal.content_proof_url" target="_blank" rel="noopener" (click)="$event.stopPropagation()">View submitted content</a>
+              </div>
+            }
             <div class="deal-card__actions">
               <button
                 class="deal-card__req-btn"
@@ -219,7 +235,7 @@
             </div>
           }
 
-          <!-- Cancelled: show reason -->
+          <!-- ═══ CANCELLED ═══ -->
           @if (deal.status === 'cancelled') {
             <div class="deal-card__cancelled-info">
               <span class="deal-card__cancelled-icon">&#x26D4;</span>
@@ -235,19 +251,20 @@
             </div>
           }
 
-          <!-- #2 Completed: achievement badge -->
+          <!-- ═══ COMPLETED: Achievement + inline rating ═══ -->
           @if (deal.status === 'completed') {
             <div class="deal-card__achievement">
               <div class="deal-card__achievement-header">&#x1F389; Collaboration Completed</div>
               <div class="deal-card__achievement-details">
                 @if (hasRated(deal.id)) {
-                  <span class="deal-card__achievement-item">&#x2B50; Rating: {{ getRating(deal.id) }}.0</span>
+                  <span class="deal-card__achievement-item">&#x2B50; Your Rating: {{ getRating(deal.id) }}.0</span>
                 }
-                <!-- #6 Content posted section -->
-                @if (businessHandle(deal)) {
+                @if (deal.content_proof_url || businessHandle(deal)) {
                   <span class="deal-card__achievement-item deal-card__achievement-item--proof">
                     &#x1F4F8; Content posted
-                    <span class="deal-card__achievement-ig">Instagram: <app-ig-link [handle]="businessHandle(deal)" /></span>
+                    @if (businessHandle(deal)) {
+                      <span class="deal-card__achievement-ig">Instagram: <app-ig-link [handle]="businessHandle(deal)" /></span>
+                    }
                   </span>
                 }
                 @if (isPaid(deal)) {
@@ -260,6 +277,50 @@
                 }
               </div>
             </div>
+
+            <!-- Inline rating (only if not yet rated) -->
+            @if (!hasRated(deal.id)) {
+              @if (ratingDealId() === deal.id) {
+                <div class="deal-card__inline-rating" (click)="$event.stopPropagation()">
+                  <p class="deal-card__rating-prompt">Rate your experience with this brand:</p>
+                  <div class="deal-card__stars">
+                    @for (star of starOptions; track star) {
+                      <button
+                        class="deal-card__star"
+                        [class.deal-card__star--active]="ratingStars >= star"
+                        (click)="ratingStars = star"
+                      >
+                        &#9733;
+                      </button>
+                    }
+                  </div>
+                  <div class="deal-card__rating-actions">
+                    <button
+                      class="deal-card__rate-submit"
+                      (click)="submitRating(deal)"
+                      [disabled]="ratingStars < 1 || actionLoading()"
+                    >
+                      Submit Rating
+                    </button>
+                    <button class="deal-card__rate-cancel" (click)="cancelRating()">Cancel</button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Rating reminder nudge -->
+                <div class="deal-card__rate-nudge" (click)="$event.stopPropagation()">
+                  <span class="deal-card__rate-nudge-text">
+                    &#x2B50; Rate {{ businessDisplayName(deal) }} to help other creators
+                  </span>
+                  <button
+                    class="deal-card__rate-nudge-btn"
+                    (click)="startRating(deal.id)"
+                  >
+                    Rate Now
+                  </button>
+                </div>
+              }
+            }
+
             <div class="deal-card__actions">
               <button
                 class="deal-card__req-btn"
@@ -267,15 +328,6 @@
               >
                 View Requirement
               </button>
-            </div>
-          } @else if (hasRated(deal.id) && deal.status !== 'cancelled') {
-            <div class="deal-card__rated">
-              <span class="deal-card__rated-label">Your Rating</span>
-              <div class="deal-card__rated-stars">
-                @for (star of starOptions; track star) {
-                  <span class="deal-card__rated-star" [class.deal-card__rated-star--filled]="getRating(deal.id) >= star">&#9733;</span>
-                }
-              </div>
             </div>
           }
         </div>

@@ -11,6 +11,7 @@ export interface Deal {
   business_marked_done: boolean;
   completed_at: string | null;
   cancelled_by: 'business' | 'creator' | 'admin' | null;
+  content_proof_url: string | null;
   created_at: string;
   updated_at: string;
 }

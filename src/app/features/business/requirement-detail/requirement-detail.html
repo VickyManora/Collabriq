@@ -177,13 +177,20 @@
                 }
 
                 <div class="app-card__header">
-                  <div class="app-card__identity">
+                  <div class="app-card__identity" (click)="viewCreator(app.creator.id)">
                     <span class="app-card__avatar">{{ creatorInitial(app) }}</span>
                     <div>
                       <div class="app-card__name-row">
-                        <h3 class="app-card__name">{{ app.creator.full_name | titlecase }}</h3>
-                        @if (getAvgRating(app.creator.id); as avg) {
-                          <span class="app-card__avg-rating">&#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})</span>
+                        <h3 class="app-card__name app-card__name--link">{{ app.creator.full_name | titlecase }}</h3>
+                        @if (getReputation(app.creator.id); as rep) {
+                          <span class="app-card__reputation">
+                            @if (rep.avgRating > 0) {
+                              <span class="app-card__rep-rating">&#9733; {{ rep.avgRating }}</span>
+                            }
+                            @if (rep.completedDeals > 0) {
+                              <span class="app-card__rep-deals">&middot; {{ rep.completedDeals }} collab{{ rep.completedDeals !== 1 ? 's' : '' }}</span>
+                            }
+                          </span>
                         }
                       </div>
                       @if (app.creator.instagram_handle) {

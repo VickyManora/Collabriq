@@ -36,6 +36,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     if (document.visibilityState === 'visible') this.loadData();
   };
   appliedMap = signal<Map<string, AppliedInfo>>(new Map());
+  bizReputation = signal<Map<string, { avgRating: number; totalRatings: number; completedDeals: number }>>(new Map());
   searchQuery = signal('');
   categoryFilter = signal<CategoryFilter>('all');
   compensationFilter = signal<CompensationFilter>('all');
@@ -239,6 +240,9 @@ export class BrowseRequirements implements OnInit, OnDestroy {
 
       if (reqResult.data && !reqResult.error) {
         this.requirements.set(reqResult.data);
+        // Load business reputations in background
+        const bizIds = [...new Set(reqResult.data.map(r => r.business_id))];
+        this.creatorService.getBusinessReputations(bizIds).then(repMap => this.bizReputation.set(repMap));
       } else if (reqResult.error) {
         this.toast.error('Failed to load requirements.');
       }
@@ -384,6 +388,12 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     if (this.isHybridComp(comp)) return '🍽';
     if (this.isPaidComp(comp)) return '💰';
     return '🎁';
+  }
+
+  getReputation(businessId: string): { avgRating: number; totalRatings: number; completedDeals: number } | undefined {
+    const rep = this.bizReputation().get(businessId);
+    if (!rep || (rep.totalRatings === 0 && rep.completedDeals === 0)) return undefined;
+    return rep;
   }
 
   formatComp(comp: string | null): string {

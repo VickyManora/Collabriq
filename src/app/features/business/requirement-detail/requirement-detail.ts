@@ -37,7 +37,7 @@ type ApplicationWithCreator = Application & {
 export class RequirementDetail implements OnInit {
   requirement = signal<Requirement | null>(null);
   applications = signal<ApplicationWithCreator[]>([]);
-  avgRatings = signal<Map<string, { avg: number; count: number }>>(new Map());
+  creatorReps = signal<Map<string, { avgRating: number; totalRatings: number; completedDeals: number }>>(new Map());
   loading = signal(true);
   actionLoading = signal(false);
   error = signal('');
@@ -98,25 +98,25 @@ export class RequirementDetail implements OnInit {
     const { data, error } = await this.reqService.getApplicationsForRequirement(id);
     if (data && !error) {
       this.applications.set(data as ApplicationWithCreator[]);
-      await this.loadAverageRatings(data as ApplicationWithCreator[]);
+      await this.loadCreatorReputations(data as ApplicationWithCreator[]);
     }
   }
 
-  private async loadAverageRatings(apps: ApplicationWithCreator[]) {
+  private async loadCreatorReputations(apps: ApplicationWithCreator[]) {
     const creatorIds = [...new Set(apps.map((a) => a.creator.id))];
-    const avgMap = new Map<string, { avg: number; count: number }>();
+    const repMap = new Map<string, { avgRating: number; totalRatings: number; completedDeals: number }>();
 
     for (const id of creatorIds) {
-      const result = await this.reqService.getCreatorAverageRating(id);
-      if (result.count > 0) {
-        avgMap.set(id, result);
+      const result = await this.reqService.getCreatorReputation(id);
+      if (result.totalRatings > 0 || result.completedDeals > 0) {
+        repMap.set(id, result);
       }
     }
-    this.avgRatings.set(avgMap);
+    this.creatorReps.set(repMap);
   }
 
-  getAvgRating(creatorId: string): { avg: number; count: number } | undefined {
-    return this.avgRatings().get(creatorId);
+  getReputation(creatorId: string): { avgRating: number; totalRatings: number; completedDeals: number } | undefined {
+    return this.creatorReps().get(creatorId);
   }
 
   showApplications(status: RequirementStatus): boolean {
@@ -216,6 +216,10 @@ export class RequirementDetail implements OnInit {
   onAppSearch(query: string) {
     this.appSearchQuery.set(query);
     this.appCurrentPage.set(1);
+  }
+
+  viewCreator(creatorId: string) {
+    this.router.navigate(['/business/creator', creatorId]);
   }
 
   goBack() {

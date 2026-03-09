@@ -26,5 +26,10 @@ export const BUSINESS_ROUTES: Routes = [
     loadComponent: () =>
       import('./business-deals/business-deals').then((m) => m.BusinessDeals),
   },
+  {
+    path: 'creator/:id',
+    loadComponent: () =>
+      import('./creator-profile/creator-profile').then((m) => m.CreatorProfile),
+  },
   { path: '', redirectTo: 'requirements', pathMatch: 'full' },
 ];

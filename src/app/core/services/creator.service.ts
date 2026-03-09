@@ -133,10 +133,12 @@ export class CreatorService {
       .returns<DealWithDetails[]>();
   }
 
-  async markDealDone(id: string) {
+  async markDealDone(id: string, contentProofUrl?: string) {
+    const payload: Record<string, unknown> = { creator_marked_done: true, status: 'creator_marked_done' };
+    if (contentProofUrl) payload['content_proof_url'] = contentProofUrl;
     return this.supabase
       .from('deals')
-      .update({ creator_marked_done: true, status: 'creator_marked_done' })
+      .update(payload)
       .eq('id', id)
       .select()
       .single<Deal>();
@@ -164,6 +166,53 @@ export class CreatorService {
       .eq('deal_id', dealId)
       .eq('rater_id', userId!)
       .maybeSingle<Rating>();
+  }
+
+  async getBusinessReputations(businessIds: string[]): Promise<Map<string, { avgRating: number; totalRatings: number; completedDeals: number }>> {
+    const map = new Map<string, { avgRating: number; totalRatings: number; completedDeals: number }>();
+    if (businessIds.length === 0) return map;
+
+    const [ratingsResult, dealsResult] = await Promise.all([
+      this.supabase
+        .from('ratings')
+        .select('ratee_id, stars')
+        .in('ratee_id', businessIds),
+      this.supabase
+        .from('deals')
+        .select('business_id')
+        .in('business_id', businessIds)
+        .eq('status', 'completed'),
+    ]);
+
+    // Aggregate ratings per business
+    const ratingsByBiz = new Map<string, number[]>();
+    if (ratingsResult.data) {
+      for (const r of ratingsResult.data) {
+        const arr = ratingsByBiz.get(r.ratee_id) ?? [];
+        arr.push(r.stars);
+        ratingsByBiz.set(r.ratee_id, arr);
+      }
+    }
+
+    // Count completed deals per business
+    const dealsByBiz = new Map<string, number>();
+    if (dealsResult.data) {
+      for (const d of dealsResult.data) {
+        dealsByBiz.set(d.business_id, (dealsByBiz.get(d.business_id) ?? 0) + 1);
+      }
+    }
+
+    for (const id of businessIds) {
+      const stars = ratingsByBiz.get(id) ?? [];
+      const avgRating = stars.length > 0 ? Math.round((stars.reduce((a, b) => a + b, 0) / stars.length) * 10) / 10 : 0;
+      map.set(id, {
+        avgRating,
+        totalRatings: stars.length,
+        completedDeals: dealsByBiz.get(id) ?? 0,
+      });
+    }
+
+    return map;
   }
 
   async getRecentRequirements(limit: number) {

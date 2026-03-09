@@ -112,6 +112,7 @@ CREATE TABLE public.deals (
   business_marked_done BOOLEAN NOT NULL DEFAULT FALSE,
   completed_at        TIMESTAMPTZ,
   cancelled_by        TEXT CHECK (cancelled_by IN ('business', 'creator', 'admin')),
+  content_proof_url   TEXT,
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -33,6 +33,12 @@ export class MyDeals implements OnInit, OnDestroy {
   currentPage = signal(1);
   loading = signal(true);
   actionLoading = signal(false);
+
+  // Submit content form
+  submitDealId = signal<string | null>(null);
+  proofUrl = '';
+
+  // Rating form (now on completed deals)
   ratingDealId = signal<string | null>(null);
   ratingStars = 0;
 
@@ -47,7 +53,7 @@ export class MyDeals implements OnInit, OnDestroy {
 
   readonly starOptions = [1, 2, 3, 4, 5];
 
-  // ─── Earnings summary computed signals ───
+  // ─── Earnings summary ───
 
   totalEarnings = computed(() => {
     return this.deals()
@@ -154,7 +160,7 @@ export class MyDeals implements OnInit, OnDestroy {
   }
 
   private async loadRatings(deals: DealWithDetails[]) {
-    const ratedDeals = deals.filter((d) => d.status !== 'active' && d.status !== 'cancelled');
+    const ratedDeals = deals.filter((d) => d.status === 'completed' || d.status === 'creator_marked_done');
     const ratingsMap = new Map<string, Rating>();
 
     for (const deal of ratedDeals) {
@@ -201,7 +207,7 @@ export class MyDeals implements OnInit, OnDestroy {
     }
   }
 
-  canMarkDone(deal: DealWithDetails): boolean {
+  canSubmitContent(deal: DealWithDetails): boolean {
     return deal.status === 'active' && !deal.creator_marked_done;
   }
 
@@ -213,12 +219,40 @@ export class MyDeals implements OnInit, OnDestroy {
     return this.ratings().get(dealId)?.stars ?? 0;
   }
 
-  // Click "Mark as Done" → open rating popup
-  startMarkDone(dealId: string) {
+  // ─── Submit Content flow (no rating) ───
+
+  openSubmitForm(dealId: string) {
     if (this.isPending) {
       this.toast.error('Your account is pending approval. This action will unlock once your account is approved.');
       return;
     }
+    this.submitDealId.set(dealId);
+    this.proofUrl = '';
+  }
+
+  cancelSubmit() {
+    this.submitDealId.set(null);
+    this.proofUrl = '';
+  }
+
+  async submitContent(deal: DealWithDetails) {
+    this.actionLoading.set(true);
+    const url = this.proofUrl.trim() || undefined;
+    const { error } = await this.creatorService.markDealDone(deal.id, url);
+    if (error) {
+      this.toast.error('Failed to submit content.');
+    } else {
+      this.toast.success('Content submitted! Waiting for brand approval.');
+      this.submitDealId.set(null);
+      this.proofUrl = '';
+      await this.loadDeals();
+    }
+    this.actionLoading.set(false);
+  }
+
+  // ─── Rating flow (on completed deals only) ───
+
+  startRating(dealId: string) {
     this.ratingDealId.set(dealId);
     this.ratingStars = 0;
   }
@@ -228,43 +262,31 @@ export class MyDeals implements OnInit, OnDestroy {
     this.ratingStars = 0;
   }
 
-  // Submit rating + mark done together
-  async submitRatingAndComplete(deal: DealWithDetails) {
+  async submitRating(deal: DealWithDetails) {
     if (this.ratingStars < 1 || this.ratingStars > 5) return;
     this.actionLoading.set(true);
 
-    // 1. Submit rating first
-    const { data: ratingData, error: ratingError } = await this.creatorService.rateBusiness(
+    const { data: ratingData, error } = await this.creatorService.rateBusiness(
       deal.id,
       deal.business_id,
       this.ratingStars,
     );
-    if (ratingError) {
+    if (error) {
       this.toast.error('Failed to submit rating.');
-      this.actionLoading.set(false);
-      return;
+    } else {
+      if (ratingData) {
+        const updated = new Map(this.ratings());
+        updated.set(deal.id, ratingData);
+        this.ratings.set(updated);
+      }
+      this.ratingDealId.set(null);
+      this.ratingStars = 0;
+      this.toast.success('Rating submitted! Thank you.');
     }
-
-    // 2. Then mark deal as done
-    const { error: doneError } = await this.creatorService.markDealDone(deal.id);
-    if (doneError) {
-      this.toast.error('Failed to mark deal as done.');
-      this.actionLoading.set(false);
-      return;
-    }
-
-    // 3. Update local state
-    if (ratingData) {
-      const updated = new Map(this.ratings());
-      updated.set(deal.id, ratingData);
-      this.ratings.set(updated);
-    }
-    this.ratingDealId.set(null);
-    this.ratingStars = 0;
-    this.toast.success('Rating submitted & deal marked as done!');
-    await this.loadDeals();
     this.actionLoading.set(false);
   }
+
+  // ─── Helpers ───
 
   isPaid(deal: DealWithDetails): boolean {
     const d = deal.requirement?.compensation_details ?? '';
@@ -299,6 +321,22 @@ export class MyDeals implements OnInit, OnDestroy {
     return `₹${amount}`;
   }
 
+  /** Days since deal started */
+  daysSinceStart(deal: DealWithDetails): number {
+    return Math.floor((Date.now() - new Date(deal.created_at).getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  /** Show nudge if active deal is 5+ days old without content submission */
+  shouldNudge(deal: DealWithDetails): boolean {
+    return deal.status === 'active' && !deal.creator_marked_done && this.daysSinceStart(deal) >= 5;
+  }
+
+  nudgeMessage(deal: DealWithDetails): string {
+    const days = this.daysSinceStart(deal);
+    if (days >= 10) return `This deal started ${days} days ago. Submit your content to keep things moving!`;
+    return `It's been ${days} days since this deal started. Ready to submit your content?`;
+  }
+
   /** Timeline step: 0=started, 1=content submitted, 2=brand approval, 3=completed */
   timelineStep(deal: DealWithDetails): number {
     if (deal.status === 'completed') return 3;
@@ -319,7 +357,7 @@ export class MyDeals implements OnInit, OnDestroy {
   statusLabel(status: DealStatus): string {
     const labels: Record<DealStatus, string> = {
       active: 'Active',
-      creator_marked_done: 'Marked Done',
+      creator_marked_done: 'Content Submitted',
       completed: 'Completed',
       cancelled: 'Cancelled',
     };

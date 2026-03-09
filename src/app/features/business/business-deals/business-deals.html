@@ -1,6 +1,10 @@
 <div class="biz-deals">
   <h1>My Deals</h1>
 
+  @if (isPending) {
+    <app-pending-banner />
+  }
+
   <input
     class="biz-deals__search"
     type="text"
@@ -54,89 +58,170 @@
     <div class="biz-deals__grid">
       @for (deal of paged(); track deal.id) {
         <div class="deal-card">
-          <div class="deal-card__top">
-            <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
+          <div class="deal-card__header">
+            <div class="deal-card__identity" (click)="viewCreator(deal.creator_id)">
+              <span class="deal-card__avatar">{{ creatorInitial(deal) }}</span>
+              <div class="deal-card__header-text">
+                <div class="deal-card__name-row">
+                  <span class="deal-card__creator-name">{{ (deal.creator?.full_name ?? 'Unknown') | titlecase }}</span>
+                  @if (getAvgRating(deal.creator_id); as avg) {
+                    <span class="deal-card__avg-rating">&#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})</span>
+                  }
+                </div>
+                @if (deal.creator?.instagram_handle) {
+                  <span class="deal-card__handle"><app-ig-link [handle]="deal.creator?.instagram_handle ?? ''" /></span>
+                }
+                @if (deal.creator?.email) {
+                  <span class="deal-card__contact">{{ deal.creator?.email }}</span>
+                }
+              </div>
+            </div>
             <span class="deal-card__badge deal-card__badge--{{ deal.status }}">
               {{ statusLabel(deal.status) }}
             </span>
           </div>
 
-          <div class="deal-card__creator">
-            <div class="deal-card__creator-header">
-              <p class="deal-card__creator-name">{{ (deal.creator?.full_name ?? 'Unknown') | titlecase }}</p>
-              @if (getAvgRating(deal.creator_id); as avg) {
-                <span class="deal-card__avg-rating">
-                  &#9733; {{ avg.avg | number: '1.1-1' }} ({{ avg.count }})
-                </span>
-              }
-            </div>
-            <p class="deal-card__contact">{{ deal.creator?.email }}</p>
-            @if (deal.creator?.phone) {
-              <p class="deal-card__contact">{{ deal.creator.phone }}</p>
-            }
-            @if (deal.creator?.instagram_handle) {
-              <p class="deal-card__contact"><app-ig-link [handle]="deal.creator.instagram_handle" /></p>
-            }
-            @if (deal.creator.portfolio_url) {
-              <p class="deal-card__contact">{{ deal.creator.portfolio_url }}</p>
-            }
-          </div>
-
+          <h3 class="deal-card__title">{{ deal.requirement?.title ?? 'Untitled' }}</h3>
           <p class="deal-card__date">Started {{ deal.created_at | date: 'mediumDate' }}</p>
 
-          @if (deal.status === 'active' && deal.creator_marked_done) {
-            <p class="deal-card__info">Creator has marked this deal as done.</p>
-          }
-
-          @if (deal.business_marked_done && deal.status !== 'completed') {
-            <p class="deal-card__waiting">Waiting for creator to mark done...</p>
-          }
-
-          @if (canMarkDone(deal)) {
-            @if (ratingDealId() === deal.id) {
-              <!-- Rating popup before marking done -->
-              <div class="deal-card__rating-form">
-                <p class="deal-card__rating-label">Rate this creator to complete the deal:</p>
-                <div class="deal-card__stars">
-                  @for (star of starOptions; track star) {
-                    <button
-                      class="deal-card__star"
-                      [class.deal-card__star--active]="ratingStars >= star"
-                      (click)="ratingStars = star"
-                    >
-                      &#9733;
-                    </button>
-                  }
-                </div>
-                <div class="deal-card__rating-actions">
-                  <button
-                    class="deal-card__rate-submit"
-                    (click)="submitRatingAndComplete(deal)"
-                    [disabled]="ratingStars < 1 || actionLoading()"
-                  >
-                    Submit Rating & Mark Done
-                  </button>
-                  <button class="deal-card__rate-cancel" (click)="cancelRating()">
-                    Cancel
-                  </button>
-                </div>
+          <!-- Timeline (not for cancelled) -->
+          @if (deal.status !== 'cancelled') {
+            <div class="deal-card__timeline">
+              <div class="deal-card__tl-step deal-card__tl-step--done">
+                <span class="deal-card__tl-dot"></span>
+                <span>Started</span>
               </div>
-            } @else {
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 1"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 1" [class.deal-card__tl-step--active]="timelineStep(deal) === 0">
+                <span class="deal-card__tl-dot"></span>
+                <span>Content Submitted</span>
+              </div>
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 2"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 2" [class.deal-card__tl-step--active]="timelineStep(deal) === 1">
+                <span class="deal-card__tl-dot"></span>
+                <span>Your Approval</span>
+              </div>
+              <div class="deal-card__tl-line" [class.deal-card__tl-line--done]="timelineStep(deal) >= 3"></div>
+              <div class="deal-card__tl-step" [class.deal-card__tl-step--done]="timelineStep(deal) >= 3">
+                <span class="deal-card__tl-dot"></span>
+                <span>Completed</span>
+              </div>
+            </div>
+          }
+
+          <!-- ACTIVE: Waiting for creator to submit content -->
+          @if (isWaitingForCreator(deal)) {
+            <div class="deal-card__waiting-banner">
+              <span class="deal-card__waiting-icon">&#x23F3;</span>
+              <div class="deal-card__waiting-content">
+                <span class="deal-card__waiting-title">Waiting for creator</span>
+                <span class="deal-card__waiting-sub">The creator hasn't submitted content yet.</span>
+              </div>
+            </div>
+          }
+
+          <!-- CREATOR SUBMITTED: Business can approve -->
+          @if (canApproveDeal(deal)) {
+            <div class="deal-card__approve-banner">
+              <span class="deal-card__approve-icon">&#x1F4E5;</span>
+              <div class="deal-card__approve-content">
+                <span class="deal-card__approve-title">Content submitted by creator</span>
+                <span class="deal-card__approve-sub">Review the content and approve to complete the deal.</span>
+              </div>
+            </div>
+            @if (deal.content_proof_url) {
+              <div class="deal-card__proof">
+                <span class="deal-card__proof-icon">&#x1F517;</span>
+                <a class="deal-card__proof-link" [href]="deal.content_proof_url" target="_blank" rel="noopener">View submitted content</a>
+              </div>
+            }
+            <div class="deal-card__actions">
               <button
-                class="deal-card__done-btn"
-                (click)="startMarkDone(deal.id)"
-                [disabled]="actionLoading()"
+                class="deal-card__approve-btn"
+                (click)="approveDeal(deal)"
+                [disabled]="actionLoading() || isPending"
               >
-                Mark Deal Completed
+                Approve & Complete Deal
               </button>
+            </div>
+          }
+
+          <!-- CANCELLED -->
+          @if (deal.status === 'cancelled') {
+            <div class="deal-card__cancelled-info">
+              <span class="deal-card__cancelled-icon">&#x26D4;</span>
+              <span class="deal-card__cancelled-text">{{ cancellationLabel(deal) }}</span>
+            </div>
+          }
+
+          <!-- COMPLETED: Achievement + inline rating -->
+          @if (deal.status === 'completed') {
+            <div class="deal-card__achievement">
+              <div class="deal-card__achievement-header">&#x1F389; Collaboration Completed</div>
+              <div class="deal-card__achievement-details">
+                @if (hasRated(deal.id)) {
+                  <span class="deal-card__achievement-item">&#x2B50; Your Rating: {{ getRating(deal.id) }}.0</span>
+                }
+                @if (deal.content_proof_url) {
+                  <span class="deal-card__achievement-item">&#x1F4F8; Content delivered</span>
+                }
+                @if (deal.completed_at) {
+                  <span class="deal-card__achievement-item">&#x1F4C5; Completed {{ deal.completed_at | date: 'mediumDate' }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Inline rating (only if not yet rated) -->
+            @if (!hasRated(deal.id)) {
+              @if (ratingDealId() === deal.id) {
+                <div class="deal-card__inline-rating">
+                  <p class="deal-card__rating-prompt">Rate this creator:</p>
+                  <div class="deal-card__stars">
+                    @for (star of starOptions; track star) {
+                      <button
+                        class="deal-card__star"
+                        [class.deal-card__star--active]="ratingStars >= star"
+                        (click)="ratingStars = star"
+                      >
+                        &#9733;
+                      </button>
+                    }
+                  </div>
+                  <div class="deal-card__rating-actions">
+                    <button
+                      class="deal-card__rate-submit"
+                      (click)="submitRating(deal)"
+                      [disabled]="ratingStars < 1 || actionLoading()"
+                    >
+                      Submit Rating
+                    </button>
+                    <button class="deal-card__rate-cancel" (click)="cancelRating()">Cancel</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="deal-card__rate-nudge">
+                  <span class="deal-card__rate-nudge-text">
+                    &#x2B50; Rate {{ (deal.creator?.full_name ?? 'this creator') | titlecase }} to help other businesses
+                  </span>
+                  <button
+                    class="deal-card__rate-nudge-btn"
+                    (click)="startRating(deal.id)"
+                  >
+                    Rate Now
+                  </button>
+                </div>
+              }
             }
           }
 
-          @if (hasRated(deal.id)) {
-            <div class="deal-card__rated">
-              <span>Your rating: </span>
-              @for (star of starOptions; track star) {
-                <span class="deal-card__rated-star" [class.deal-card__rated-star--filled]="getRating(deal.id) >= star">&#9733;</span>
+          <!-- Contact details (for non-cancelled) -->
+          @if (deal.status !== 'cancelled') {
+            <div class="deal-card__contact-section">
+              @if (deal.creator?.phone) {
+                <span class="deal-card__contact-item">&#x1F4DE; {{ deal.creator?.phone }}</span>
+              }
+              @if (deal.creator?.portfolio_url) {
+                <a class="deal-card__contact-item deal-card__contact-item--link" [href]="deal.creator?.portfolio_url" target="_blank" rel="noopener">&#x1F310; Portfolio</a>
               }
             </div>
           }
