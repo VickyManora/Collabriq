@@ -273,6 +273,62 @@ export class CreatorService {
     };
   }
 
+  async getBusinessRecentCollabs(businessId: string) {
+    const [dealsResult, ratingsResult] = await Promise.all([
+      this.supabase
+        .from('deals')
+        .select('id, status, created_at, creator_id, creator:profiles!creator_id(full_name, instagram_handle), requirement:requirements!requirement_id(title, category)')
+        .eq('business_id', businessId)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(5)
+        .returns<{
+          id: string; status: string; created_at: string; creator_id: string;
+          creator: { full_name: string; instagram_handle: string | null };
+          requirement: { title: string; category: string | null };
+        }[]>(),
+      this.supabase
+        .from('ratings')
+        .select('deal_id, stars')
+        .eq('ratee_id', businessId),
+    ]);
+
+    const deals = dealsResult.data ?? [];
+    const ratingsMap = new Map<string, number>();
+    for (const r of (ratingsResult.data ?? [])) {
+      ratingsMap.set(r.deal_id, r.stars);
+    }
+
+    return deals.map(d => ({
+      ...d,
+      rating: ratingsMap.get(d.id) ?? null,
+    }));
+  }
+
+  async getBusinessResponseTime(businessId: string) {
+    const appResult = await this.supabase
+      .from('applications')
+      .select('created_at, updated_at, status, requirement:requirements!requirement_id(business_id)')
+      .in('status', ['accepted', 'rejected'])
+      .order('updated_at', { ascending: false })
+      .limit(50)
+      .returns<{ created_at: string; updated_at: string; status: string; requirement: { business_id: string } }[]>();
+
+    const apps = (appResult.data ?? []).filter(a => a.requirement?.business_id === businessId);
+    if (apps.length === 0) return null;
+
+    const totalHours = apps.reduce((sum, a) => {
+      const diff = new Date(a.updated_at).getTime() - new Date(a.created_at).getTime();
+      return sum + diff / (1000 * 60 * 60);
+    }, 0);
+
+    const avgHours = totalHours / apps.length;
+    if (avgHours < 24) return 'Responds within a few hours';
+    if (avgHours < 48) return 'Responds within 24 hours';
+    if (avgHours < 72) return 'Responds within 2 days';
+    return 'Responds within a few days';
+  }
+
   async getRecentActivity(limit: number) {
     const userId = this.auth.profile()?.id;
 

@@ -26,6 +26,15 @@ interface BusinessStats {
   openRequirements: RequirementWithBusiness[];
 }
 
+interface RecentCollab {
+  id: string;
+  status: string;
+  created_at: string;
+  creator: { full_name: string; instagram_handle: string | null };
+  requirement: { title: string; category: string | null };
+  rating: number | null;
+}
+
 @Component({
   selector: 'app-business-profile',
   templateUrl: './business-profile.html',
@@ -35,8 +44,23 @@ interface BusinessStats {
 export class BusinessProfileComponent implements OnInit {
   profile = signal<BusinessProfile | null>(null);
   stats = signal<BusinessStats | null>(null);
+  recentCollabs = signal<RecentCollab[]>([]);
+  responseTime = signal<string | null>(null);
   loading = signal(true);
   error = signal('');
+
+  private categoryIcons: Record<string, string> = {
+    'Reel': '🎬',
+    'Photoshoot': '📸',
+    'Story': '📱',
+    'Post': '📝',
+    'Video': '🎥',
+    'Review': '⭐',
+    'Event': '🎪',
+    'Unboxing': '📦',
+    'Tutorial': '🎓',
+    'Podcast': '🎙️',
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -54,9 +78,11 @@ export class BusinessProfileComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    const [profileResult, stats] = await Promise.all([
+    const [profileResult, stats, collabs, respTime] = await Promise.all([
       this.creatorService.getBusinessProfile(id),
       this.creatorService.getBusinessStats(id),
+      this.creatorService.getBusinessRecentCollabs(id),
+      this.creatorService.getBusinessResponseTime(id),
     ]);
 
     if (profileResult.data && !profileResult.error) {
@@ -66,6 +92,8 @@ export class BusinessProfileComponent implements OnInit {
     }
 
     this.stats.set(stats);
+    this.recentCollabs.set(collabs);
+    this.responseTime.set(respTime);
     this.loading.set(false);
   }
 
@@ -93,13 +121,33 @@ export class BusinessProfileComponent implements OnInit {
     return [1, 2, 3, 4, 5].map((s) => (s <= Math.round(avg) ? 1 : 0));
   }
 
-  spotsLeft(req: RequirementWithBusiness): string {
-    const remaining = req.creator_slots - req.filled_slots;
-    return remaining === 1 ? '1 spot left' : `${remaining} spots left`;
+  spotsProgress(req: RequirementWithBusiness): string {
+    const filled = req.filled_slots;
+    const total = req.creator_slots;
+    const filledBlocks = '■'.repeat(filled);
+    const emptyBlocks = '□'.repeat(total - filled);
+    return `[${filledBlocks}${emptyBlocks}]`;
   }
 
   applicationsCount(req: RequirementWithBusiness): number {
     return req.applications?.[0]?.count ?? 0;
+  }
+
+  categoryIcon(category: string | null): string {
+    if (!category) return '📋';
+    return this.categoryIcons[category] || '📋';
+  }
+
+  collabInitial(name: string): string {
+    return name.charAt(0).toUpperCase();
+  }
+
+  collabDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
+
+  collabHandle(collab: RecentCollab): string | null {
+    return collab.creator.instagram_handle?.replace(/^@/, '') || null;
   }
 
   viewRequirement(id: string) {

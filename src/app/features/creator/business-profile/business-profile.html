@@ -7,6 +7,11 @@
       <div class="skeleton skeleton--line" style="width:40%"></div>
       <div class="skeleton skeleton--block"></div>
     </div>
+    <div class="skeleton-stats">
+      <div class="skeleton skeleton--stat"></div>
+      <div class="skeleton skeleton--stat"></div>
+      <div class="skeleton skeleton--stat"></div>
+    </div>
     <div class="skeleton-card">
       <div class="skeleton skeleton--line" style="width:45%"></div>
       <div class="skeleton skeleton--line" style="width:55%"></div>
@@ -17,6 +22,7 @@
   } @else if (profile(); as biz) {
     <button class="biz-profile__back-btn" (click)="goBack()">&larr; Back</button>
 
+    <!-- Identity Card -->
     <div class="biz-profile__card">
       <div class="biz-profile__identity">
         <span class="biz-profile__avatar">{{ initial() }}</span>
@@ -29,10 +35,17 @@
       </div>
 
       <div class="biz-profile__details">
+        <!-- Instagram: handle visible + View button -->
         @if (handle()) {
-          <div class="biz-profile__detail">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
-            <app-ig-link [handle]="handle()" />
+          <div class="biz-profile__ig-row">
+            <div class="biz-profile__ig-handle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+              <span>&#64;{{ handle() }}</span>
+            </div>
+            <a class="biz-profile__ig-btn" [href]="'https://instagram.com/' + handle()" target="_blank" rel="noopener">
+              View Instagram
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
           </div>
         }
         @if (biz.city) {
@@ -61,38 +74,61 @@
       }
     </div>
 
+    <!-- Trust Section -->
     @if (stats(); as s) {
-      <div class="biz-profile__stats">
-        <div class="biz-profile__stat">
-          <span class="biz-profile__stat-value">{{ s.completedDeals }}</span>
-          <span class="biz-profile__stat-label">Collaborations completed</span>
+      <div class="biz-profile__trust">
+        <div class="biz-profile__trust-tile biz-profile__trust-tile--collabs">
+          <span class="biz-profile__trust-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="biz-profile__trust-value">{{ s.completedDeals }}</span>
+          <span class="biz-profile__trust-label">Collaborations</span>
         </div>
-        <div class="biz-profile__stat">
+        <div class="biz-profile__trust-tile biz-profile__trust-tile--rating">
+          <span class="biz-profile__trust-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
           @if (s.totalRatings > 0) {
-            <span class="biz-profile__stat-value">
-              <span class="biz-profile__rating-stars">
+            <span class="biz-profile__trust-value">
+              {{ s.avgRating }}
+              <span class="biz-profile__trust-stars">
                 @for (filled of ratingStars(); track $index) {
-                  <span class="biz-profile__star" [class.biz-profile__star--filled]="filled === 1">&#9733;</span>
+                  <span [class.biz-profile__star--filled]="filled === 1">&#9733;</span>
                 }
               </span>
-              {{ s.avgRating }}
             </span>
-            <span class="biz-profile__stat-label">Average rating ({{ s.totalRatings }} reviews)</span>
+            <span class="biz-profile__trust-label">{{ s.totalRatings }} reviews</span>
           } @else {
-            <span class="biz-profile__stat-value">--</span>
-            <span class="biz-profile__stat-label">No ratings yet</span>
+            <span class="biz-profile__trust-value">--</span>
+            <span class="biz-profile__trust-label">No ratings yet</span>
+          }
+        </div>
+        <div class="biz-profile__trust-tile biz-profile__trust-tile--response">
+          <span class="biz-profile__trust-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          @if (responseTime()) {
+            <span class="biz-profile__trust-value biz-profile__trust-value--sm">{{ responseTime() }}</span>
+            <span class="biz-profile__trust-label">Response time</span>
+          } @else {
+            <span class="biz-profile__trust-value biz-profile__trust-value--sm">New on Collabriq</span>
+            <span class="biz-profile__trust-label">Response time not available yet</span>
           }
         </div>
       </div>
 
+      <!-- Collaborate With This Brand -->
       @if (s.openRequirements.length > 0) {
         <div class="biz-profile__opportunities">
-          <h2>Open Opportunities</h2>
+          <h2>Collaborate With This Brand</h2>
           <div class="biz-profile__opp-grid">
             @for (req of s.openRequirements; track req.id) {
               <div class="biz-profile__opp-card" (click)="viewRequirement(req.id)">
                 <div class="biz-profile__opp-top">
-                  <h3>{{ req.title }}</h3>
+                  <div class="biz-profile__opp-title-row">
+                    <span class="biz-profile__opp-icon">{{ categoryIcon(req.category) }}</span>
+                    <h3>{{ req.title }}</h3>
+                  </div>
                   @if (req.category) {
                     <span [class]="req.category | categoryClass">{{ req.category }}</span>
                   }
@@ -100,13 +136,64 @@
                 @if (req.compensation_details) {
                   <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
                 }
-                <div class="biz-profile__opp-meta">
-                  <span>{{ spotsLeft(req) }}</span>
+                <!-- Progress bar + 3 key signals -->
+                <div class="biz-profile__opp-progress">
+                  <span class="biz-profile__opp-progress-bar">{{ spotsProgress(req) }}</span>
+                  <span class="biz-profile__opp-progress-text">{{ req.filled_slots }} of {{ req.creator_slots }} creators selected</span>
+                </div>
+                <div class="biz-profile__opp-signals">
                   @if (applicationsCount(req) > 0) {
-                    <span>{{ applicationsCount(req) }} applied</span>
+                    <span class="biz-profile__opp-signal">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                      {{ applicationsCount(req) }} applied
+                    </span>
                   }
+                  <span class="biz-profile__opp-signal biz-profile__opp-signal--spots">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                    {{ req.creator_slots - req.filled_slots }} spots available
+                  </span>
                   @if (req.closes_at) {
-                    <span>{{ req.closes_at | closesIn }}</span>
+                    <span class="biz-profile__opp-signal biz-profile__opp-signal--deadline">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      {{ req.closes_at | closesIn }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Recent Collaborations (Social Proof) -->
+      @if (recentCollabs().length > 0) {
+        <div class="biz-profile__social-proof">
+          <h2>Recent Collaborations</h2>
+          <div class="biz-profile__collab-list">
+            @for (collab of recentCollabs(); track collab.id) {
+              <div class="biz-profile__collab-item">
+                <span class="biz-profile__collab-avatar">{{ collabInitial(collab.creator.full_name) }}</span>
+                <div class="biz-profile__collab-info">
+                  <span class="biz-profile__collab-name">
+                    {{ collab.creator.full_name }}
+                    @if (collabHandle(collab)) {
+                      <span class="biz-profile__collab-handle">&#64;{{ collabHandle(collab) }}</span>
+                    }
+                  </span>
+                  <span class="biz-profile__collab-type">
+                    @if (collab.requirement.category) {
+                      {{ categoryIcon(collab.requirement.category) }}
+                    }
+                    {{ collab.requirement.category || 'Collaboration' }}
+                  </span>
+                </div>
+                <div class="biz-profile__collab-badge">
+                  @if (collab.rating) {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Rated {{ collab.rating }}
+                  } @else {
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    Completed
                   }
                 </div>
               </div>
