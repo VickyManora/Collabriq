@@ -12,6 +12,8 @@ interface CreatorProfileData {
   city: string;
   instagram_handle: string | null;
   portfolio_url: string | null;
+  creator_category: string | null;
+  follower_count: number | null;
   created_at: string;
 }
 
@@ -19,6 +21,7 @@ interface PortfolioItem {
   id: string;
   completed_at: string | null;
   content_proof_url: string | null;
+  brandRating: number | null;
   requirement: { title: string; category: string | null; compensation_details: string | null } | null;
   business: { business_name: string | null; full_name: string; instagram_handle: string | null } | null;
 }
@@ -27,6 +30,12 @@ interface Reputation {
   avgRating: number;
   totalRatings: number;
   completedDeals: number;
+}
+
+interface Reliability {
+  completedDeals: number;
+  totalDeals: number;
+  percentage: number;
 }
 
 @Component({
@@ -38,9 +47,23 @@ interface Reputation {
 export class CreatorProfile implements OnInit {
   profile = signal<CreatorProfileData | null>(null);
   reputation = signal<Reputation | null>(null);
+  reliability = signal<Reliability | null>(null);
   portfolio = signal<PortfolioItem[]>([]);
   loading = signal(true);
   error = signal('');
+
+  private categoryIcons: Record<string, string> = {
+    'Reel': '🎬',
+    'Photoshoot': '📸',
+    'Story': '📱',
+    'Post': '📝',
+    'Video': '🎥',
+    'Review': '⭐',
+    'Event': '🎪',
+    'Unboxing': '📦',
+    'Tutorial': '🎓',
+    'Podcast': '🎙️',
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -57,10 +80,11 @@ export class CreatorProfile implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    const [profileResult, rep, portfolioResult] = await Promise.all([
+    const [profileResult, rep, portfolioResult, rel] = await Promise.all([
       this.reqService.getCreatorProfile(id),
       this.reqService.getCreatorReputation(id),
       this.reqService.getCreatorPortfolio(id),
+      this.reqService.getCreatorReliability(id),
     ]);
 
     if (profileResult.data && !profileResult.error) {
@@ -70,6 +94,7 @@ export class CreatorProfile implements OnInit {
     }
 
     this.reputation.set(rep);
+    this.reliability.set(rel);
 
     if (portfolioResult.data && !portfolioResult.error) {
       this.portfolio.set(portfolioResult.data);
@@ -96,9 +121,28 @@ export class CreatorProfile implements OnInit {
     return new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }
 
+  formattedFollowers(): string | null {
+    const count = this.profile()?.follower_count;
+    if (!count) return null;
+    if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+    if (count >= 1_000) return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+    return `${count}`;
+  }
+
   ratingStars(): number[] {
     const avg = this.reputation()?.avgRating ?? 0;
     return [1, 2, 3, 4, 5].map((s) => (s <= Math.round(avg) ? 1 : 0));
+  }
+
+  reliabilityText(): string {
+    const rel = this.reliability();
+    if (!rel || rel.totalDeals === 0) return '';
+    return `${rel.percentage}% collaborations delivered`;
+  }
+
+  categoryIcon(category: string | null): string {
+    if (!category) return '📋';
+    return this.categoryIcons[category] || '📋';
   }
 
   businessName(item: PortfolioItem): string {

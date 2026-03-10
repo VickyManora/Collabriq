@@ -357,28 +357,48 @@ export class RequirementService {
   async getCreatorProfile(creatorId: string) {
     return this.supabase
       .from('profiles')
-      .select('id, full_name, bio, city, instagram_handle, portfolio_url, created_at')
+      .select('id, full_name, bio, city, instagram_handle, portfolio_url, creator_category, follower_count, created_at')
       .eq('id', creatorId)
       .eq('role', 'creator')
       .eq('is_deleted', false)
       .single<{
         id: string; full_name: string; bio: string | null; city: string;
-        instagram_handle: string | null; portfolio_url: string | null; created_at: string;
+        instagram_handle: string | null; portfolio_url: string | null;
+        creator_category: string | null; follower_count: number | null;
+        created_at: string;
       }>();
   }
 
   async getCreatorPortfolio(creatorId: string) {
-    return this.supabase
-      .from('deals')
-      .select('id, status, completed_at, content_proof_url, requirement:requirements!requirement_id(title, category, compensation_details), business:profiles!business_id(business_name, full_name, instagram_handle)')
-      .eq('creator_id', creatorId)
-      .eq('status', 'completed')
-      .order('completed_at', { ascending: false })
-      .returns<{
-        id: string; status: string; completed_at: string | null; content_proof_url: string | null;
-        requirement: { title: string; category: string | null; compensation_details: string | null } | null;
-        business: { business_name: string | null; full_name: string; instagram_handle: string | null } | null;
-      }[]>();
+    const [dealsResult, ratingsResult] = await Promise.all([
+      this.supabase
+        .from('deals')
+        .select('id, status, completed_at, content_proof_url, requirement:requirements!requirement_id(title, category, compensation_details), business:profiles!business_id(business_name, full_name, instagram_handle)')
+        .eq('creator_id', creatorId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .returns<{
+          id: string; status: string; completed_at: string | null; content_proof_url: string | null;
+          requirement: { title: string; category: string | null; compensation_details: string | null } | null;
+          business: { business_name: string | null; full_name: string; instagram_handle: string | null } | null;
+        }[]>(),
+      this.supabase
+        .from('ratings')
+        .select('deal_id, stars')
+        .eq('ratee_id', creatorId),
+    ]);
+
+    const ratingsMap = new Map<string, number>();
+    for (const r of (ratingsResult.data ?? [])) {
+      ratingsMap.set(r.deal_id, r.stars);
+    }
+
+    const deals = (dealsResult.data ?? []).map(d => ({
+      ...d,
+      brandRating: ratingsMap.get(d.id) ?? null,
+    }));
+
+    return { data: deals, error: dealsResult.error };
   }
 
   async getCreatorReputation(creatorId: string): Promise<{ avgRating: number; totalRatings: number; completedDeals: number }> {
@@ -404,6 +424,27 @@ export class RequirementService {
       totalRatings: ratings.length,
       completedDeals: dealsResult.count ?? 0,
     };
+  }
+
+  async getCreatorReliability(creatorId: string): Promise<{ completedDeals: number; totalDeals: number; percentage: number }> {
+    const [completedResult, totalResult] = await Promise.all([
+      this.supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', creatorId)
+        .eq('status', 'completed'),
+      this.supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', creatorId)
+        .in('status', ['completed', 'cancelled']),
+    ]);
+
+    const completed = completedResult.count ?? 0;
+    const total = totalResult.count ?? 0;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    return { completedDeals: completed, totalDeals: total, percentage };
   }
 
   async getCreatorAverageRating(creatorId: string): Promise<{ avg: number; count: number }> {

@@ -7,34 +7,60 @@
       <div class="skeleton skeleton--line" style="width:40%"></div>
       <div class="skeleton skeleton--block"></div>
     </div>
+    <div class="skeleton-card">
+      <div class="skeleton skeleton--line" style="width:45%"></div>
+      <div class="skeleton skeleton--line" style="width:55%"></div>
+    </div>
   } @else if (error() && !profile()) {
     <p class="creator-profile__error">{{ error() }}</p>
     <button class="creator-profile__back-btn" (click)="goBack()">&larr; Back</button>
   } @else if (profile(); as creator) {
     <button class="creator-profile__back-btn" (click)="goBack()">&larr; Back</button>
 
+    <!-- Identity Card -->
     <div class="creator-profile__card">
       <div class="creator-profile__identity">
         <span class="creator-profile__avatar">{{ initial() }}</span>
         <div class="creator-profile__identity-text">
           <h1>{{ displayName() }}</h1>
+          @if (creator.creator_category) {
+            <span class="creator-profile__niche">{{ creator.creator_category }}</span>
+          }
           @if (creator.city) {
             <span class="creator-profile__city">{{ creator.city }}</span>
           }
         </div>
       </div>
 
+      <!-- Reliability Badge -->
+      @if (reliabilityText()) {
+        <div class="creator-profile__reliability">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          {{ reliabilityText() }}
+        </div>
+      }
+
       <div class="creator-profile__details">
+        <!-- Instagram with handle + follower count -->
         @if (handle()) {
-          <div class="creator-profile__detail">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
-            <app-ig-link [handle]="handle()" />
+          <div class="creator-profile__ig-row">
+            <div class="creator-profile__ig-handle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+              <span>&#64;{{ handle() }}</span>
+              @if (formattedFollowers()) {
+                <span class="creator-profile__followers">{{ formattedFollowers() }} followers</span>
+              }
+            </div>
+            <a class="creator-profile__ig-btn" [href]="'https://instagram.com/' + handle()" target="_blank" rel="noopener">
+              View Instagram
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
           </div>
         }
         @if (creator.portfolio_url) {
           <div class="creator-profile__detail">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <a [href]="creator.portfolio_url" target="_blank" rel="noopener">Portfolio</a>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <a [href]="creator.portfolio_url" target="_blank" rel="noopener">Personal website</a>
           </div>
         }
         <div class="creator-profile__detail">
@@ -48,40 +74,18 @@
           <h3>About</h3>
           <p>{{ creator.bio }}</p>
         </div>
+      } @else {
+        <div class="creator-profile__bio creator-profile__bio--empty">
+          <p>No bio added yet</p>
+        </div>
       }
     </div>
 
-    <!-- Stats -->
-    @if (reputation(); as rep) {
-      <div class="creator-profile__stats">
-        <div class="creator-profile__stat creator-profile__stat--collabs">
-          <span class="creator-profile__stat-value">{{ rep.completedDeals }}</span>
-          <span class="creator-profile__stat-label">Collaborations delivered</span>
-        </div>
-        <div class="creator-profile__stat creator-profile__stat--rating">
-          @if (rep.totalRatings > 0) {
-            <span class="creator-profile__stat-value">
-              <span class="creator-profile__rating-stars">
-                @for (filled of ratingStars(); track $index) {
-                  <span class="creator-profile__star" [class.creator-profile__star--filled]="filled === 1">&#9733;</span>
-                }
-              </span>
-              {{ rep.avgRating }}
-            </span>
-            <span class="creator-profile__stat-label">Average rating ({{ rep.totalRatings }} reviews)</span>
-          } @else {
-            <span class="creator-profile__stat-value">--</span>
-            <span class="creator-profile__stat-label">No ratings yet</span>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Portfolio (auto-built from completed deals) -->
+    <!-- Portfolio (moved above stats) -->
     @if (portfolio().length > 0) {
       <div class="creator-profile__portfolio">
         <h2>Collaboration Portfolio</h2>
-        <p class="creator-profile__portfolio-sub">Auto-built from completed collaborations on Collabriq</p>
+        <p class="creator-profile__portfolio-sub">Verified collaborations completed on Collabriq</p>
         <div class="creator-profile__portfolio-grid">
           @for (item of portfolio(); track item.id) {
             <div class="portfolio-card">
@@ -96,25 +100,72 @@
               </div>
               <h3 class="portfolio-card__title">{{ item.requirement?.title ?? 'Collaboration' }}</h3>
               <div class="portfolio-card__meta">
-                @if (item.requirement?.category) {
-                  <span class="portfolio-card__category">{{ item.requirement?.category }}</span>
+                @if (item.requirement?.category; as cat) {
+                  <span class="portfolio-card__category">{{ categoryIcon(cat) }} {{ cat }}</span>
                 }
                 @if (item.completed_at) {
                   <span class="portfolio-card__date">{{ item.completed_at | date: 'MMM yyyy' }}</span>
                 }
               </div>
-              @if (item.content_proof_url) {
-                <a class="portfolio-card__proof" [href]="item.content_proof_url" target="_blank" rel="noopener">
-                  &#x1F4F8; View content
-                </a>
-              }
+              <!-- Brand rating or completed badge -->
+              <div class="portfolio-card__footer">
+                @if (item.brandRating) {
+                  <span class="portfolio-card__rating">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Brand rated {{ item.brandRating }}
+                  </span>
+                } @else {
+                  <span class="portfolio-card__completed">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    Completed
+                  </span>
+                }
+                @if (item.content_proof_url) {
+                  <a class="portfolio-card__proof" [href]="item.content_proof_url" target="_blank" rel="noopener">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    View content
+                  </a>
+                }
+              </div>
             </div>
           }
         </div>
       </div>
     } @else {
       <div class="creator-profile__empty-portfolio">
-        <p>No completed collaborations yet.</p>
+        <p>No completed collaborations yet</p>
+      </div>
+    }
+
+    <!-- Stats -->
+    @if (reputation(); as rep) {
+      <div class="creator-profile__stats">
+        <div class="creator-profile__stat creator-profile__stat--collabs">
+          <span class="creator-profile__stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </span>
+          <span class="creator-profile__stat-value">{{ rep.completedDeals }}</span>
+          <span class="creator-profile__stat-label">Collaborations delivered</span>
+        </div>
+        <div class="creator-profile__stat creator-profile__stat--rating">
+          <span class="creator-profile__stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          @if (rep.totalRatings > 0) {
+            <span class="creator-profile__stat-value">
+              {{ rep.avgRating }} rating
+              <span class="creator-profile__rating-stars">
+                @for (filled of ratingStars(); track $index) {
+                  <span [class.creator-profile__star--filled]="filled === 1">&#9733;</span>
+                }
+              </span>
+            </span>
+            <span class="creator-profile__stat-label">{{ rep.totalRatings }} brand reviews</span>
+          } @else {
+            <span class="creator-profile__stat-value">--</span>
+            <span class="creator-profile__stat-label">No ratings yet</span>
+          }
+        </div>
       </div>
     }
   }

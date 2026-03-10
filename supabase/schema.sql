@@ -44,6 +44,8 @@ CREATE TABLE public.profiles (
   business_category TEXT,
   instagram_handle  TEXT,
   portfolio_url     TEXT,
+  creator_category  TEXT,
+  follower_count    INTEGER,
   is_deleted        BOOLEAN NOT NULL DEFAULT FALSE,
   deleted_at        TIMESTAMPTZ,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
