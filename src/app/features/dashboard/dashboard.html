@@ -16,61 +16,152 @@
     <a class="dashboard__action-btn" routerLink="/creator/browse">Browse Opportunities</a>
   }
 
-  @if (loading()) {
-    <div class="dashboard__grid">
-      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
-      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
-      <div class="skeleton-card"><div class="skeleton skeleton--line-sm"></div><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div>
-    </div>
-  } @else {
-    <div class="dashboard__grid">
-      @switch (auth.userRole()) {
-        @case ('business') {
-          <a class="stat-card" routerLink="/business/requirements">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128203;</span><h3>Your Requirements</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ activeRequirements() }}</span><span class="stat-card__label">Active requirements</span></div>
-          </a>
-          <a class="stat-card" routerLink="/business/requirements">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128228;</span><h3>Pending Applications</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ businessPendingApps() }}</span><span class="stat-card__label">Creators waiting for review</span></div>
-          </a>
-          <a class="stat-card" routerLink="/business/deals" [queryParams]="{ tab: 'active' }">
-            <div class="stat-card__header"><span class="stat-card__icon">&#129309;</span><h3>Active Deals</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ activeDeals() }}</span><span class="stat-card__label">Ongoing collaborations</span></div>
-          </a>
+  <!-- ─── Business Stats ─── -->
+  @if (auth.userRole() === 'business') {
+    @if (loading()) {
+      <div class="dashboard__perf-grid">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="skeleton-tile"><div class="skeleton skeleton--icon"></div><div class="skeleton-tile__lines"><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div></div>
         }
-        @case ('creator') {
-          <a class="stat-card" routerLink="/creator/browse">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128269;</span><h3>Available Opportunities</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ openRequirements() }}</span><span class="stat-card__label">Open opportunities</span></div>
-          </a>
-          <a class="stat-card" routerLink="/creator/applications">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128228;</span><h3>Your Applications</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ pendingApplications() }}</span><span class="stat-card__label">Pending applications</span></div>
-          </a>
-          <a class="stat-card" routerLink="/creator/deals" [queryParams]="{ tab: 'active' }">
-            <div class="stat-card__header"><span class="stat-card__icon">&#127775;</span><h3>Active Collaborations</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ creatorActiveDeals() }}</span><span class="stat-card__label">Ongoing collaborations</span></div>
-          </a>
+      </div>
+    } @else {
+      <h2 class="dashboard__perf-heading">Your Collaboration Performance</h2>
+      <div class="dashboard__perf-grid">
+        <a class="dashboard__perf-card dashboard__perf-card--posted" routerLink="/business/requirements">
+          <span class="dashboard__perf-icon">&#x1F4E2;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ totalRequirements() }}</span>
+            <span class="dashboard__perf-label">Posted</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--active" routerLink="/business/requirements">
+          <span class="dashboard__perf-icon">&#x1F4CB;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ activeRequirements() }}</span>
+            <span class="dashboard__perf-label">Active</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--pending" routerLink="/business/requirements">
+          <span class="dashboard__perf-icon">&#x1F514;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ businessPendingApps() }}</span>
+            <span class="dashboard__perf-label">Awaiting Review</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--deals" routerLink="/business/deals" [queryParams]="{ tab: 'active' }">
+          <span class="dashboard__perf-icon">&#x1F91D;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ activeDeals() }}</span>
+            <span class="dashboard__perf-label">Active Deals</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--completed" routerLink="/business/deals">
+          <span class="dashboard__perf-icon">&#x2705;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ businessCompletedDeals() }}</span>
+            <span class="dashboard__perf-label">Completed</span>
+          </div>
+        </a>
+        @if (businessAvgRating() > 0) {
+          <div class="dashboard__perf-card dashboard__perf-card--rating">
+            <span class="dashboard__perf-icon">&#x2B50;</span>
+            <div class="dashboard__perf-content">
+              <span class="dashboard__perf-value">{{ businessAvgRating() }}</span>
+              <span class="dashboard__perf-label">Rating ({{ businessTotalRatings() }})</span>
+            </div>
+          </div>
         }
-        @case ('admin') {
-          <a class="stat-card" routerLink="/admin/users">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128101;</span><h3>Pending Users</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ pendingUsers() }}</span><span class="stat-card__label">Awaiting approval</span></div>
-          </a>
-          <a class="stat-card" routerLink="/admin/requirements">
-            <div class="stat-card__header"><span class="stat-card__icon">&#128203;</span><h3>Pending Requirements</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ pendingRequirements() }}</span><span class="stat-card__label">Awaiting approval</span></div>
-          </a>
-          <a class="stat-card" routerLink="/admin/deals" [queryParams]="{ tab: 'active' }">
-            <div class="stat-card__header"><span class="stat-card__icon">&#129309;</span><h3>Active Deals</h3></div>
-            <div class="stat-card__body"><span class="stat-card__value">{{ adminActiveDeals() }}</span><span class="stat-card__label">Ongoing deals</span></div>
-          </a>
-        }
-      }
-    </div>
+      </div>
+    }
   }
 
+  <!-- ─── Creator Stats ─── -->
+  @if (auth.userRole() === 'creator') {
+    @if (loading()) {
+      <div class="dashboard__perf-grid">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="skeleton-tile"><div class="skeleton skeleton--icon"></div><div class="skeleton-tile__lines"><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div></div>
+        }
+      </div>
+    } @else {
+      <h2 class="dashboard__perf-heading">Your Performance</h2>
+      <div class="dashboard__perf-grid">
+        <a class="dashboard__perf-card dashboard__perf-card--opportunities" routerLink="/creator/browse">
+          <span class="dashboard__perf-icon">&#x1F50D;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ openRequirements() }}</span>
+            <span class="dashboard__perf-label">Opportunities</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--apps" routerLink="/creator/applications">
+          <span class="dashboard__perf-icon">&#x1F4E8;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ creatorTotalApplications() }}</span>
+            <span class="dashboard__perf-label">Applications</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--pending" routerLink="/creator/applications">
+          <span class="dashboard__perf-icon">&#x23F3;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ pendingApplications() }}</span>
+            <span class="dashboard__perf-label">Pending</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--deals" routerLink="/creator/deals" [queryParams]="{ tab: 'active' }">
+          <span class="dashboard__perf-icon">&#x1F525;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ creatorActiveDeals() }}</span>
+            <span class="dashboard__perf-label">Active Deals</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--completed" routerLink="/creator/deals">
+          <span class="dashboard__perf-icon">&#x2705;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ creatorCompletedDeals() }}</span>
+            <span class="dashboard__perf-label">Completed</span>
+          </div>
+        </a>
+      </div>
+    }
+  }
+
+  <!-- ─── Admin Stats ─── -->
+  @if (auth.userRole() === 'admin') {
+    @if (loading()) {
+      <div class="dashboard__perf-grid">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton-tile"><div class="skeleton skeleton--icon"></div><div class="skeleton-tile__lines"><div class="skeleton skeleton--value"></div><div class="skeleton skeleton--line-sm"></div></div></div>
+        }
+      </div>
+    } @else {
+      <h2 class="dashboard__perf-heading">Platform Overview</h2>
+      <div class="dashboard__perf-grid">
+        <a class="dashboard__perf-card dashboard__perf-card--pending" routerLink="/admin/users">
+          <span class="dashboard__perf-icon">&#x1F465;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ pendingUsers() }}</span>
+            <span class="dashboard__perf-label">Pending Users</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--apps" routerLink="/admin/requirements">
+          <span class="dashboard__perf-icon">&#x1F4CB;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ pendingRequirements() }}</span>
+            <span class="dashboard__perf-label">Pending Requirements</span>
+          </div>
+        </a>
+        <a class="dashboard__perf-card dashboard__perf-card--deals" routerLink="/admin/deals" [queryParams]="{ tab: 'active' }">
+          <span class="dashboard__perf-icon">&#x1F91D;</span>
+          <div class="dashboard__perf-content">
+            <span class="dashboard__perf-value">{{ adminActiveDeals() }}</span>
+            <span class="dashboard__perf-label">Active Deals</span>
+          </div>
+        </a>
+      </div>
+    }
+  }
+
+  <!-- ─── Business: Recent Applications ─── -->
   @if (auth.userRole() === 'business' && !loading()) {
     @if (businessRecentApps().length > 0) {
       <section class="dashboard__section">
@@ -119,6 +210,7 @@
     }
   }
 
+  <!-- ─── Creator: Latest Opportunities ─── -->
   @if (auth.userRole() === 'creator') {
     <section class="dashboard__latest">
       <div class="dashboard__latest-header">

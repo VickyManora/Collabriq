@@ -35,19 +35,148 @@
     }
   }
 
-  &__grid {
+  // ─── Performance Tiles (unified stat cards) ───
+
+  &__perf-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.75rem;
+  }
+
+  &__perf-grid {
     display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
-    grid-template-columns: 1fr;
+    margin-bottom: 2rem;
 
     @include respond-to($breakpoint-sm) {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
 
     @include respond-to($breakpoint-lg) {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(6, 1fr);
     }
   }
+
+  &__perf-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.125rem;
+    border-radius: $radius-lg;
+    border: 1px solid;
+    overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    &--posted {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.25);
+
+      .dashboard__perf-icon { background: rgba(99, 102, 241, 0.18); color: #818cf8; }
+      .dashboard__perf-value { color: #818cf8; }
+    }
+
+    &--opportunities {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.25);
+
+      .dashboard__perf-icon { background: rgba(59, 130, 246, 0.18); color: #3b82f6; }
+      .dashboard__perf-value { color: #3b82f6; }
+    }
+
+    &--active {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: rgba(14, 165, 233, 0.25);
+
+      .dashboard__perf-icon { background: rgba(14, 165, 233, 0.18); color: #0ea5e9; }
+      .dashboard__perf-value { color: #0ea5e9; }
+    }
+
+    &--apps {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.25);
+
+      .dashboard__perf-icon { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
+      .dashboard__perf-value { color: #f59e0b; }
+    }
+
+    &--pending {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.35);
+
+      .dashboard__perf-icon { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
+      .dashboard__perf-value { color: #f59e0b; }
+    }
+
+    &--deals {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.25);
+
+      .dashboard__perf-icon { background: rgba(34, 197, 94, 0.18); color: #22c55e; }
+      .dashboard__perf-value { color: #22c55e; }
+    }
+
+    &--completed {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.25);
+
+      .dashboard__perf-icon { background: rgba(16, 185, 129, 0.18); color: #10b981; }
+      .dashboard__perf-value { color: #10b981; }
+    }
+
+    &--rating {
+      background: rgba(168, 85, 247, 0.1);
+      border-color: rgba(168, 85, 247, 0.25);
+
+      .dashboard__perf-icon { background: rgba(168, 85, 247, 0.18); color: #a855f7; }
+      .dashboard__perf-value { color: #a855f7; }
+    }
+  }
+
+  &__perf-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  &__perf-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__perf-value {
+    font-size: 1.375rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  &__perf-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    margin-top: 0.0625rem;
+  }
+
+  // ─── Sections ───
 
   &__latest {
     margin-top: 2rem;
@@ -250,81 +379,6 @@
   }
 
   &__time {
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
-  }
-}
-
-// ─── Stat cards ───
-
-.stat-card {
-  @include card;
-  position: relative;
-  display: block;
-  padding: 1rem 1.25rem;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -12px;
-    left: 10%;
-    right: 10%;
-    height: 24px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse, var(--color-card-glow, rgba(0, 0, 0, 0.06)) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
-
-    &::after {
-      opacity: 1;
-    }
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.375rem;
-  }
-
-  &__icon {
-    font-size: 1.125rem;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  h3 {
-    color: var(--color-text-muted);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-    margin: 0;
-  }
-
-  &__body {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
-  &__value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1.2;
-  }
-
-  &__label {
     font-size: 0.75rem;
     color: var(--color-text-faint);
   }
@@ -588,6 +642,23 @@
 
 // ─── Skeleton loading ───
 
+.skeleton-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+
+  &__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    flex: 1;
+  }
+}
+
 .skeleton-card {
   @include card;
   padding: 1rem 1.25rem;
@@ -601,6 +672,13 @@
   background: var(--color-border);
   border-radius: 4px;
   animation: shimmer 1.2s ease-in-out infinite alternate;
+
+  &--icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius;
+    flex-shrink: 0;
+  }
 
   &--line-sm {
     height: 0.75rem;
@@ -623,7 +701,7 @@
   &--value {
     height: 1.75rem;
     width: 3rem;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0;
   }
 
   &--avatar {

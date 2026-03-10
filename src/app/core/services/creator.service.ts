@@ -344,6 +344,42 @@ export class CreatorService {
     return activities.slice(0, limit);
   }
 
+  async getCreatorPerformanceStats(): Promise<{
+    totalApplications: number;
+    completedDeals: number;
+    avgRating: number;
+    totalRatings: number;
+  }> {
+    const userId = this.auth.profile()?.id;
+    const [appsResult, dealsResult, ratingsResult] = await Promise.all([
+      this.supabase
+        .from('applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', userId!),
+      this.supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', userId!)
+        .eq('status', 'completed'),
+      this.supabase
+        .from('ratings')
+        .select('stars')
+        .eq('ratee_id', userId!),
+    ]);
+
+    const ratings = ratingsResult.data ?? [];
+    const avgRating = ratings.length > 0
+      ? Math.round((ratings.reduce((sum: number, r: { stars: number }) => sum + r.stars, 0) / ratings.length) * 10) / 10
+      : 0;
+
+    return {
+      totalApplications: appsResult.count ?? 0,
+      completedDeals: dealsResult.count ?? 0,
+      avgRating,
+      totalRatings: ratings.length,
+    };
+  }
+
   async getCreatorDashboardCounts() {
     const userId = this.auth.profile()?.id;
 

@@ -43,21 +43,31 @@ export class Dashboard implements OnInit, OnDestroy {
   private visibilityHandler = () => {
     if (document.visibilityState === 'visible') this.loadData();
   };
+
+  // Business
   activeRequirements = signal(0);
+  totalRequirements = signal(0);
   activeDeals = signal(0);
   businessPendingApps = signal(0);
   businessRecentApps = signal<RecentApplication[]>([]);
   businessActivity = signal<ActivityItem[]>([]);
+  businessCompletedDeals = signal(0);
+  businessAvgRating = signal(0);
+  businessTotalRatings = signal(0);
 
-  // Creator counts
+  // Creator
   openRequirements = signal(0);
   pendingApplications = signal(0);
   creatorActiveDeals = signal(0);
+  creatorTotalApplications = signal(0);
+  creatorCompletedDeals = signal(0);
+  creatorAvgRating = signal(0);
+  creatorTotalRatings = signal(0);
   latestOpportunities = signal<RequirementWithBusiness[]>([]);
   appliedMap = signal<Map<string, AppliedInfo>>(new Map());
   recentActivity = signal<ActivityItem[]>([]);
 
-  // Admin counts
+  // Admin
   pendingUsers = signal(0);
   pendingRequirements = signal(0);
   adminActiveDeals = signal(0);
@@ -98,21 +108,26 @@ export class Dashboard implements OnInit, OnDestroy {
   private async loadBusinessData() {
     this.loading.set(true);
     try {
-      const [counts, dealCount, pendingApps, recentApps, activity] = await Promise.race([
+      const [counts, dealCount, pendingApps, recentApps, activity, ratingStats] = await Promise.race([
         Promise.all([
           this.reqService.getMyRequirementCounts(),
           this.reqService.getMyDealCount(),
           this.reqService.getPendingApplicationCount(),
           this.reqService.getRecentApplications(5),
           this.reqService.getBusinessRecentActivity(5),
+          this.reqService.getBusinessRatingStats(),
         ]),
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
       ]);
       this.activeRequirements.set(counts.active);
+      this.totalRequirements.set(counts.total);
       this.activeDeals.set(dealCount);
       this.businessPendingApps.set(pendingApps);
       this.businessRecentApps.set(recentApps);
       this.businessActivity.set(activity);
+      this.businessCompletedDeals.set(ratingStats.completedDeals);
+      this.businessAvgRating.set(ratingStats.avgRating);
+      this.businessTotalRatings.set(ratingStats.totalRatings);
     } catch {
       // timeout or network error
     }
@@ -122,12 +137,13 @@ export class Dashboard implements OnInit, OnDestroy {
   private async loadCreatorData() {
     this.loading.set(true);
     try {
-      const [counts, recentResult, appResult, activity] = await Promise.race([
+      const [counts, recentResult, appResult, activity, perfStats] = await Promise.race([
         Promise.all([
           this.creatorService.getCreatorDashboardCounts(),
           this.creatorService.getRecentRequirements(3),
           this.creatorService.getMyApplicationsBrief(),
           this.creatorService.getRecentActivity(5),
+          this.creatorService.getCreatorPerformanceStats(),
         ]),
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
       ]);
@@ -135,6 +151,10 @@ export class Dashboard implements OnInit, OnDestroy {
       this.openRequirements.set(counts.openRequirements);
       this.pendingApplications.set(counts.pendingApplications);
       this.creatorActiveDeals.set(counts.activeDeals);
+      this.creatorTotalApplications.set(perfStats.totalApplications);
+      this.creatorCompletedDeals.set(perfStats.completedDeals);
+      this.creatorAvgRating.set(perfStats.avgRating);
+      this.creatorTotalRatings.set(perfStats.totalRatings);
 
       if (recentResult.data && !recentResult.error) {
         this.latestOpportunities.set(recentResult.data);
