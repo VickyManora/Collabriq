@@ -174,7 +174,13 @@ export class BrowseRequirements implements OnInit, OnDestroy {
       reqs = reqs.filter((r) => r.creator_slots - r.filled_slots >= slots);
     }
 
+    const applied = this.appliedMap();
     reqs = [...reqs].sort((a, b) => {
+      // Non-applied requirements first, applied ones at bottom
+      const aApplied = applied.has(a.id) ? 1 : 0;
+      const bApplied = applied.has(b.id) ? 1 : 0;
+      if (aApplied !== bApplied) return aApplied - bApplied;
+
       switch (sort) {
         case 'newest':
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -388,6 +394,26 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     if (this.isHybridComp(comp)) return '🍽';
     if (this.isPaidComp(comp)) return '💰';
     return '🎁';
+  }
+
+  appStatusLabel(status: string): string {
+    switch (status) {
+      case 'applied': return 'Pending Review';
+      case 'accepted': return 'Accepted';
+      case 'rejected': return 'Not Selected';
+      case 'withdrawn': return 'Withdrawn';
+      default: return 'Applied';
+    }
+  }
+
+  appStatusIcon(status: string): string {
+    switch (status) {
+      case 'applied': return '\u23F3';
+      case 'accepted': return '\u2705';
+      case 'rejected': return '\u274C';
+      case 'withdrawn': return '\u21A9';
+      default: return '\u2713';
+    }
   }
 
   getReputation(businessId: string): { avgRating: number; totalRatings: number; completedDeals: number } | undefined {

@@ -508,17 +508,39 @@
     &--warning { color: var(--color-accent); }
   }
 
-  &__applied {
+  &__status {
     display: inline-flex;
     align-items: center;
+    gap: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.25rem 0.625rem;
     border-radius: 1rem;
     white-space: nowrap;
-    background: #1f9d6a;
-    color: #fff;
     flex-shrink: 0;
+
+    &--applied {
+      background: rgba(245, 158, 11, 0.12);
+      color: #d97706;
+      [data-theme="dark"] & { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+    }
+
+    &--accepted {
+      background: rgba(34, 154, 86, 0.12);
+      color: #1f9d6a;
+      [data-theme="dark"] & { background: rgba(34, 154, 86, 0.18); color: #4ade80; }
+    }
+
+    &--rejected {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      [data-theme="dark"] & { background: rgba(239, 68, 68, 0.18); color: #f87171; }
+    }
+
+    &--withdrawn {
+      background: var(--color-hover);
+      color: var(--color-text-muted);
+    }
   }
 
   &__cta {

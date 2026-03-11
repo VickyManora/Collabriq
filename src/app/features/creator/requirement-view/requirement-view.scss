@@ -233,31 +233,55 @@
     }
   }
 
-  &__ig-row {
+  &__ig-handle {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    font-size: 0.8125rem;
-  }
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text);
 
-  &__ig-icon {
-    color: var(--color-text-faint);
-    flex-shrink: 0;
+    @include respond-to($breakpoint-sm) {
+      font-size: 0.8125rem;
+    }
+
+    svg {
+      flex-shrink: 0;
+      color: var(--color-text-muted);
+    }
   }
 
   &__ig-btn {
-    @include btn-outline;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
     padding: 0.375rem 0.75rem;
-    white-space: nowrap;
+    border-radius: $radius-sm;
     text-decoration: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
     flex-shrink: 0;
     align-self: flex-start;
     margin-left: calc(2.25rem + 0.625rem);
 
     @include respond-to($breakpoint-sm) {
+      font-size: 0.8125rem;
+      padding: 0.4375rem 0.875rem;
       align-self: center;
       margin-left: 0;
+    }
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.85;
     }
   }
 
@@ -642,6 +666,23 @@
   padding: 0.5rem 1.25rem;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.req-view__sticky-withdraw-btn {
+  @include btn-outline-danger;
+  font-size: 0.875rem;
+  padding: 0.5rem 1.25rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.req-view__sticky-deal-btn {
+  @include btn-primary;
+  font-size: 0.875rem;
+  padding: 0.5rem 1.25rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
 // ─── Skeleton loading ───

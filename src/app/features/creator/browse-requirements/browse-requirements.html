@@ -210,8 +210,8 @@
               }
               <span class="browse-card__applicants">&#x1F465; {{ applicationsCount(req) }} creators applied</span>
             </div>
-            @if (getAppliedInfo(req.id)) {
-              <span class="browse-card__applied">Applied &#10003;</span>
+            @if (getAppliedInfo(req.id); as info) {
+              <span class="browse-card__status browse-card__status--{{ info.status }}">{{ appStatusIcon(info.status) }} {{ appStatusLabel(info.status) }}</span>
             } @else {
               <span class="browse-card__cta">Apply Now &rarr;</span>
             }

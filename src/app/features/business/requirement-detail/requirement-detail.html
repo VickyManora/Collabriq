@@ -1,19 +1,14 @@
 <div class="req-detail">
   @if (loading()) {
-    <div class="skeleton-back"></div>
-    <div class="skeleton-detail-card">
-      <div class="skeleton-row">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--badge"></div>
-      </div>
+    <div class="skeleton-back"><div class="skeleton skeleton--line" style="width:8rem"></div></div>
+    <div class="skeleton-card skeleton-card--detail">
+      <div class="skeleton-row"><div class="skeleton skeleton--title"></div><div class="skeleton skeleton--badge"></div></div>
       <div class="skeleton skeleton--line-sm" style="width:25%"></div>
-      <div class="skeleton skeleton--line" style="width:100%; margin-top:0.5rem"></div>
-      <div class="skeleton skeleton--line" style="width:85%"></div>
-      <div class="skeleton skeleton--line" style="width:60%"></div>
+      <div class="skeleton skeleton--block"></div>
       <div class="skeleton-divider"></div>
-      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:60px"></div></div>
-      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:120px"></div></div>
-      <div class="skeleton-info-row"><div class="skeleton skeleton--line-sm" style="width:100px"></div><div class="skeleton skeleton--line-sm" style="width:90px"></div></div>
+      <div class="skeleton skeleton--line" style="width:50%"></div>
+      <div class="skeleton skeleton--line" style="width:45%"></div>
+      <div class="skeleton skeleton--line" style="width:40%"></div>
       <div class="skeleton-divider"></div>
       <div class="skeleton-row" style="gap:0.75rem">
         <div class="skeleton skeleton--btn"></div>
@@ -66,10 +61,23 @@
         </div>
       }
 
-      @if (req.category) {
-        <span [class]="req.category | categoryClass">{{ req.category }}</span>
-      }
+      <!-- Chips row -->
+      <div class="req-detail__chips">
+        @if (req.category) {
+          <span [class]="req.category | categoryClass">{{ req.category }}</span>
+        }
+        @if (req.compensation_details) {
+          <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
+        }
+        <span class="req-detail__chip req-detail__chip--spots">
+          &#x1F525; {{ req.filled_slots }} of {{ req.creator_slots }} spots filled
+        </span>
+        <span class="req-detail__chip req-detail__chip--applicants">
+          &#x1F465; {{ applications().length }} creator{{ applications().length !== 1 ? 's' : '' }} applied
+        </span>
+      </div>
 
+      <!-- Description -->
       @if (parsedSections().doItems.length > 0 || parsedSections().getItems.length > 0) {
         <div class="req-detail__desc-sections">
           @if (parsedSections().doItems.length > 0) {
@@ -97,33 +105,21 @@
         <p class="req-detail__desc">{{ req.description }}</p>
       }
 
+      <!-- Info items -->
       <div class="req-detail__info">
         <div class="req-detail__info-item">
-          <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c-3.6 0-8-2.4-8-7.7 0-3.4 2-6.4 3.8-8.8.4-.5 1.2-.4 1.4.2.5 1.3 1.4 2.6 2.8 3.1.1-2 .8-5.2 3.2-7.8.4-.4 1.1-.3 1.3.2C18.2 6.8 20 10.5 20 15.3 20 20.6 15.6 23 12 23z"/></svg>
-          <div>
-            <span class="req-detail__slots-filled">{{ req.filled_slots }} of {{ req.creator_slots }} spots filled</span>
-            <span class="req-detail__slots-remaining">{{ spotsRemaining(req) }} spot{{ spotsRemaining(req) !== 1 ? 's' : '' }} remaining</span>
-          </div>
-        </div>
-        @if (req.compensation_details) {
-          <div class="req-detail__info-item">
-            <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span [class]="req.compensation_details | compClass">{{ req.compensation_details }}</span>
-          </div>
-        }
-        <div class="req-detail__info-item">
-          <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span>Created {{ req.created_at | date: 'mediumDate' }}</span>
+          <span class="req-detail__info-label">&#x1F552; Created</span>
+          <span>{{ req.created_at | date: 'mediumDate' }}</span>
         </div>
         @if (req.opened_at) {
           <div class="req-detail__info-item">
-            <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span>Opened {{ req.opened_at | date: 'mediumDate' }}</span>
+            <span class="req-detail__info-label">&#x2705; Opened</span>
+            <span>{{ req.opened_at | date: 'mediumDate' }}</span>
           </div>
         }
         @if (req.closes_at) {
           <div class="req-detail__info-item">
-            <svg class="req-detail__info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span class="req-detail__info-label">&#x23F3; Closing</span>
             <span>{{ req.closes_at | closesIn }}</span>
           </div>
         }
@@ -205,7 +201,7 @@
 
                 <div class="app-card__profile-info">
                   @if (app.creator.city) {
-                    <span class="app-card__city">📍 {{ app.creator.city }}</span>
+                    <span class="app-card__city">&#x1F4CD; {{ app.creator.city }}</span>
                   }
                   @if (app.creator.bio) {
                     <p class="app-card__bio">{{ app.creator.bio }}</p>
@@ -232,7 +228,7 @@
                       <p><app-ig-link [handle]="app.creator.instagram_handle" /></p>
                     }
                     @if (app.creator?.portfolio_url) {
-                      <p><a [href]="app.creator.portfolio_url" target="_blank" rel="noopener">Portfolio</a></p>
+                      <p><a [href]="app.creator.portfolio_url" target="_blank" rel="noopener">Personal website</a></p>
                     }
                   </div>
                 }
