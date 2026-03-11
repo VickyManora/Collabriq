@@ -90,12 +90,14 @@
     overflow: hidden;
     opacity: 0;
     margin-top: 0;
-    transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+    transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease, overflow 0s 0.3s;
 
     &--open {
       max-height: 20rem;
       opacity: 1;
       margin-top: 0.5rem;
+      overflow: visible;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease, overflow 0s 0s;
     }
 
     @include respond-to($breakpoint-sm) {
