@@ -53,29 +53,38 @@
 
 
       <!-- Business info -->
-      <div class="req-view__business-card">
-        <div class="req-view__business-row" (click)="viewBusiness()">
-          <span class="req-view__avatar">{{ businessInitial() }}</span>
-          <div class="req-view__business-info">
-            <span class="req-view__business-name">{{ businessDisplayName() }}</span>
-            @if (businessHandle()) {
-              <span class="req-view__ig-handle">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
-                &#64;{{ businessHandle() }}
-              </span>
-            }
-            <span class="req-view__response-rate">&#x26A1; Usually responds within 24 hours</span>
-            @if (req.location) {
-              <span class="req-view__business-location">&#x1F4CD; {{ req.location }}</span>
-            }
+      <div class="req-view__biz-card" (click)="viewBusiness()">
+        <div class="req-view__biz-identity">
+          <span class="req-view__biz-avatar">{{ businessInitial() }}</span>
+          <div class="req-view__biz-identity-text">
+            <span class="req-view__biz-name">{{ businessDisplayName() }}</span>
           </div>
         </div>
-        @if (businessHandle()) {
-          <a class="req-view__ig-btn" [href]="'https://instagram.com/' + businessHandle()" target="_blank" rel="noopener" (click)="$event.stopPropagation()">
-            View Instagram
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-          </a>
-        }
+
+        <div class="req-view__biz-details">
+          @if (businessHandle()) {
+            <div class="req-view__biz-ig-row">
+              <div class="req-view__biz-ig-handle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+                <span>&#64;{{ businessHandle() }}</span>
+              </div>
+              <a class="req-view__biz-ig-btn" [href]="'https://instagram.com/' + businessHandle()" target="_blank" rel="noopener" (click)="$event.stopPropagation()">
+                View Instagram
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+              </a>
+            </div>
+          }
+          @if (req.location) {
+            <div class="req-view__biz-detail">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>{{ req.location }}</span>
+            </div>
+          }
+          <div class="req-view__biz-detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Usually responds within 24 hours</span>
+          </div>
+        </div>
       </div>
 
       <!-- Description -->
