@@ -10,7 +10,18 @@
   />
 
   <div class="browse__filter-bar">
-    <div class="browse__filters">
+    <!-- Mobile: compact filter toggle -->
+    <button class="browse__filter-toggle" (click)="toggleMobileFilters()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+      <span>Filters</span>
+      @if (activeFilterCount() > 0) {
+        <span class="browse__filter-badge">{{ activeFilterCount() }}</span>
+      }
+      <svg class="browse__filter-chevron" [class.browse__filter-chevron--open]="mobileFiltersOpen()" width="12" height="12" viewBox="0 0 12 12"><path fill="currentColor" d="M6 8L1 3h10z"/></svg>
+    </button>
+
+    <!-- Filter dropdowns: always visible on desktop, collapsible on mobile -->
+    <div class="browse__filters" [class.browse__filters--open]="mobileFiltersOpen()">
       <!-- Category -->
       <div class="browse__dropdown" [class.browse__dropdown--open]="openDropdown() === 'category'">
         <button class="browse__dropdown-trigger" (click)="toggleDropdown('category')">
@@ -157,7 +168,9 @@
             @if (isClosingSoon(req)) {
               <span class="browse-card__closing-soon">Closing Soon</span>
             }
-            <span class="browse-card__spots-badge" [class.browse-card__spots-badge--urgent]="slotsAvailable(req) <= 1" [class.browse-card__spots-badge--warning]="slotsAvailable(req) <= 3 && slotsAvailable(req) > 1">&#x1F525; {{ spotsLeftText(req) }}</span>
+            @if (isNew(req) || isClosingSoon(req)) {
+              <span class="browse-card__spots-badge" [class.browse-card__spots-badge--urgent]="slotsAvailable(req) <= 1" [class.browse-card__spots-badge--warning]="slotsAvailable(req) <= 3 && slotsAvailable(req) > 1">&#x1F525; {{ spotsLeftText(req) }}</span>
+            }
           </div>
 
           <div class="browse-card__header">
@@ -166,7 +179,7 @@
               <div class="browse-card__header-text">
                 <p class="browse-card__business">{{ businessDisplayName(req) }}</p>
                 @if (businessHandle(req)) {
-                  <p class="browse-card__handle"><app-ig-link [handle]="businessHandle(req)" /></p>
+                  <p class="browse-card__handle">&#64;{{ businessHandle(req) }}</p>
                 }
                 @if (getReputation(req.business_id); as rep) {
                   <p class="browse-card__reputation">

@@ -9,7 +9,6 @@ import { ClosesInPipe } from '../../../shared/pipes/closes-in.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CategoryClassPipe } from '../../../shared/pipes/category-class.pipe';
 import { Pagination } from '../../../shared/pagination/pagination';
-import { InstagramLink } from '../../../shared/instagram-link/instagram-link';
 
 type CategoryFilter = 'all' | string;
 type CompensationFilter = 'all' | 'paid' | 'barter' | 'under_2000' | '2000_5000' | '5000_plus';
@@ -26,7 +25,7 @@ interface AppliedInfo {
   selector: 'app-browse-requirements',
   templateUrl: './browse-requirements.html',
   styleUrl: './browse-requirements.scss',
-  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, CategoryClassPipe, Pagination, InstagramLink],
+  imports: [FormsModule, DatePipe, ClosesInPipe, TimeAgoPipe, CategoryClassPipe, Pagination],
 })
 export class BrowseRequirements implements OnInit, OnDestroy {
   requirements = signal<RequirementWithBusiness[]>([]);
@@ -46,6 +45,7 @@ export class BrowseRequirements implements OnInit, OnDestroy {
   currentPage = signal(1);
   loading = signal(true);
   openDropdown = signal<DropdownId>(null);
+  mobileFiltersOpen = signal(false);
 
   readonly pageSize = 10;
 
@@ -101,6 +101,16 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     this.slotsFilter() !== 0 ||
     this.searchQuery().trim() !== '',
   );
+
+  activeFilterCount = computed(() => {
+    let count = 0;
+    if (this.categoryFilter() !== 'all') count++;
+    if (this.compensationFilter() !== 'all') count++;
+    if (this.locationFilter() !== 'all') count++;
+    if (this.slotsFilter() !== 0) count++;
+    if (this.sortBy() !== 'newest') count++;
+    return count;
+  });
 
   activeChips = computed(() => {
     const chips: { label: string; key: string }[] = [];
@@ -219,6 +229,14 @@ export class BrowseRequirements implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:scroll')
+  onScroll() {
+    if (this.mobileFiltersOpen()) {
+      this.mobileFiltersOpen.set(false);
+      this.closeDropdown();
+    }
+  }
+
   ngOnInit() {
     this.loadData();
 
@@ -277,6 +295,11 @@ export class BrowseRequirements implements OnInit, OnDestroy {
 
   onFilterChange() {
     this.currentPage.set(1);
+  }
+
+  toggleMobileFilters() {
+    this.mobileFiltersOpen.update(v => !v);
+    if (!this.mobileFiltersOpen()) this.closeDropdown();
   }
 
   toggleDropdown(id: DropdownId) {
