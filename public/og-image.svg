@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2B0D2F"/>
+      <stop offset="100%" style="stop-color:#1a0620"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="1050" cy="100" r="180" fill="#7FB1B6" opacity="0.08"/>
+  <circle cx="150" cy="530" r="120" fill="#FF6A3D" opacity="0.08"/>
+
+  <!-- Logo: C shape -->
+  <g transform="translate(100, 200) scale(2.2)">
+    <path d="M40 10 A35 35 0 1 0 40 90 L40 70 A15 15 0 1 1 40 30 Z" fill="#7FB1B6"/>
+    <circle cx="65" cy="50" r="22" fill="#FF6A3D"/>
+    <rect x="72" y="65" width="10" height="6" rx="2" fill="#FF6A3D"/>
+    <circle cx="85" cy="70" r="6" fill="#7FB1B6"/>
+  </g>
+
+  <!-- Text: Collabriq -->
+  <text x="360" y="310" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="72" font-weight="700" fill="#ffffff" letter-spacing="-1">Collabriq</text>
+
+  <!-- Tagline -->
+  <text x="362" y="370" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="400" fill="#7FB1B6">Connect Businesses with Creators</text>
+
+  <!-- Features -->
+  <text x="362" y="440" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.5)">Food Reviews  ·  Reels  ·  Photoshoots  ·  Social Media</text>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="615" width="1200" height="15" fill="#FF6A3D"/>
+</svg>
