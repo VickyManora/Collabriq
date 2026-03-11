@@ -544,7 +544,7 @@
   }
 
   &__cta {
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 0.25rem;
     font-size: 0.75rem;
@@ -558,6 +558,30 @@
     opacity: 0;
     transform: translateY(6px);
     transition: opacity 0.2s ease, transform 0.2s ease;
+
+    @include respond-to($breakpoint-sm) {
+      display: inline-flex;
+    }
+  }
+
+  &__apply-btn {
+    @include btn-base;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: 1rem;
+    background: var(--color-primary);
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    @include respond-to($breakpoint-sm) {
+      display: none;
+    }
   }
 }
 

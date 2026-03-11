@@ -190,7 +190,7 @@
       <section class="dashboard__activity">
         <h2>Recent Activity</h2>
         <div class="activity-list">
-          @for (item of businessActivity(); track item.timestamp) {
+          @for (item of businessActivity(); track $index) {
             <div class="activity-item">
               <span class="activity-item__icon activity-item__icon--{{ item.icon }}">
                 @switch (item.icon) {
@@ -279,8 +279,11 @@
                     </span>
                   }
                 </div>
-                @if (hasApplied(req.id)) {
-                  <span class="opp-card__applied">Applied &#10003;</span>
+                @if (getAppliedInfo(req.id); as info) {
+                  <span class="opp-card__status opp-card__status--{{ info.status }}">{{ appStatusIcon(info.status) }} {{ appStatusLabel(info.status) }}</span>
+                } @else {
+                  <span class="opp-card__cta">Apply Now &rarr;</span>
+                  <button class="opp-card__apply-btn" (click)="viewRequirement(req.id); $event.stopPropagation()">Apply Now</button>
                 }
               </div>
             </div>
@@ -295,7 +298,7 @@
       <section class="dashboard__activity">
         <h2>Recent Activity</h2>
         <div class="activity-list">
-          @for (item of recentActivity(); track item.timestamp) {
+          @for (item of recentActivity(); track $index) {
             <div class="activity-item">
               <span class="activity-item__icon activity-item__icon--{{ item.icon }}">
                 @switch (item.icon) {

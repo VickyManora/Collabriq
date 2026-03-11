@@ -233,6 +233,30 @@ export class Dashboard implements OnInit, OnDestroy {
     return this.appliedMap().has(requirementId);
   }
 
+  getAppliedInfo(requirementId: string): AppliedInfo | undefined {
+    return this.appliedMap().get(requirementId);
+  }
+
+  appStatusLabel(status: string): string {
+    switch (status) {
+      case 'applied': return 'Pending Review';
+      case 'accepted': return 'Accepted';
+      case 'rejected': return 'Not Selected';
+      case 'withdrawn': return 'Withdrawn';
+      default: return 'Applied';
+    }
+  }
+
+  appStatusIcon(status: string): string {
+    switch (status) {
+      case 'applied': return '\u23F3';
+      case 'accepted': return '\u2705';
+      case 'rejected': return '\u274C';
+      case 'withdrawn': return '\u21A9';
+      default: return '\u2713';
+    }
+  }
+
   viewRequirement(id: string) {
     this.router.navigate(['/creator/browse', id]);
   }

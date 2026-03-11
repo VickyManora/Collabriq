@@ -214,6 +214,7 @@
               <span class="browse-card__status browse-card__status--{{ info.status }}">{{ appStatusIcon(info.status) }} {{ appStatusLabel(info.status) }}</span>
             } @else {
               <span class="browse-card__cta">Apply Now &rarr;</span>
+              <button class="browse-card__apply-btn" (click)="viewRequirement(req.id); $event.stopPropagation()">Apply Now</button>
             }
           </div>
         </div>
