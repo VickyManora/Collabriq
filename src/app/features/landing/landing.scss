@@ -237,8 +237,36 @@
 [data-animate="slide-right"] { transform: translateX(-24px); }
 [data-animate="slide-left"] { transform: translateX(24px); }
 
+// Slide in from left
+[data-animate="slide-in"] {
+  transform: translateX(-30px);
+  &.in-view { opacity: 1; transform: translateX(0); }
+}
+
+// Scale pop (zoom in)
+[data-animate="scale-pop"] {
+  transform: scale(0.85);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  &.in-view { opacity: 1; transform: scale(1); }
+}
+
+// Flip up (card placed on table)
+[data-animate="flip-up"] {
+  transform: translateY(40px) perspective(600px) rotateX(8deg);
+  transform-origin: bottom center;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  &.in-view { opacity: 1; transform: translateY(0) perspective(600px) rotateX(0); }
+}
+
+// Drop in from above with bounce
+[data-animate="drop-in"] {
+  transform: translateY(-24px);
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  &.in-view { opacity: 1; transform: translateY(0); }
+}
+
 // Stagger cards in grids
-.examples__grid, .why__grid, .earnings__grid {
+.examples__grid {
   [data-animate] {
     @for $i from 1 through 6 {
       &:nth-child(#{$i}) { transition-delay: #{($i - 1) * 80}ms; }
@@ -705,6 +733,16 @@
     font-size: 0.625rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
     padding: 0.1875rem 0.5rem; border-radius: 999px;
     background: rgba(255, 106, 61, 0.1); color: var(--color-accent); white-space: nowrap;
+  }
+
+  // Pulse glow on badge after drop-in completes
+  &__item.in-view &__badge {
+    animation: badge-glow 1.5s ease 0.8s 2;
+  }
+
+  @keyframes badge-glow {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 8px rgba(255, 106, 61, 0.35); }
   }
 
   &__note {

@@ -25,6 +25,7 @@ interface FeaturedRequirement {
 })
 export class Landing implements OnInit, AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
+  private countUpObserver: IntersectionObserver | null = null;
 
   constructor(
     protected theme: ThemeService,
@@ -62,12 +63,49 @@ export class Landing implements OnInit, AfterViewInit, OnDestroy {
       { threshold: 0.15 },
     );
 
+    this.countUpObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.animateCountUp(entry.target as HTMLElement);
+            this.countUpObserver?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 },
+    );
+
     const animatedEls = this.el.nativeElement.querySelectorAll('[data-animate]');
     animatedEls.forEach((el) => this.observer!.observe(el));
+
+    const countUpEls = this.el.nativeElement.querySelectorAll('[data-countup]');
+    countUpEls.forEach((el) => this.countUpObserver!.observe(el));
+  }
+
+  private animateCountUp(el: HTMLElement) {
+    const target = parseInt(el.getAttribute('data-countup') || '0', 10);
+    const suffix = el.getAttribute('data-suffix') || '';
+    const prefix = el.getAttribute('data-prefix') || '';
+    const duration = 1500;
+    const start = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * target);
+      el.textContent = prefix + current.toLocaleString('en-IN') + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
   }
 
   ngOnDestroy() {
     this.observer?.disconnect();
+    this.countUpObserver?.disconnect();
   }
 
   async ngOnInit() {
@@ -101,6 +139,8 @@ export class Landing implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       const newEls = this.el.nativeElement.querySelectorAll('[data-animate]:not(.in-view)');
       newEls.forEach((el) => this.observer?.observe(el));
+      const newCountEls = this.el.nativeElement.querySelectorAll('[data-countup]:not(.counted)');
+      newCountEls.forEach((el) => this.countUpObserver?.observe(el));
     });
   }
 
