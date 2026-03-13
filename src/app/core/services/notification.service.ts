@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, OnDestroy } from '@angular/core';
+import { Injectable, signal, computed, effect, OnDestroy } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { Notification, NotificationType } from '../models/notification.model';
@@ -8,6 +8,8 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class NotificationService implements OnDestroy {
   private notificationsSignal = signal<Notification[]>([]);
   private realtimeChannel: RealtimeChannel | null = null;
+  private originalFavicon: string | null = null;
+  private faviconEl: HTMLLinkElement | null = null;
 
   readonly notifications = this.notificationsSignal.asReadonly();
   readonly unreadCount = computed(() =>
@@ -21,6 +23,70 @@ export class NotificationService implements OnDestroy {
     private auth: AuthService,
   ) {
     this.supabase = this.supabaseService.client;
+
+    effect(() => {
+      this.updateFaviconBadge(this.unreadCount());
+    });
+  }
+
+  private updateFaviconBadge(count: number) {
+    if (typeof document === 'undefined') return;
+
+    if (!this.faviconEl) {
+      this.faviconEl = document.querySelector('link[rel="icon"]');
+    }
+    if (!this.faviconEl) return;
+
+    if (!this.originalFavicon) {
+      this.originalFavicon = this.faviconEl.href;
+    }
+
+    if (count === 0) {
+      this.faviconEl.href = this.originalFavicon;
+      document.title = document.title.replace(/^\(\d+\)\s*/, '');
+      return;
+    }
+
+    // Update tab title
+    const cleanTitle = document.title.replace(/^\(\d+\)\s*/, '');
+    document.title = `(${count}) ${cleanTitle}`;
+
+    // Draw favicon with red dot
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const size = 32;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.drawImage(img, 0, 0, size, size);
+
+      // Red dot
+      const dotRadius = 7;
+      const x = size - dotRadius;
+      const y = dotRadius;
+      ctx.beginPath();
+      ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Count number if <= 9
+      if (count <= 9) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(count), x, y + 0.5);
+      }
+
+      this.faviconEl!.href = canvas.toDataURL('image/png');
+    };
+    img.src = this.originalFavicon;
   }
 
   async fetchNotifications() {
