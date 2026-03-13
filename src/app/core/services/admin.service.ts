@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { EmailService } from './email.service';
 import { Profile } from '../models/user.model';
 import { Requirement } from '../models/requirement.model';
 import { Deal } from '../models/deal.model';
@@ -30,7 +31,10 @@ export type UserRequirement = Requirement & {
 export class AdminService {
   private supabase;
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private emailService: EmailService,
+  ) {
     this.supabase = this.supabaseService.client;
   }
 
@@ -53,21 +57,42 @@ export class AdminService {
   }
 
   async approveUser(id: string) {
-    return this.supabase
+    const result = await this.supabase
       .from('profiles')
       .update({ approval_status: 'approved' })
       .eq('id', id)
       .select()
       .single<Profile>();
+
+    if (result.data) {
+      this.emailService.send(
+        result.data.email,
+        result.data.full_name,
+        'user_approved',
+      );
+    }
+
+    return result;
   }
 
   async rejectUser(id: string, rejectionReason: string) {
-    return this.supabase
+    const result = await this.supabase
       .from('profiles')
       .update({ approval_status: 'rejected', rejection_reason: rejectionReason })
       .eq('id', id)
       .select()
       .single<Profile>();
+
+    if (result.data) {
+      this.emailService.send(
+        result.data.email,
+        result.data.full_name,
+        'user_rejected',
+        rejectionReason,
+      );
+    }
+
+    return result;
   }
 
   async getPendingRequirements() {
