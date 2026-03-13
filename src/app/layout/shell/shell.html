@@ -23,14 +23,7 @@
         }
       </div>
       <div class="rejected-strip__actions">
-        <button class="rejected-strip__update-btn" (click)="goToProfile()">Update Profile</button>
-        <button
-          class="rejected-strip__reapply-btn"
-          (click)="reapply()"
-          [disabled]="reapplying()"
-        >
-          {{ reapplying() ? 'Reapplying...' : 'Reapply for Approval' }}
-        </button>
+        <button class="rejected-strip__update-btn" (click)="goToProfile()">Update Profile &amp; Reapply</button>
       </div>
     </div>
   }

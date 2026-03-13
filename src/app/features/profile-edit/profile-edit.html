@@ -141,21 +141,22 @@
 
     <div class="profile-edit__actions">
       <button type="button" class="profile-edit__cancel-btn" (click)="cancel()">Cancel</button>
-      <button
-        type="submit"
-        class="profile-edit__save-btn"
-        [disabled]="!isValid || saving()"
-      >
-        {{ saving() ? 'Saving...' : 'Save Changes' }}
-      </button>
       @if (auth.isRejected()) {
         <button
           type="button"
           class="profile-edit__reapply-btn"
-          (click)="reapply()"
-          [disabled]="reapplying()"
+          (click)="saveAndReapply()"
+          [disabled]="!isValid || !hasChanges || saving()"
         >
-          {{ reapplying() ? 'Reapplying...' : 'Reapply for Approval' }}
+          {{ saving() ? 'Saving & Reapplying...' : 'Save & Reapply for Approval' }}
+        </button>
+      } @else {
+        <button
+          type="submit"
+          class="profile-edit__save-btn"
+          [disabled]="!isValid || saving()"
+        >
+          {{ saving() ? 'Saving...' : 'Save Changes' }}
         </button>
       }
     </div>

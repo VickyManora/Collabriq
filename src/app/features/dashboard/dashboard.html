@@ -4,6 +4,22 @@
     Welcome back, {{ auth.profile()?.full_name | titlecase }}
   </p>
 
+  @if (auth.isRejected()) {
+    <div class="dashboard__rejection-banner">
+      <div class="dashboard__rejection-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>
+        </svg>
+        <strong>Your profile was not approved</strong>
+      </div>
+      @if (auth.rejectionReason()) {
+        <p class="dashboard__rejection-reason"><strong>Reason:</strong> {{ auth.rejectionReason() }}</p>
+      }
+      <p class="dashboard__rejection-hint">Please update your profile and resubmit for review.</p>
+      <a class="dashboard__rejection-btn" routerLink="/profile">Update Profile &amp; Reapply</a>
+    </div>
+  }
+
   @if (auth.isPending()) {
     <app-pending-banner />
   }

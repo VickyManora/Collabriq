@@ -14,7 +14,6 @@ import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 })
 export class ProfileEdit implements OnInit {
   saving = signal(false);
-  reapplying = signal(false);
   error = signal('');
   showDeactivateConfirm = signal(false);
   deactivating = signal(false);
@@ -29,6 +28,7 @@ export class ProfileEdit implements OnInit {
   business_category = '';
 
   private supabase;
+  private originalSnapshot = '';
 
   constructor(
     public auth: AuthService,
@@ -50,7 +50,25 @@ export class ProfileEdit implements OnInit {
       this.instagram_handle = p.instagram_handle ?? '';
       this.business_name = p.business_name ?? '';
       this.business_category = p.business_category ?? '';
+      this.originalSnapshot = this.currentSnapshot();
     }
+  }
+
+  private currentSnapshot(): string {
+    return JSON.stringify({
+      full_name: this.full_name.trim(),
+      phone: this.phone.trim(),
+      bio: this.bio.trim(),
+      city: this.city.trim(),
+      portfolio_url: this.portfolio_url.trim(),
+      instagram_handle: this.instagram_handle.trim(),
+      business_name: this.business_name.trim(),
+      business_category: this.business_category.trim(),
+    });
+  }
+
+  get hasChanges(): boolean {
+    return this.currentSnapshot() !== this.originalSnapshot;
   }
 
   get isValid(): boolean {
@@ -93,20 +111,54 @@ export class ProfileEdit implements OnInit {
       this.toast.error('Failed to update profile.');
     } else {
       await this.auth.refreshProfile();
+      this.originalSnapshot = this.currentSnapshot();
       this.toast.success('Profile updated.');
     }
     this.saving.set(false);
   }
 
-  async reapply() {
-    this.reapplying.set(true);
-    const { error } = await this.auth.reapplyForApproval();
-    if (error) {
-      this.toast.error('Failed to reapply. Please try again.');
-    } else {
-      this.toast.success('Your profile has been resubmitted for approval.');
+  async saveAndReapply() {
+    if (!this.isValid || !this.hasChanges) return;
+    this.saving.set(true);
+    this.error.set('');
+
+    const profile = this.auth.profile();
+    if (!profile) return;
+
+    const updates: Record<string, string | null> = {
+      full_name: this.full_name.trim(),
+      phone: this.phone.trim(),
+      bio: this.bio.trim() || null,
+      city: this.city.trim(),
+      portfolio_url: this.portfolio_url.trim() || null,
+      instagram_handle: this.instagram_handle.trim() || null,
+    };
+
+    if (this.auth.userRole() === 'business') {
+      updates['business_name'] = this.business_name.trim();
+      updates['business_category'] = this.business_category.trim() || null;
     }
-    this.reapplying.set(false);
+
+    const { error: saveError } = await this.supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', profile.id);
+
+    if (saveError) {
+      this.error.set(saveError.message);
+      this.toast.error('Failed to update profile.');
+      this.saving.set(false);
+      return;
+    }
+
+    const { error: reapplyError } = await this.auth.reapplyForApproval();
+    if (reapplyError) {
+      this.toast.error('Profile saved but failed to reapply. Please try again.');
+    } else {
+      this.originalSnapshot = this.currentSnapshot();
+      this.toast.success('Profile updated and resubmitted for approval.');
+    }
+    this.saving.set(false);
   }
 
   cancel() {

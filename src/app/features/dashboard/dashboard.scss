@@ -12,6 +12,49 @@
     margin-bottom: 1.25rem;
   }
 
+  &__rejection-banner {
+    @include card;
+    border-color: var(--color-danger);
+    background: rgba(239, 68, 68, 0.06);
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__rejection-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-danger);
+    font-size: 0.9375rem;
+  }
+
+  &__rejection-reason {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__rejection-hint {
+    font-size: 0.8125rem;
+    color: var(--color-text-faint);
+    margin: 0;
+  }
+
+  &__rejection-btn {
+    @include btn-base;
+    background: var(--color-danger);
+    color: #fff;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1.25rem;
+    width: fit-content;
+    text-decoration: none;
+    margin-top: 0.25rem;
+    &:hover { opacity: 0.9; }
+  }
+
   &__action-btn {
     @include btn-base;
     display: flex;
