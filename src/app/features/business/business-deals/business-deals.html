@@ -220,9 +220,6 @@
               @if (deal.creator?.phone) {
                 <span class="deal-card__contact-item">&#x1F4DE; {{ deal.creator?.phone }}</span>
               }
-              @if (deal.creator?.portfolio_url) {
-                <a class="deal-card__contact-item deal-card__contact-item--link" [href]="deal.creator?.portfolio_url" target="_blank" rel="noopener">&#x1F310; Portfolio</a>
-              }
             </div>
           }
         </div>

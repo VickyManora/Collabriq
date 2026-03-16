@@ -55,12 +55,6 @@
             <span>{{ u.business_category }}</span>
           </div>
         }
-        @if (u.portfolio_url) {
-          <div class="user-detail__info-item">
-            <span class="user-detail__info-label">Portfolio</span>
-            <a [href]="u.portfolio_url" target="_blank" rel="noopener">{{ u.portfolio_url }}</a>
-          </div>
-        }
         @if (u.bio) {
           <div class="user-detail__info-item user-detail__info-item--full">
             <span class="user-detail__info-label">Bio</span>

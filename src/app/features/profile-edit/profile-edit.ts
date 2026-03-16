@@ -17,12 +17,12 @@ export class ProfileEdit implements OnInit {
   error = signal('');
   showDeactivateConfirm = signal(false);
   deactivating = signal(false);
+  touched = new Set<string>();
 
   full_name = '';
   phone = '';
   bio = '';
   city = '';
-  portfolio_url = '';
   instagram_handle = '';
   business_name = '';
   business_category = '';
@@ -46,7 +46,6 @@ export class ProfileEdit implements OnInit {
       this.phone = p.phone ?? '';
       this.bio = p.bio ?? '';
       this.city = p.city ?? 'Pune';
-      this.portfolio_url = p.portfolio_url ?? '';
       this.instagram_handle = p.instagram_handle ?? '';
       this.business_name = p.business_name ?? '';
       this.business_category = p.business_category ?? '';
@@ -60,7 +59,6 @@ export class ProfileEdit implements OnInit {
       phone: this.phone.trim(),
       bio: this.bio.trim(),
       city: this.city.trim(),
-      portfolio_url: this.portfolio_url.trim(),
       instagram_handle: this.instagram_handle.trim(),
       business_name: this.business_name.trim(),
       business_category: this.business_category.trim(),
@@ -75,12 +73,30 @@ export class ProfileEdit implements OnInit {
     if (!this.full_name.trim()) return false;
     if (!this.phone.trim()) return false;
     if (!this.city.trim()) return false;
+    if (!this.instagram_handle.trim()) return false;
     if (this.auth.userRole() === 'business' && !this.business_name.trim()) return false;
     return true;
   }
 
+  onBlur(field: string) {
+    this.touched.add(field);
+  }
+
+  isTouched(field: string): boolean {
+    return this.touched.has(field);
+  }
+
+  private touchAll() {
+    ['full_name', 'phone', 'city', 'instagram_handle', 'business_name'].forEach(f => this.touched.add(f));
+  }
+
   async saveProfile() {
+    this.touchAll();
     if (!this.isValid) return;
+    if (!this.hasChanges) {
+      this.toast.success('No changes to save.');
+      return;
+    }
     this.saving.set(true);
     this.error.set('');
 
@@ -92,7 +108,6 @@ export class ProfileEdit implements OnInit {
       phone: this.phone.trim(),
       bio: this.bio.trim() || null,
       city: this.city.trim(),
-      portfolio_url: this.portfolio_url.trim() || null,
       instagram_handle: this.instagram_handle.trim() || null,
     };
 
@@ -118,6 +133,7 @@ export class ProfileEdit implements OnInit {
   }
 
   async saveAndReapply() {
+    this.touchAll();
     if (!this.isValid || !this.hasChanges) return;
     this.saving.set(true);
     this.error.set('');
@@ -130,7 +146,6 @@ export class ProfileEdit implements OnInit {
       phone: this.phone.trim(),
       bio: this.bio.trim() || null,
       city: this.city.trim(),
-      portfolio_url: this.portfolio_url.trim() || null,
       instagram_handle: this.instagram_handle.trim() || null,
     };
 

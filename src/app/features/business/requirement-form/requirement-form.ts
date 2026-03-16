@@ -109,7 +109,7 @@ export class RequirementForm implements OnInit {
 
   get isProfileComplete(): boolean {
     const p = this.auth.profile();
-    return !!p?.phone?.trim() && (!!p?.instagram_handle?.trim() || !!p?.portfolio_url?.trim());
+    return !!p?.phone?.trim() && !!p?.instagram_handle?.trim();
   }
 
   attemptSubmitForApproval() {

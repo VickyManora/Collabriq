@@ -98,6 +98,10 @@
     letter-spacing: 0.025em;
   }
 
+  &__required {
+    color: var(--color-danger);
+  }
+
   &__field {
     display: flex;
     flex-direction: column;
@@ -117,6 +121,15 @@
     textarea {
       resize: vertical;
     }
+  }
+
+  &__input--error {
+    border-color: var(--color-danger) !important;
+  }
+
+  &__field-error {
+    font-size: 0.75rem;
+    color: var(--color-danger);
   }
 
   &__row {
