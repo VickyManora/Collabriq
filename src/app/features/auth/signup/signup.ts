@@ -85,6 +85,6 @@ export class Signup implements OnInit {
       return;
     }
 
-    this.router.navigate(['/pending-approval']);
+    this.router.navigate(['/dashboard']);
   }
 }
